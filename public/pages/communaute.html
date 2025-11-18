@@ -1,0 +1,29 @@
+<div id="community-layout">
+    <h2 class="page-title">Communauté - Messages</h2>
+
+    <div id="messages-container" class="message-box-style">
+        <p class="placeholder-message">Chargement des messages...</p>
+    </div>
+
+    <div id="input-controls-wrapper">
+
+        <div id="community-file-preview-container" style="display: none;">
+            <div class="file-preview-wrapper">
+                <img id="community-file-preview-img" class="uploaded-preview-img" src="" alt="Aperçu du fichier">
+                <span id="community-file-name"></span>
+            </div>
+            <button type="button" id="community-remove-file-btn" class="remove-file-btn">X</button>
+        </div>
+
+        <div id="message-input-area">
+            <button type="button" id="community-file-button" class="file-button">📎</button>
+            <input type="file" id="community-file-input" accept="image/*" style="display: none;">
+
+            <textarea id="community-message-input"
+                      placeholder="Écris un message à la communauté"
+                      rows="1"></textarea>
+
+            <button id="send-community-message-btn">Envoyer</button>
+        </div>
+    </div>
+</div>

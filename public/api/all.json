@@ -1,0 +1,228 @@
+{
+    "collective_data": {
+        "collective_points_pc": 0,
+        "last_update": "2025-11-17T20:20:25Z"
+    },
+    "user_ranking": [
+        { "username": "Even", "points": 0 },
+        { "username": "Alexandre", "points": 0 },
+        { "username": "Calixte", "points": 0 },
+        { "username": "Noé", "points": 0 },
+        { "username": "Julia", "points": 0 },
+        { "username": "Joan", "points": 0 },
+        { "username": "Juliette", "points": 0 },
+        { "username": "Jezzy", "points": 0 },
+        { "username": "Inès", "points": 0 },
+        { "username": "Timéo", "points": 0 },
+        { "username": "Tyméo", "points": 0 },
+        { "username": "Clautilde", "points": 0 },
+        { "username": "Loanne", "points": 0 },
+        { "username": "Lucie", "points": 0 },
+        { "username": "Camille", "points": 0 },
+        { "username": "Sofia", "points": 0 },
+        { "username": "Lilia", "points": 0 },
+        { "username": "Amir", "points": 0 },
+        { "username": "Robin", "points": 0 },
+        { "username": "Arthur", "points": 0 },
+        { "username": "Maxime", "points": 0 },
+        { "username": "Gaultier", "points": 0 },
+        { "username": "Antoine", "points": 0 },
+        { "username": "Louis", "points": 0 },
+        { "username": "Anne-Victoria", "points": 0 },
+        { "username": "Léa", "points": 0 },
+        { "username": "Sarah", "points": 0 },
+        { "username": "Ema", "points": 0 },
+        { "username": "Jade", "points": 0 },
+        { "username": "Alicia", "points": 0 }
+    ],
+    "daily_quiz": {
+        "date": "2025-11-17",
+        "questions": [
+            {
+                "id": 1,
+                "question": "// À REMPLIR : Quel est le concept clé de la relativité restreinte ?",
+                "options": [
+                    { "a": "// À REMPLIR : L'espace et le temps sont absolus" },
+                    { "b": "// À REMPLIR : La vitesse de la lumière est constante" },
+                    { "c": "// À REMPLIR : La gravité est une force instantanée" }
+                ],
+                "correct_answer": "b"
+            },
+            {
+                "id": 2,
+                "question": "// À REMPLIR : Qui a écrit 'Le Père Goriot' ?",
+                "options": [
+                    { "a": "// À REMPLIR : Victor Hugo" },
+                    { "b": "// À REMPLIR : Honoré de Balzac" },
+                    { "c": "// À REMPLIR : Émile Zola" }
+                ],
+                "correct_answer": "b"
+            },
+            {
+                "id": 3,
+                "question": "// À REMPLIR : Quelle fonction calcule la racine carrée en JavaScript ?",
+                "options": [
+                    { "a": "// À REMPLIR : Math.sqrt()" },
+                    { "b": "// À REMPLIR : Math.root()" },
+                    { "c": "// À REMPLIR : Math.sqr()" }
+                ],
+                "correct_answer": "a"
+            },
+            {
+                "id": 4,
+                "question": "// À REMPLIR : Quel événement marque la fin de la Première Guerre mondiale ?",
+                "options": [
+                    { "a": "// À REMPLIR : Le Traité de Paris" },
+                    { "b": "// À REMPLIR : L'Armistice de Rethondes" },
+                    { "c": "// À REMPLIR : La Bataille de Verdun" }
+                ],
+                "correct_answer": "b"
+            },
+            {
+                "id": 5,
+                "question": "// À REMPLIR : Quel est l'élément chimique de symbole K ?",
+                "options": [
+                    { "a": "// À REMPLIR : Le Krypton" },
+                    { "b": "// À REMPLIR : Le Potassium" },
+                    { "c": "// À REMPLIR : Le Calcium" }
+                ],
+                "correct_answer": "b"
+            }
+        ]
+    },
+    "teachers_and_personality": [
+        {
+            "subject": "Mathématiques",
+            "name": "Laetitia Dauriac",
+            "description": "Plutot musclée et rousse, Super intelligente, a fait lecole Louis Legrand, ne vérifie pas les devoirs, peut passer de longues heures au tableau à expliquer, sait accompagner les eleves"
+        },
+        {
+            "subject": "Français",
+            "name": "Nolwenn Lair",
+            "description": "Plutot grosse et blonde, Est très 'jeuns', essaie de parler en nous clashant(un peu) et en employant des thermes 'jeuns', est super cool(on peut lire des mangas comme lecture)"
+        },
+        {
+            "subject": "Physique-Chimie",
+            "name": "Raty M",
+            "description": "Plutot maigre et brune, est super cool, n'a aucune autorité, les controles avec elle sont faciles"
+        },
+        {
+            "subject": "Histoire-Géographie",
+            "name": "Dilek Karaagac",
+            "description": "Ressemble à un gobelin avec 10g dalcool dans le sang, completement paummée(elle begaie et ne se rappelle pas de trucs super importants), elle fait des controles qui reposent souvent sur du par coeur, les cors n'ont aucun sens et sont super longs"
+        },
+        {
+            "subject": "Anglais",
+            "name": "SZELAG M",
+            "description": "Plutot maigre et viellote, a un accent francais quand elle parle anglais, nous surveille constemment, fait des gros projets notés quasiment toutes les semaines"
+        },
+        {
+            "subject": "Espagnol",
+            "name": "TOLLEMER A",
+            "description": "Plutot grosse, brune, tres chiante niveau ecologie et harcelement, interroge toujours les memes eleves, cest notre prof principale"
+        },
+        {
+            "subject": "Allemand",
+            "name": "LATOUR L",
+            "description": "Plutot en bonne forme, brune, les controles avec elle sont soit 100% par coeur soit 100% exos, elle est sympa ya le bordel en cours"
+        },
+        {
+            "subject": "Grec",
+            "name": "Anne Nicollet",
+            "description": "Tres viellote, en bonne forme, Prof la plus redoutée elle fait regner la terreur, pas à l'aise avec linformatique, ses controles sont archis durs, meme des petits trucs dits à loral comptent àà ses controles"
+        },
+        {
+            "subject": "Latin",
+            "name": "Anne Nicollet",
+            "description": "Tres viellote, en bonne forme, Prof la plus redoutée elle fait regner la terreur, pas à l'aise avec linformatique, ses controles sont archis durs, meme des petits trucs dits à loral comptent àà ses controles"
+        },
+        {
+            "subject": "Musique",
+            "name": "DARTIGUES E",
+            "description": "En bonne forme, blonde, Fait durer les cours trois plombs, super facile les controles et ya le dawa en classe"
+        },
+        {
+            "subject": "Arts Plastiques",
+            "name": "LERE M",
+            "description": "En bonne forme, brune, tres forte en dessin, cours agreables bien quennuyeux, les projets sont assez simple pour qulqun qui sait dessinner"
+        },
+        {
+            "subject": "Technologie",
+            "name": "Joelle Thirotel",
+            "description": "Maigre, blonde, s'abille bizzarement, les cours sont tres chiants, elle est tres chiante, les controlles c'est quasi que du par coeur"
+        },
+        {
+            "subject": "SVT",
+            "name": "Pierre Dupin",
+            "description": "Maigre, brun, cours super ennuyeux, on entends pas sa voix meme quand il gueule, controlles 100ù par coeur"
+        },
+        {
+            "subject": "Sport",
+            "name": "DUMONT F",
+            "description": "Chauve, très exigeant physiquement."
+        },
+        {
+            "subject": "Sport",
+            "name": "DESPESSAILLES V",
+            "description": "Chiante mais sympa"
+        }
+    ],
+    "weekly_schedule": {
+        "hours": ["8h-9h", "9h-10h", "10h-11h", "11h-12h", "12h-13h", "13h-14h", "14h-15h", "15h-16h", "16h-17h"],
+        "Monday": [
+            "// À REMPLIR : 8h-9h",
+            "// À REMPLIR : 9h-10h",
+            "// À REMPLIR : 10h-11h",
+            "// À REMPLIR : 11h-12h",
+            "// À REMPLIR : 12h-13h (Pause)",
+            "// À REMPLIR : 13h-14h",
+            "// À REMPLIR : 14h-15h",
+            "// À REMPLIR : 15h-16h",
+            "// À REMPLIR : 16h-17h"
+        ],
+        "Tuesday": [
+            "// À REMPLIR : 8h-9h",
+            "// À REMPLIR : 9h-10h",
+            "// À REMPLIR : 10h-11h",
+            "// À REMPLIR : 11h-12h",
+            "// À REMPLIR : 12h-13h (Pause)",
+            "// À REMPLIR : 13h-14h",
+            "// À REMPLIR : 14h-15h",
+            "// À REMPLIR : 15h-16h",
+            "// À REMPLIR : 16h-17h"
+        ],
+        "Wednesday": [
+            "// À REMPLIR : 8h-9h",
+            "// À REMPLIR : 9h-10h",
+            "// À REMPLIR : 10h-11h",
+            "// À REMPLIR : 11h-12h",
+            "// À REMPLIR : 12h-13h (Pause)",
+            "// À REMPLIR : 13h-14h",
+            "// À REMPLIR : 14h-15h",
+            "// À REMPLIR : 15h-16h",
+            "// À REMPLIR : 16h-17h"
+        ],
+        "Thursday": [
+            "// À REMPLIR : 8h-9h",
+            "// À REMPLIR : 9h-10h",
+            "// À REMPLIR : 10h-11h",
+            "// À REMPLIR : 11h-12h",
+            "// À REMPLIR : 12h-13h (Pause)",
+            "// À REMPLIR : 13h-14h",
+            "// À REMPLIR : 14h-15h",
+            "// À REMPLIR : 15h-16h",
+            "// À REMPLIR : 16h-17h"
+        ],
+        "Friday": [
+            "// À REMPLIR : 8h-9h",
+            "// À REMPLIR : 9h-10h",
+            "// À REMPLIR : 10h-11h",
+            "// À REMPLIR : 11h-12h",
+            "// À REMPLIR : 12h-13h (Pause)",
+            "// À REMPLIR : 13h-14h",
+            "// À REMPLIR : 14h-15h",
+            "// À REMPLIR : 15h-16h",
+            "// À REMPLIR : 16h-17h"
+        ]
+    }
+}

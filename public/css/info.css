@@ -1,0 +1,150 @@
+/* public/style/info.css */
+
+/* ------------------------------------------------ */
+/* --- BANDEAU DE STATISTIQUES (NOUVEAU HEADER) --- */
+/* ------------------------------------------------ */
+#stats-header {
+	/* 🚨 FIX CRUCIAL : Forcer la pleine largeur EN TENANT COMPTE DE LA SIDEBAR 🚨 */
+	position: fixed; 
+	top: 0;
+	left: var(--sidebar-width-reduced, 60px); 
+	width: calc(100vw - var(--sidebar-width-reduced, 60px));
+	transition: left 0.3s ease-in-out, width 0.3s ease-in-out; 
+	background-color: #1a1a1a;
+	padding: 30px 40px; 
+	margin: 0; 
+	display: flex;
+	justify-content: space-between; 
+	align-items: center;
+	color: white;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+	z-index: 50; 
+	height: 90px; 
+}
+
+#user-info-display {
+	width: 30%; 
+	text-align: left;
+}
+
+#points-display {
+	width: 40%;
+	text-align: center;
+}
+
+.stat-individual {
+	margin-bottom: 5px; 
+}
+
+/* Texte en gros et blanc (Nom d'utilisateur, Points Individuels) */
+.stat-large-text {
+	font-size: 1.8em;
+	font-weight: 700;
+	color: #ffffff;
+	white-space: nowrap; 
+}
+
+/* Texte en petit (Points Collectifs) */
+.stat-small-text {
+	font-size: 1.1em;
+	font-weight: 500;
+	color: #b0b0b0; 
+}
+
+/* Le reste du CSS (info-layout, page-title, etc.) suit ci-dessous... */
+
+/* Style du conteneur principal de la page Info */
+#info-layout {
+	padding: 20px;
+	background-color: #1212121e; /* Le fond noir */
+	min-height: calc(100vh - 80px);
+	color: #e0e0e0;
+	padding-top: 140px; 
+	text-align: left; 
+	
+	/* 🚨 FIX MAJEUR POUR LA BARRE NOIRE VERTICALE 🚨 */
+	width: 100%;/* Prend toute la largeur disponible */
+	flex-grow: 1;/* Si son parent est flex, il prend tout l'espace */
+	display: block;/* Pour annuler un potentiel display: flex sur lui-même */
+}
+
+/* 🚨 FIX DU RECTANGLE NOIR : ON NE LE STYLE PLUS POUR NE PAS CRÉER LE FOND NOIR 🚨 */
+#info-layout .page-title {
+	/* Suppression des règles de fond noir */
+	display: inline-block; 
+	background-color: transparent; /* <- NE PLUS METTRE DE FOND */
+	color: white; 
+	padding: 10px 20px; 
+	border-radius: 10px; 
+	margin-bottom: 30px; 
+	font-size: 1.5em;
+	font-weight: 700;
+}
+
+/* Style pour les boîtes de contenu */
+#info-layout .info-content-box {
+	margin-bottom: 25px;
+	padding: 20px;
+	border-left: 5px solid #ffd700;
+	background-color: #222222;
+	border-radius: 5px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#info-layout h3 {
+	color: #ffd700; 
+	margin-top: 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	padding-bottom: 5px;
+}
+
+/* public/style/info.css (À ajouter à la fin) */
+
+/* ------------------------------------------------ */
+/* --- BARRE DE PROGRESSION DE LA SEMAINE (CORRIGÉE) --- */
+/* ------------------------------------------------ */
+#progress-bar-container {
+	/* 🚨 FIX MAJEUR : AUCUNE CONTRAINTE POUR LA PLEINE LARGEUR DANS #info-layout 🚨 */
+	
+	max-width: none; 
+	width: 100%; 
+	
+	margin-left: 0; 
+	margin-right: 0; 
+	
+	margin-bottom: 30px; 
+	display: block; 
+}
+
+#week-progress-bar {
+	display: flex; 
+	justify-content: space-between;
+	width: 100%; /* La barre prend 100% du conteneur pleine largeur */
+	height: 30px; 
+	background-color: #333333b7; 
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+.day-segment {
+	flex-grow: 1; 
+	height: 100%; 
+	transition: background-color 0.3s;
+}
+
+.day-segment:not(:last-child) {
+	border-right: 5px solid #222; 
+}
+
+/* Couleurs d'état finales */
+.passed-day {
+	background-color: #a38d2b !important; 
+}
+
+/* Règle pour le Week-end / Spécial Mercredi (ROUGE/MARRON) */
+.weekend-day {
+	background-color: #714747ab !important; 
+}
+
+/* Mercredi après-midi (Géré par JS via un style en ligne avec un dégradé) */
+/* Le JS va mettre un style en ligne pour gérer les 50/50 */

@@ -1,0 +1,67 @@
+<div id="chat-layout-container">
+    
+    <div id="main-chat-area">
+        <div id="chat-box">
+            <div id="chat-window">
+            </div>
+
+            <form id="chat-form">
+                <textarea id="user-input" placeholder="Ton message..." rows="1"></textarea>
+                <input type="text" style="display: none;" name="dummy-field" value="1">
+                
+                <div class="form-controls"> 
+                    <label for="file-upload" class="file-button action-button" title="Joindre une image">
+                        📁
+                    </label>
+                    <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                    
+                    <button id="new-chat-button" type="button" class="action-button" title="Nouvelle discussion">
+                        Nouvelle Discussion
+                    </button>
+
+                    <button id="send-button-fixed" type="button" class="send-chat-button">Envoyer</button> 
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="right-sidebar-controls">
+        <h3>Paramètres The Source</h3> 
+        <div id="controls-container">
+            <div class="control-group slider-group">
+                <label for="creativity-slider">Créativité:</label>
+                <input type="range" id="creativity-slider" min="0" max="1" step="0.1" value="0.7">
+                <span id="creativity-value">0.7</span>
+            </div>
+            
+            <div class="control-group slider-group">
+                <label for="response-length-slider">Longueur de Réponse:</label>
+                <input type="range" id="response-length-slider" min="100" max="1000" step="50" value="500">
+                <span id="response-length-value">500 mots</span>
+            </div>
+            
+            <div class="control-group select-group">
+                <label for="ai-mode-select">Mode IA:</label>
+                <select id="ai-mode-select">
+                    <option value="basique" selected>Basique</option>
+                    <option value="apprentissage">Apprentissage</option>
+                    <option value="devoirs">Devoirs</option>
+                </select>
+            </div>
+            
+            <div class="control-group select-group">
+                <label for="school-level-select">Niveau:</label>
+                <select id="school-level-select">
+                    <option value="3eme" selected>3ème</option>
+                    <option value="4eme">4ème</option>
+                    <option value="2nde">2nde</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <script>
+    if (window.initChatPage) initChatPage();
+</script>
+
+</div>

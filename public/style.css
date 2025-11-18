@@ -1,0 +1,767 @@
+/* public/style.css - VERSION FINALISÉE AZUR PUR ET SIGMA */
+
+:root {
+	/* NOUVEAU BLEU AZUR VIF (COULEUR 'EAU DE SOURCE' MAIS CLASSE) */
+	--color-primary: #4d7cff;
+	--color-primary-rgb: 77, 124, 255;
+	/* JAUNE OR/NÉON POUR LE CONTRASTE (conservé, il claque sur le bleu) */
+	--color-secondary: #ffd700;
+	--color-background: #121212;
+	--color-text: #e0e0e0;
+	--color-gemini-bg: #303030;
+	/* Utiliser le nouveau primary pour le message utilisateur */
+	--color-user-bg: #4d7cff;
+	--sidebar-width-reduced: 60px;
+	--sidebar-width-open: 250px;
+}
+
+html, body {
+	/* AJOUT DES RÈGLES DE HAUTEUR GLOBALES */
+	height: 100%;
+	min-height: 100vh; /* INDIQUE 100% DE LA HAUTEUR VISIBLE */
+	
+	font-family: Arial, sans-serif;
+	background-color: var(--color-background);
+	color: var(--color-text);
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
+}
+
+/* --- LE VRAI CODE CSS --- */
+
+.waves {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: 1;
+	pointer-events: none;
+}
+
+/* Le SVG lui-même */
+.wave-layer {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	bottom: 0;
+	min-width: 1920px;
+}
+/* Style et animation des vagues */
+.wave-group use, .wave-group-back use {
+	animation: wave-animation 25s cubic-bezier(.55,.5,.45,.5) infinite;
+}
+
+/* MISE À JOUR DES COULEURS DES VAGUES POUR LE NOUVEAU BLEU AZUR */
+/* On utilise la valeur RGB de --color-primary-rgb (77, 124, 255) */
+.wave-1, .wave-5 { fill: rgba(77, 124, 255, 0.4); }
+.wave-2, .wave-6 { fill: rgba(77, 124, 255, 0.3); animation-delay: -2s; animation-duration: 20s;}
+.wave-3, .wave-7 { fill: rgba(77, 124, 255, 0.2); animation-delay: -3s; animation-duration: 15s;}
+.wave-4, .wave-8 { fill: rgba(77, 124, 255, 0.1); animation-delay: -4s; animation-duration: 10s;}
+
+@keyframes wave-animation {
+	0% {
+		transform: translate3d(-90px,0,0);
+	}
+	100% {
+		transform: translate3d(85px,0,0);
+	}
+}
+
+/* --- CONTENEURS PRINCIPAUX --- */
+#main-content-wrapper {
+	position: relative;
+	top: 0;
+	left: 0;
+	width: 100%;
+	min-height: 100%;
+	overflow-x: hidden;
+	z-index: 10;
+}
+
+#main-chat-area { /* Je pense que tu voulais utiliser cet ID si tu suis le HTML précédent */
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 400px; /* Empêche le chat de devenir trop petit */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#app-container {
+	position: relative;
+	z-index: 20;
+	padding: 20px;
+	box-sizing: border-box;
+	min-height: 100vh;
+	transition: left 0.3s ease-in-out, width 0.3s ease-in-out;
+	left: var(--sidebar-width-reduced);
+	width: calc(100% - var(--sidebar-width-reduced));
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#sidebar.open ~ #app-container #page-content-wrapper #info-layout #stats-header {
+	left: var(--sidebar-width-open);
+	width: calc(100vw - var(--sidebar-width-open));
+}
+
+#page-content-wrapper {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex-grow: 1;
+	height: 100%;
+	min-height: 100%; /* CORRECTION AJOUTÉE */
+}
+
+h1 {
+	color: #ffffff;
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 25px;
+	position: relative;
+	max-width: 600px;
+	width: 100%;
+
+	/* 🚨 AJOUT CRUCIAL : Centrage de la boîte <h1> elle-même 🚨 */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+h1::after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 2px;
+	background: linear-gradient(to right, transparent, var(--color-primary), transparent);
+	margin-top: 10px;
+}
+
+/* --- SIDEBAR GAUCHE (NAVIGATION) --- */
+#sidebar {
+	width: var(--sidebar-width-reduced);
+	background-color: #1a1a1a;
+	color: var(--color-text);
+	position: fixed;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.7);
+	transition: width 0.3s ease-in-out;
+	overflow-x: hidden;
+}
+#sidebar.open {
+	width: var(--sidebar-width-open);
+}
+#sidebar-header {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	padding: 15px;
+	border-bottom: 1px solid #333;
+	background-color: #222;
+}
+.sidebar-toggle-btn {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 1.5em;
+	cursor: pointer;
+	padding: 0;
+}
+.sidebar-title {
+	margin: 0 0 0 15px;
+	color: var(--color-primary);
+	white-space: nowrap;
+	opacity: 0;
+	transition: opacity 0.3s ease-in-out;
+}
+#sidebar.open .sidebar-title {
+	opacity: 1;
+	transition-delay: 0.1s;
+}
+#sidebar-content, .sidebar-placeholder {
+	padding-left: 0;
+	transition: opacity 0.2s ease;
+}
+#sidebar.open #sidebar-content, #sidebar.open .sidebar-placeholder {
+	opacity: 1;
+	padding-left: 15px;
+	transition-delay: 0.1s;
+}
+#main-menu {
+	list-style: none;
+	padding: 0;
+	margin-top: 15px;
+}
+/* --- NOUVEAU BLOC POUR LES LIENS DANS #main-menu --- */
+
+/* Style du lien <a> lui-même */
+#main-menu .nav-link {
+	display: flex; /* 🚨 CRUCIAL : Permet l'alignement icône/texte */
+	align-items: center;
+	padding: 12px 15px; /* Padding ajusté */
+	margin-bottom: 5px;
+	color: var(--color-text);
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.2s;
+}
+/* Style du lien actif (utilise la nouvelle couleur primaire avec transparence) */
+#main-menu .nav-link.active {
+	background-color: rgba(77, 124, 255, 0.3);
+}
+
+/* Style au survol (utilise la nouvelle couleur primaire avec transparence) */
+#main-menu .nav-link:not(.active):hover {
+	background-color: rgba(77, 124, 255, 0.2);
+}
+
+/* 🚨 Le style de l'icône IMG 🚨 */
+#main-menu .nav-link img {
+	width: 28px; /* Taille légèrement plus grande */
+	height: 28px;
+	margin-right: 15px;
+	transition: margin-right 0.3s ease-in-out;
+	flex-shrink: 0;
+}
+
+/* Le style du texte (span) */
+#main-menu .nav-link span {
+	white-space: nowrap;
+	font-weight: bold;
+	font-size: 1.1em;
+	transition: opacity 0.3s ease-in-out;
+}
+/* --- NOUVEAU BLOC POUR MASQUER LE TEXTE DU MENU --- */
+#sidebar:not(.open) #main-menu .nav-link span {
+	opacity: 0;
+	pointer-events: none;
+	width: 0; /* 🚨 CRUCIAL : Aide à la réduction de la sidebar */
+	padding: 0;
+	margin: 0;
+}
+
+/* --- NOUVEAU LAYOUT CHAT (DEUX COLONNES) --- */
+#chat-layout-container {
+    display: flex;
+    flex-direction: row; /* 🚨 FIX CRUCIAL : Mets les éléments côte à côte (Chat + Sidebar) */
+    gap: 15px; /* Un peu d'espace entre le chat et la sidebar */
+    width: 100%; /* Doit prendre toute la largeur disponible dans #page-content-wrapper */
+    height: 100%;
+    flex-grow: 1;
+    align-items: stretch;
+    max-width: 1200px; /* Ajout d'une limite pour la lecture */
+}
+
+/* ZONE CHAT (DOIT PRENDRE L'ESPACE) */
+#dynamic-content {
+	flex-grow: 1;
+	flex-shrink: 1; /* Autorise la compression sur petit écran */
+	flex-basis: 0; /* CORRECTION CRUCIALE : Donne la priorité à flex-grow */
+	overflow-y: auto;
+	height: 100%;
+	max-width: 100%;
+}
+
+/* SIDEBAR DE DROITE (DOIT RESTER FIXE) */
+#right-sidebar-controls {
+    width: 300px;
+    min-width: 280px;
+    flex-shrink: 0; /* Ne se compresse pas */
+    flex-grow: 0; /* Ne grandit pas */
+    background-color: rgba(30, 30, 30, 0.7);
+    padding: 20px 15px; /* Augmenter le padding */
+    border-radius: 12px;
+    overflow-y: auto;
+    display: block; /* 🚨 FIX CRUCIAL : Afficher la sidebar ! */
+    height: 100%; /* Important pour aligner la hauteur du conteneur */
+}
+
+/* --- BOUTON FLOTTANT (DÉPÔT COURS) --- */
+#deposit-course-button {
+	position: fixed;
+	bottom: 20px;
+	/* Centré par rapport à #app-container */
+	left: calc(var(--sidebar-width-reduced) + (100% - var(--sidebar-width-reduced)) / 2);
+	transform: translateX(-50%);
+	
+	background-color: var(--color-secondary);
+	color: #121212;
+	border: none;
+	padding: 15px 25px;
+	border-radius: 30px;
+	font-size: 1.1em;
+	font-weight: bold;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+	z-index: 100;
+	transition: background-color 0.2s, left 0.3s ease-in-out;
+	/* CACHÉ PAR DÉFAUT (GÉRÉ PAR JS) */
+	display: none;
+}
+#sidebar.open ~ #app-container #deposit-course-button {
+	left: calc(var(--sidebar-width-open) + (100% - var(--sidebar-width-open)) / 2);
+}
+#deposit-course-button:hover {
+	background-color: #ccac00;
+}
+
+/* --- STYLES DE LA MODALE --- */
+.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	z-index: 9999999 !important; /* 🚨 FIX Z-INDEX BRUTAL 🚨 */
+	justify-content: center;
+	align-items: center;
+	pointer-events: none;
+}
+.modal-overlay.active {
+	display: flex !important; /* 🚨 FIX D'AFFICHAGE BRUTAL 🚨 */
+	pointer-events: auto;
+}
+.modal-content {
+	background-color: #2a2a2a;
+	color: var(--color-text);
+	padding: 25px;
+	border-radius: 15px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+	width: 90%;
+	max-width: 500px;
+	transform: scale(0.95);
+	opacity: 0;
+	transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+.modal-overlay.active .modal-content {
+	transform: scale(1);
+	opacity: 1;
+}
+.modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #444;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+}
+.modal-header h2 {
+	margin: 0;
+	color: var(--color-primary);
+	font-size: 1.5em;
+}
+.close-modal-btn {
+	background: none;
+	border: none;
+	color: var(--color-text);
+	font-size: 2em;
+	cursor: pointer;
+}
+.close-modal-btn:hover {
+	color: var(--color-secondary);
+}
+.form-group {
+	margin-bottom: 20px;
+}
+.form-group label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: bold;
+}
+.form-group input[type="text"],
+.form-group select {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #555;
+	border-radius: 8px;
+	background-color: #383838;
+	color: var(--color-text);
+	box-sizing: border-box;
+}
+#submit-deposit-btn {
+	width: 100%;
+	padding: 15px;
+	background-color: var(--color-primary);
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 1.1em;
+	font-weight: bold;
+	cursor: pointer;
+}
+.file-upload-group input[type="file"] {
+	padding: 10px 0;
+	width: 100%;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+.file-status-text {
+	font-size: 0.9em;
+	color: #aaa;
+	margin-top: 5px;
+}
+#image-preview {
+	max-width: 100%;
+	max-height: 200px;
+	height: auto;
+	display: block;
+	margin: 10px auto 0;
+	border-radius: 8px;
+	object-fit: contain;
+}
+
+
+/* --- STYLES PAGE COURS (GRILLE) --- */
+#course-counter-box {
+	text-align: right;
+	font-size: 1.1em;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 15px;
+	color: var(--color-secondary);
+	max-width: 600px;
+	width: 100%;
+}
+
+#file-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	width: 100%;
+	max-width: 600px;
+	margin-top: 20px;
+}
+
+.course-card {
+	background-color: #2a2a2a;
+	border: 1px solid #444;
+	padding: 15px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+	transition: transform 0.2s;
+}
+.course-card:hover {
+	transform: translateY(-3px);
+	border-color: var(--color-primary);
+}
+.card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px dashed #555;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+.card-header h4 {
+	margin: 0;
+	color: var(--color-primary);
+	font-size: 1.2em;
+}
+.subject-tag {
+	background-color: var(--color-secondary);
+	color: #121212;
+	padding: 4px 8px;
+	border-radius: 5px;
+	font-size: 0.8em;
+	font-weight: bold;
+}
+.card-body p {
+	margin: 0 0 10px 0;
+}
+.download-btn {
+	display: inline-block;
+	background-color: #388e3c;
+	color: white;
+	padding: 8px 15px;
+	text-decoration: none;
+	border-radius: 5px;
+}
+.delete-btn {
+	/* CONSERVATION DE LA COULEUR ROUGE POUR UNE ACTION DE SUPPRESSION (STANDARD) */
+	background-color: #d9534f;
+	color: white;
+	border: none;
+	padding: 8px 15px;
+	border-radius: 5px;
+	cursor: pointer;
+	margin-left: 10px;
+}
+
+.card-preview-img-container {
+	margin-bottom: 15px;
+	overflow: hidden;
+	border-radius: 8px;
+	border: 1px solid #555;
+}
+.card-preview-img {
+	width: 100%;
+	display: block;
+	height: auto;
+}
+
+
+/* 🚨 FIX BRUTAL : On force l'affichage de l'élément <a> Communauté 🚨 */
+[data-page="communaute"] {
+	display: flex !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+}
+
+[data-page="communaute"] img, [data-page="communaute"] span {
+	display: initial !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+}
+
+/* Styles pour la Communauté (VERSION AZUR CLAIRE) */
+
+#community-layout {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 180px);
+	width: 75%;
+	padding: 20px;
+	margin: 0 auto;
+}
+
+#messages-container {
+	flex-grow: 1;
+	overflow-y: auto;
+	width: 100%;
+	padding: 15px;
+	/* FIX: UTILISATION D'UNE TEINTE BLEUE CLAIR BASÉE SUR PRIMARY */
+	background-color: rgba(27, 52, 60, 0.671);
+	border: 3px solid #ffffff;
+	margin-bottom: 20px;
+	border-radius: 15px;
+	box-shadow: 0 10px 12px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+}
+
+.message-body {
+	white-space: pre-wrap;
+	line-height: 1.5;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+/* Style de base pour tous les messages (autres utilisateurs à gauche par défaut) */
+.community-message {
+	margin-bottom: 15px;
+	padding: 10px;
+	/* NOUVELLE COULEUR POUR LES AUTRES UTILISATEURS (bleu foncé/gris subtil) */
+	background-color: #273449;
+	border-radius: 20px;
+	max-width: 70%;
+	align-self: flex-start;
+}
+
+/* 🚨 MESSAGES DE L'UTILISATEUR ACTUEL (A DROITE) 🚨 */
+.community-message.user-message {
+	background-color: #71d94c;
+	color: #121212;
+	align-self: flex-end;
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/* Ajustement pour les messages utilisateur afin que l'info soit lisible */
+.user-message .message-user,
+.user-message .message-time {
+	color: #121212;
+}
+
+.message-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 5px;
+	font-size: 0.9em;
+	padding-bottom: 5px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* NOUVEAU DESIGN DE LA ZONE DE SAISIE */
+
+#message-input-area {
+	display: flex;
+	gap: 15px;
+	align-items: flex-end;
+	padding-top: 10px;
+	border-top: 1px solid rgba(170, 187, 255, 0.607);
+	
+	/* FIX: UTILISATION D'UNE TEINTE BLEUE CLAIR BASÉE SUR PRIMARY */
+	background-color: rgb(10, 26, 72);
+	border-radius: 8px;
+	padding: 15px;
+}
+
+#community-message-input {
+	flex-grow: 1;
+	padding: 12px;
+	/* FIX: Utiliser la couleur primaire Azur (variable) pour la bordure */
+	border: 2px solid var(--color-primary);
+	border-radius: 12px;
+	resize: none;
+	font-size: 1em;
+	
+	background-color: rgba(255, 255, 255, 0.05);
+	color: white;
+	transition: border-color 0.3s;
+}
+
+/* Effet focus plus agressif (utilise la couleur secondaire : jaune) */
+#community-message-input:focus {
+	border-color: var(--color-secondary);
+	outline: none;
+}
+
+#send-community-message-btn {
+	padding: 12px 25px;
+	background-color: var(--color-primary);
+	color: #121212;
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	font-weight: 700;
+	text-transform: uppercase;
+	transition: background-color 0.2s, transform 0.1s;
+}
+
+#send-community-message-btn:hover {
+	/* LÉGÈREMENT PLUS FONCÉ AU SURVOL */
+	background-color: #ffd67e;
+}
+
+#send-community-message-btn:active {
+	/* 🚨 Petit effet de clic 🚨 */
+	transform: scale(0.98);
+}
+
+/* 🚨 FIX AJOUTÉ : METTRE LE NOM D'UTILISATEUR EN GRAS 🚨 */
+.message-user {
+	font-weight: bold;
+	/* FIX: Utiliser la couleur secondaire (jaune) pour que ça claque */
+	color: #deeda7;
+}
+
+/* Styles pour le titre de la page Communauté */
+.page-title {
+	display: block;
+	margin-bottom: 20px;
+	font-size: 1.8em;
+	font-weight: 700;
+	color: white;
+}
+
+/* AJOUTER À LA FIN DE PUBLIC/STYLE.CSS POUR SUIVRE LA SIDEBAR */
+#sidebar.open ~ #app-container #info-layout #stats-header {
+	left: var(--sidebar-width-open);
+	width: calc(100vw - var(--sidebar-width-open));
+}
+
+/* --- FIX CRUCIAL POUR LE BOUTON FICHIER DANS LA COMMUNAUTÉ --- */
+
+/* Assure-toi que les boutons sont clairement définis et cliquables */
+.file-button {
+    /* Donne une taille fixe au bouton 📎 */
+    width: 45px; 
+    height: 45px; 
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Style du bouton */
+    background-color: #383838; /* Couleur gris foncé pour contraster avec l'Azur */
+    color: var(--color-text);
+    font-size: 1.4em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    flex-shrink: 0; /* Empêche le bouton d'être compressé */
+    z-index: 50; /* S'assure qu'il est au-dessus de l'input texte */
+    transition: background-color 0.2s;
+}
+
+.file-button:hover {
+    background-color: var(--color-primary); /* Bleu azur au survol */
+}
+
+/* 🚨 AJOUT DE LA CLASSE D'IMAGE DANS LE CHAT 🚨 */
+/* Pour que les images dans le chat communautaire aient un max-width correct */
+.uploaded-preview-img {
+    max-width: 75%  !important;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+
+/* FIX: S'assurer que le conteneur de preview se comporte bien dans le flexbox */
+#community-file-preview-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Prend toute la largeur au-dessus de l'input */
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: rgba(77, 124, 255, 0.1);
+    border: 1px dashed rgba(77, 124, 255, 0.4);
+    border-radius: 8px;
+}
+
+#community-file-preview-img {
+    max-height: 50px; /* Limite la hauteur de l'aperçu */
+    object-fit: contain;
+}
+
+/* Styles pour le lien de téléchargement d'image dans le chat */
+.image-download-link {
+    /* Rendre le conteneur relatif pour positionner l'icône */
+    display: inline-block;
+    position: relative;
+    max-width: 100%;
+    line-height: 0; /* Important pour éviter l'espace sous l'image */
+}
+
+.uploaded-preview-img {
+    display: block;
+    cursor: pointer; /* Indiquer que l'image est cliquable */
+}
+
+.download-icon {
+    position: absolute;
+    /* Positionner en bas à droite de l'image */
+    bottom: 15px; /* Décaler légèrement du bord */
+    right: 5px;
+    
+    /* Style du bouton */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 1.5em;
+    padding: 2px 8px;
+    border-radius: 5px;
+    opacity: 0.8;
+    transition: opacity 0.2s, background-color 0.2s;
+    pointer-events: none; /* Laisser le clic passer à la balise <a> */
+}
+
+/* Effet de survol sur tout le lien */
+.image-download-link:hover .download-icon {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* L'image elle-même est dans le message */
+.community-message .image-download-link {
+    margin-bottom: 10px; /* Ajouter un espace sous l'image si elle est suivie de texte */
+}

@@ -1,0 +1,21 @@
+{
+  "name": "kirai-gemini-chat",
+  "version": "1.0.0",
+  "description": "Chat bot Gemini pour le site KIRAI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.29.1",
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "multer": "^2.0.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

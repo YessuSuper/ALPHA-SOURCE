@@ -1,0 +1,140 @@
+/* public/css/login.css - PAGE DE CONNEXION AZUR PUR ET SIGMA */
+
+/* --- 1. CENTRAGE ET FOND --- */
+
+/* Centrage vertical et horizontal du conteneur de login */
+body {
+    /* Retire toutes les marges et paddings héritées */
+    margin: 0;
+    padding: 0;
+    
+    /* Force le body à occuper tout l'espace vertical */
+    height: 100vh;
+    
+    /* Active Flexbox pour centrer */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center;    /* Centre verticalement */
+    
+    /* Effet Azur subtil sur le fond */
+    background: linear-gradient(135deg, var(--color-background) 60%, rgba(77, 124, 255, 0.05) 100%);
+}
+
+/* Le conteneur principal du formulaire */
+#login-container {
+    background-color: #1e1e1e; /* Fond sombre légèrement plus clair que le body */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), 0 0 0 3px var(--color-primary); /* Ombre profonde + contour Azur */
+    width: 90%;
+    max-width: 400px; /* Taille fixe pour le PC */
+    text-align: center;
+    
+    /* Petite animation d'arrivée */
+    animation: fadeInSlide 0.8s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- 2. TITRE --- */
+
+#login-container h1 {
+    font-size: 2em;
+    color: var(--color-primary); /* Titre Azur */
+    margin-bottom: 30px;
+    position: relative;
+}
+
+#login-container h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: var(--color-secondary); /* Ligne Jaune Néon */
+    margin: 10px auto 0;
+    border-radius: 5px;
+}
+
+/* --- 3. CHAMPS ET LABELS --- */
+
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--color-text);
+    font-size: 1.1em;
+}
+
+/* Style des champs INPUT */
+.form-group input[type="text"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: var(--color-text);
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Effet SIGMA au focus (Jaune Néon) */
+.form-group input[type="text"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: var(--color-secondary); /* Bordure Jaune Néon */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); /* Glow Néon subtil */
+    outline: none;
+    background-color: #333;
+}
+
+
+/* --- 4. BOUTON DE CONNEXION --- */
+
+#login-submit-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--color-primary); /* Fond Azur */
+    color: #121212; /* Texte noir sur le fond clair */
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(77, 124, 255, 0.4);
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.3s;
+}
+
+/* Effet au survol */
+#login-submit-btn:hover {
+    background-color: #6a96ff; /* Azur légèrement plus clair */
+    box-shadow: 0 6px 20px rgba(77, 124, 255, 0.6);
+}
+
+/* Effet de clic (actif) */
+#login-submit-btn:active {
+    transform: scale(0.98);
+}
+
+/* --- 5. MESSAGE D'ERREUR --- */
+
+#error-message {
+    font-weight: bold;
+    font-size: 1.1em;
+    /* La couleur rouge est déjà dans ton HTML (style="color: red;") */
+}
