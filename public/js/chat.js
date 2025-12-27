@@ -84,7 +84,6 @@ async function callGeminiAPI(history, currentMessage) {
     const chatWindow = document.getElementById('chat-window');
 
     const creativity = document.getElementById('creativity-slider').value;
-    const lengthValue = document.getElementById('response-length-slider').value;
     const modeValue = document.getElementById('ai-mode-select').value;
     const levelValue = document.getElementById('school-level-select').value;
 
@@ -173,7 +172,7 @@ ${coursDBContent}
                     username,
                     history: finalHistory,
                     currentMessage: currentMessage,
-                    creativity, lengthValue, modeValue, levelValue,
+                    creativity, modeValue, levelValue,
                     base64File,
                     mimeType: attachedFile ? attachedFile.type : null,
                     systemInstruction: finalSystemInstruction
@@ -297,6 +296,11 @@ window.initChatPage = function() {
     if (chatWindow.children.length === 0) {
         window.appendMessage('Hey ! Je suis SOURCE AI. Que puis-je faire pour toi ?', 'kirai');
     }
+
+    // Init/refresh mobile dropdown after page injection
+    if (typeof initMobileParamsDropdown === 'function') {
+        try { initMobileParamsDropdown(); } catch (e) { console.error(e); }
+    }
 };
 
 // 🚨 AJOUT D'UN MESSAGE DANS LA FENÊTRE
@@ -336,3 +340,119 @@ window.appendMessage = function(message, sender, optionalDataURL = null) {
 
     chatWindow.scrollTop = chatWindow.scrollHeight;
 };
+
+// 🚨 MOBILE PARAMS DROPDOWN MENU
+function initMobileParamsDropdown() {
+    const toggleBtn = document.getElementById('params-toggle-btn');
+    const mobileContent = document.getElementById('mobile-params-content');
+    
+    if (!toggleBtn || !mobileContent) return;
+
+    // Prevent binding multiple times if init runs more than once
+    if (toggleBtn.dataset.bound === '1') return;
+    toggleBtn.dataset.bound = '1';
+    
+    toggleBtn.addEventListener('click', () => {
+        const isBtnOpen = toggleBtn.classList.toggle('open');
+        const isOpen = mobileContent.classList.toggle('open');
+        
+        // Fallback simple pour display block/none
+        if (isOpen) {
+            mobileContent.style.display = 'block';
+        } else {
+            mobileContent.style.display = 'none';
+        }
+    });
+    
+    // Sync desktop sliders with mobile sliders
+    const creativitySlider = document.getElementById('creativity-slider');
+    const creativityMobileSlider = document.getElementById('creativity-slider-mobile');
+    const creativityValue = document.getElementById('creativity-value');
+    const creativityValueMobile = document.getElementById('creativity-value-mobile');
+    
+
+    const aiModeSelect = document.getElementById('ai-mode-select');
+    const aiModeMobileSelect = document.getElementById('ai-mode-select-mobile');
+    const modeWarning = document.getElementById('mode-warning');
+    const modeWarningMobile = document.getElementById('mode-warning-mobile');
+    
+    const levelSelect = document.getElementById('school-level-select');
+    const levelMobileSelect = document.getElementById('school-level-select-mobile');
+    
+    // Check initial mode warning state
+    const checkModeWarning = () => {
+        const currentMode = aiModeSelect ? aiModeSelect.value : 'basique';
+        if (currentMode === 'devoirs') {
+            if (modeWarning) modeWarning.style.display = 'block';
+            if (modeWarningMobile) modeWarningMobile.style.display = 'block';
+        } else {
+            if (modeWarning) modeWarning.style.display = 'none';
+            if (modeWarningMobile) modeWarningMobile.style.display = 'none';
+        }
+    };
+    checkModeWarning();
+    
+    // Creativity slider sync
+    if (creativitySlider && creativityMobileSlider) {
+        creativitySlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            creativityMobileSlider.value = value;
+            if (creativityValue) creativityValue.textContent = value;
+            if (creativityValueMobile) creativityValueMobile.textContent = value;
+        });
+        
+        creativityMobileSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            creativitySlider.value = value;
+            if (creativityValue) creativityValue.textContent = value;
+            if (creativityValueMobile) creativityValueMobile.textContent = value;
+        });
+    }
+
+    // AI Mode select sync
+    if (aiModeSelect && aiModeMobileSelect) {
+        aiModeSelect.addEventListener('change', (e) => {
+            aiModeMobileSelect.value = e.target.value;
+            if (e.target.value === 'devoirs') {
+                if (modeWarning) modeWarning.style.display = 'block';
+                if (modeWarningMobile) modeWarningMobile.style.display = 'block';
+            } else {
+                if (modeWarning) modeWarning.style.display = 'none';
+                if (modeWarningMobile) modeWarningMobile.style.display = 'none';
+            }
+        });
+        
+        aiModeMobileSelect.addEventListener('change', (e) => {
+            aiModeSelect.value = e.target.value;
+            if (e.target.value === 'devoirs') {
+                if (modeWarning) modeWarning.style.display = 'block';
+                if (modeWarningMobile) modeWarningMobile.style.display = 'block';
+            } else {
+                if (modeWarning) modeWarning.style.display = 'none';
+                if (modeWarningMobile) modeWarningMobile.style.display = 'none';
+            }
+        });
+    }
+    
+    // School level select sync
+    if (levelSelect && levelMobileSelect) {
+        levelSelect.addEventListener('change', (e) => {
+            levelMobileSelect.value = e.target.value;
+        });
+        
+        levelMobileSelect.addEventListener('change', (e) => {
+            levelSelect.value = e.target.value;
+        });
+    }
+}
+
+// Initialize mobile params dropdown when page loads
+document.addEventListener('DOMContentLoaded', initMobileParamsDropdown);
+
+// Also try to initialize immediately in case DOM is already loaded
+if (document.readyState === 'loading') {
+    // DOM not yet loaded, wait for DOMContentLoaded
+} else {
+    // DOM already loaded, initialize immediately
+    initMobileParamsDropdown();
+}

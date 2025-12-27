@@ -152,7 +152,10 @@ async function renderPage(page) {
     // --- INITIALISATIONS SPECIFIQUES POST-INJECTION ---
     setTimeout(() => {
         if (page === 'home' || page === 'chat') {
-            if (rightSidebarControls) rightSidebarControls.style.display = 'block';
+            if (rightSidebarControls) {
+                // Don't force desktop controls on mobile; let responsive CSS handle it
+                rightSidebarControls.style.display = (window.innerWidth <= 768) ? 'none' : 'block';
+            }
             if (depositCourseButton) depositCourseButton.style.display = 'none';
             // Masquer le titre principal sur mobile pour la page chat
             if (localMainTitle) {

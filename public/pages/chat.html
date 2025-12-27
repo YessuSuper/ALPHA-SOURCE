@@ -22,10 +22,50 @@
                     <button id="send-button-fixed" type="button" class="send-chat-button">Envoyer</button> 
                     
                 </div>
+
+                <!-- Version Mobile - Menu Déroulant (accroché à la barre de saisie) -->
+                <div id="mobile-params-dropdown" class="mobile-params-dropdown">
+                    <button id="params-toggle-btn" class="params-toggle-btn" type="button" title="Paramètres Source AI">
+                        <span class="toggle-arrow">▲</span>
+                    </button>
+                    <div id="mobile-params-content" class="mobile-params-content">
+                        <h4>Paramètres Source AI</h4>
+                        <div class="mobile-controls-container">
+                            <div class="mobile-control-group">
+                                <label for="creativity-slider-mobile">Créativité:</label>
+                                <div class="mobile-slider-wrapper">
+                                    <input type="range" id="creativity-slider-mobile" min="0" max="1" step="0.1" value="0.7">
+                                    <span id="creativity-value-mobile">0.7</span>
+                                </div>
+                            </div>
+                            
+
+                            <div class="mobile-control-group">
+                                <label for="ai-mode-select-mobile">Mode:</label>
+                                <select id="ai-mode-select-mobile">
+                                    <option value="basique" selected>Basique</option>
+                                    <option value="apprentissage">Apprentissage</option>
+                                    <option value="devoirs">Devoirs</option>
+                                </select>
+                                <p id="mode-warning-mobile" style="color: #ff6b6b; font-size: 11px; display: none; margin-top: 3px;">3 pts/msg</p>
+                            </div>
+                            
+                            <div class="mobile-control-group">
+                                <label for="school-level-select-mobile">Niveau:</label>
+                                <select id="school-level-select-mobile">
+                                    <option value="3eme" selected>3ème</option>
+                                    <option value="4eme">4ème</option>
+                                    <option value="2nde">2nde</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
 
             <!-- Contrôles déplacés ici, après le formulaire -->
-            <div id="right-sidebar-controls">
+            <!-- Version Desktop -->
+            <div id="right-sidebar-controls" class="desktop-controls">
                 <h3>Paramètres The Source</h3> 
                 <div id="controls-container">
                     <div class="control-group slider-group">
@@ -34,12 +74,7 @@
                         <span id="creativity-value">0.7</span>
                     </div>
                     
-                    <div class="control-group slider-group">
-                        <label for="response-length-slider">Longueur de Réponse:</label>
-                        <input type="range" id="response-length-slider" min="100" max="1000" step="50" value="500">
-                        <span id="response-length-value">500 mots</span>
-                    </div>
-                    
+
                     <div class="control-group select-group">
                         <label for="ai-mode-select">Mode IA:</label>
                         <select id="ai-mode-select">
@@ -60,6 +95,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     
