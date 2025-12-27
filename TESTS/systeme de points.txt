@@ -1,0 +1,53 @@
+Systeme de points:
+En gagner: 
+    Envoyer 20 messages de plus de 5caracteres dans des fills ou des groupes: +2
+    Envoyer 15 messages de plus de 15crarcteres à Source AI: +3
+    Quelqu'un a créé un fill sous un de vos sujets: +3
+    Repondre à un message urgent et etre validé: +15
+    Être noté au moins 2.5étoiles sur un cours déposé il y a 48h ou moins: +10
+    Se connecter(ne fonctionne quune fois par jour): +3
+    Rester 1er au classement des points pendant 24h(ne marche qune fois): +10
+    Rester 2eme au classement des points pendant 24h(ne marche qune fois): +5
+    Rester 3eme au classement des points pendant 24h(ne marche qune fois): +2
+    Recevoir un badge mélioratif: +3
+    Obtenir son 1er badge: +5
+    Obtenir son 5eme badge: +5
+    Obtenir son 15eme badge: +10
+    Obtenir son 30eme badge: +20
+    Obtenir tous les badges: +35
+    Gagner un pari: variable
+    Gagner à la loterie: variable
+    Repondre à 2 questionnaires du jour: +8
+    Se faire donner des points: variable
+
+En perdre:
+    Demander un sauvetage: -10
+    Utiliser le mode Devoirs de Source AI pour une conversation: -3
+    Créer un groupe privé: -30
+    Créer un sujet: -5
+    Perdre un pari: variable
+    Ne pas se connecter pendant 7j: -15
+    Recevoir un strike: -8
+    Avoir moins de 5 messages dans un fill créé il y a moins de 24h (ceux de lutilisateur qui l'a créé ne comptent pas): -5
+    Utiliser l'option Anonyme dans la messagerie: -3
+    Utiliser l'option Annonce dans la messagerie si tu n'est pas délégué: -3
+    Faire un don: variable
+
+
+
+En gagner: 
+    Envoyer 20 messages de plus de 5caracteres dans des fills ou des groupes: +2
+    Envoyer 15 messages de plus de 15crarcteres à Source AI: +3
+    Quelqu'un a créé un fill sous un de vos sujets: +3
+    Se connecter(ne fonctionne quune fois par jour): +3
+    Rester 1er au classement des points pendant 24h(ne marche qune fois): +10
+    Rester 2eme au classement des points pendant 24h(ne marche qune fois): +5
+    Rester 3eme au classement des points pendant 24h(ne marche qune fois): +2
+
+En perdre:
+    Utiliser le mode Devoirs de Source AI pour une conversation: -3
+    Créer un groupe privé: -30
+    Créer un sujet: -5
+    Ne pas se connecter pendant 7j: -15
+    Avoir moins de 5 messages dans un fill créé il y a moins de 24h (ceux de lutilisateur qui l'a créé ne comptent pas): -5
+    Utiliser l'option Anonyme dans la messagerie: -3

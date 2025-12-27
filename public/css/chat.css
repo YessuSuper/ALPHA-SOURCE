@@ -1,299 +1,318 @@
 /* *** public/css/chat.css *** */
 
 /* --- OPTIONS (Controls Container) --- */
+#right-sidebar-controls {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(37, 37, 37, 0.5);
+}
+
+#right-sidebar-controls h3 {
+    color: var(--color-text);
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
 #controls-container {
-	display: flex;
-	flex-wrap: wrap; 
-	justify-content: space-around;
-	padding: 10px 0;
-	margin-bottom: 20px;
-	border-radius: 10px;
-	background: rgba(37, 37, 37, 0.5); 
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-around;
+    padding: 10px 0;
+    border-radius: 10px;
+    background: rgba(50, 50, 50, 0.3);
 }
 
 .control-group {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 10px;
 }
 
 .control-group label {
-	font-size: 0.9em;
-	color: var(--color-text);
-	margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text);
+    margin-bottom: 5px;
 }
 
 .slider-group input[type="range"] {
-	width: 100px;
-	cursor: grab;
-	-webkit-appearance: none;
-	appearance: none;
-	height: 8px;
-	background: #555;
-	border-radius: 5px;
+    width: 100px;
+    cursor: grab;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: #555;
+    border-radius: 5px;
 }
 
 .slider-group input[type="range"]::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	appearance: none;
-	width: 16px;
-	height: 16px;
-	background: var(--color-primary); 
-	border-radius: 50%;
-	cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--color-primary); 
+    border-radius: 50%;
+    cursor: pointer;
 }
 
 .select-group select {
-	padding: 5px;
-	border-radius: 5px;
-	background-color: #383838;
-	color: var(--color-text);
-	border: 1px solid var(--color-primary);
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #383838;
+    color: var(--color-text);
+    border: 1px solid var(--color-primary);
 }
 
 #chat-box {
-	display: flex;
-	flex-direction: column; 
-	flex-grow: 1; 
-	min-height: 0; 
-	max-height: 80vh; 
+    display: flex;
+    flex-direction: column; 
+    flex-grow: 1; 
+    min-height: 0vh; 
+    max-height: 85vh; /* Agrandissement vers le bas sur PC */
 }
 
 
 /* --- ZONE DE CHAT ET MESSAGES --- */
 #chat-window {
-	flex-grow: 1; /* Prends tout l'espace restant */
-	overflow-y: auto; /* Ajoute la barre de défilement */
-	padding: 15px;
-	background-color: #1a1a1a; 
-	border-radius: 8px;
-	margin-bottom: 10px;
-	min-height: 200px; /* 👈 FIX : Hauteur minimale assurée */
-	
-	/* 🚨 FIX VISIBILITÉ DES MESSAGES 🚨 */
-	position: relative; 
-	z-index: 10; 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 15px;
+    background-color: #1a1a1a; 
+    border-radius: 8px;
+    margin-bottom: 10px;
+    min-height: 300px; /* Un peu plus grand par défaut */
+    position: relative; 
+    z-index: 10; 
 }
 
 #chat-window::-webkit-scrollbar {
-	width: 8px;
+    width: 8px;
 }
 
 #chat-window::-webkit-scrollbar-track {
-	background: #222;
-	border-radius: 10px;
+    background: #222;
+    border-radius: 10px;
 }
 
 #chat-window::-webkit-scrollbar-thumb {
-	background-color: var(--color-primary);
-	border-radius: 10px;
-	border: 2px solid #222;
+    background-color: var(--color-primary);
+    border-radius: 10px;
+    border: 2px solid #222;
 }
 
 /* *** STYLES DE MESSAGE *** */
 .message {
-	margin-bottom: 15px;
-	display: flex;
-	flex-direction: column;
-	max-width: 80%;
-	opacity: 1; 
-	transform: translateY(0); 
-	transition: opacity 0.3s ease, transform 0.3s ease;
-	
-	/* 🚨 FIX : Assure que le message est au-dessus du fond 🚨 */
-	z-index: 11;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    max-width: 85%; /* Plus de place pour le texte */
+    opacity: 1; 
+    transform: translateY(0); 
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 11;
 }
 
 .message-content-wrapper {
-	display: flex;
-	align-items: flex-start;
-	gap: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
 }
 
 /* Message Gemini (IA) */
 .message.gemini {
-	align-self: flex-start;
-	align-items: flex-start;
+    align-self: flex-start;
+    align-items: flex-start;
 }
 
 .message.gemini p {
-	background-color: var(--color-gemini-bg);
-	color: var(--color-text); /* Assuré d'être la couleur du texte normal */
-	padding: 12px;
-	border-radius: 15px 15px 15px 0;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: var(--color-gemini-bg);
+    color: var(--color-text);
+    padding: 12px;
+    border-radius: 15px 15px 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    word-wrap: break-word;
 }
 
 /* Message Utilisateur */
 .message.user {
-	align-self: flex-end;
-	align-items: flex-end;
+    align-self: flex-end;
+    align-items: flex-end;
 }
 
 .message.user .message-content-wrapper {
-	flex-direction: row-reverse; 
+    flex-direction: row-reverse; 
 }
 
 .message.user p {
-	background-color: var(--color-user-bg);
-	color: white; /* Assuré d'être blanc */
-	padding: 12px;
-	border-radius: 15px 15px 0 15px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-	order: 2; 
+    background-color: var(--color-user-bg);
+    color: white;
+    padding: 12px;
+    border-radius: 15px 15px 0 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    order: 2; 
+    word-wrap: break-word;
 }
 
 .message-user-icon {
-	width: 25px; 
-	height: 25px;
-	border-radius: 50%; 
-	flex-shrink: 0;
-	order: 1; 
+    width: 25px; 
+    height: 25px;
+    border-radius: 50%; 
+    flex-shrink: 0;
+    order: 1; 
 }
 
 .uploaded-preview-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
-	margin-bottom: 10px;
-	margin-top: 10px;
-	border: 2px solid var(--color-user-bg); 
-	align-self: flex-start; 
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border: 2px solid var(--color-user-bg); 
+    align-self: flex-start; 
 }
 
 .loading {
-	padding: 10px;
-	color: var(--color-primary);
-	font-style: italic;
-	animation: pulse 1s infinite alternate;
+    padding: 10px;
+    color: var(--color-primary);
+    font-style: italic;
+    animation: pulse 1s infinite alternate;
 }
 
 @keyframes pulse {
-	0% { opacity: 0.5; }
-	100% { opacity: 1; }
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
 
 
 /* --- FORMULAIRE D'INPUT ET BOUTONS --- */
 #chat-form {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
-	background-color: rgba(48, 46, 46, 0.9);
-	padding: 15px;
-	border-radius: 10px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-	flex-shrink: 0; 
-	flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background-color: rgba(48, 46, 46, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0; 
+    flex-grow: 0;
 }
 
 #user-input {
-	resize: none;
-	padding: 15px;
-	border: 2px solid var(--color-primary);
-	border-radius: 8px;
-	background-color: #383838;
-	color: var(--color-text);
-	font-size: 1em;
-	min-height: 40px; /* 🚨 FIX : Hauteur de base de l'input */
-	max-height: 150px; /* 🚨 FIX : Hauteur maximale de l'input */
-	box-sizing: border-box;
-	transition: border-color 0.3s ease;
+    resize: none;
+    padding: 15px;
+    border: 2px solid var(--color-primary);
+    border-radius: 8px;
+    background-color: #383838;
+    color: var(--color-text);
+    font-size: 1em;
+    min-height: 40px;
+    max-height: 150px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
 }
 
 #user-input:focus {
-	border-color: var(--color-secondary);
-	outline: none;
+    border-color: var(--color-secondary);
+    outline: none;
 }
 
 .form-controls {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	gap: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
 }
 
 .send-button-kirai {
-	padding: 15px 20px;
-	background-color: var(--color-primary);
-	color: white;
-	border: none;
-	border-radius: 25px;
-	cursor: pointer;
-	font-weight: bold;
-	transition: background-color 0.3s ease, transform 0.1s ease;
-	flex-grow: 1; 
+    padding: 15px 20px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    flex-grow: 1; 
 }
 
 .send-button-kirai:hover {
-	background-color: #6a1ba0;
+    background-color: #6a1ba0;
 }
 
 .send-button-kirai:active {
-	transform: scale(0.98);
+    transform: scale(0.98);
 }
 
 .send-button-kirai:disabled {
-	background-color: #555555;
-	cursor: not-allowed;
+    background-color: #555555;
+    cursor: not-allowed;
 }
 
 .file-button {
-	padding: 12px 15px;
-	background-color: #383838;
-	color: white;
-	border: none;
-	border-radius: 25px;
-	cursor: pointer;
-	font-size: 1.2em;
-	line-height: 1;
-	transition: background-color 0.3s ease;
-	flex-shrink: 0;
+    padding: 12px 15px;
+    background-color: #383838;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.2em;
+    line-height: 1;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-button img {
+    width: 28px !important;
+    height: 28px !important;
+    object-fit: contain;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .file-button:hover {
-	background-color: #555555;
+    background-color: #555555;
 }
 
-/* --- BOUTONS D'ACTION (Nouvelle discussion / Hamburger) --- */
 .action-button {
-	padding: 12px 15px;
-	background-color: #555555; 
-	color: white;
-	border: none;
-	border-radius: 25px;
-	cursor: pointer;
-	font-weight: bold;
-	transition: background-color 0.3s ease, transform 0.1s ease;
-	flex-shrink: 0;
+    padding: 12px 15px;
+    background-color: #555555; 
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    flex-shrink: 0;
 }
 
 .action-button:hover {
-	background-color: #FF4500; 
+    background-color: #FF4500; 
 }
 
 .action-button:active {
-	transform: scale(0.98);
+    transform: scale(0.98);
 }
 
 #chat-container {
-	/* Ce bloc n'est pas utilisé dans ta structure actuelle, mais on le garde */
-	display: flex;
-	flex-direction: column;
-	height: 100%; 
-	width: 100%;
-	
-	background-color: #222222; 
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-	padding: 10px;
-	box-sizing: border-box; 
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+    width: 100%;
+    background-color: #222222; 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    box-sizing: border-box; 
 }
 
-/* --- APERÇU TEMPORAIRE DU FICHIER AVANT ENVOI --- */
 #file-preview-container {
-    display: none; /* Caché par défaut */
+    display: none;
     margin-top: 5px;
     padding: 10px;
     border: 1px dashed var(--color-primary);
@@ -313,7 +332,7 @@
 }
 
 .file-preview-img-temp {
-    width: 50px; /* Petite vignette */
+    width: 50px;
     height: 50px;
     object-fit: cover;
     border-radius: 4px;
@@ -336,13 +355,10 @@
     flex-shrink: 0;
 }
 
-/* --- NOUVEAU STYLE POUR LE BOUTON D'ENVOI DU CHAT --- */
-
 .send-chat-button {
-    /* Style de base: utilise ta couleur principale Azur */
     padding: 12px 20px;
-    background-color: var(--color-primary); /* Bleu Azur */
-    color: white; /* Texte blanc */
+    background-color: var(--color-primary);
+    color: white;
     border: none;
     border-radius: 25px;
     cursor: pointer;
@@ -350,54 +366,146 @@
     font-size: 1.1em;
     transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     flex-shrink: 0;
-    
-    /* Effet d'élévation cool */
     box-shadow: 0 4px 10px rgba(var(--color-primary-rgb), 0.4);
 }
 
 .send-chat-button:hover {
-    /* Survol: un bleu légèrement plus clair, style néon */
     background-color: #6a95ff; 
     box-shadow: 0 6px 12px rgba(var(--color-primary-rgb), 0.6);
 }
 
 .send-chat-button:active {
-    /* Clique: effet de pression */
     transform: scale(0.95);
     box-shadow: 0 2px 5px rgba(var(--color-primary-rgb), 0.3);
 }
 
 .send-chat-button:disabled {
-    /* Quand l'IA charge, le bouton est gris */
     background-color: #555555;
     color: #aaaaaa;
     cursor: not-allowed;
     box-shadow: none;
 }
 
-/* --- NOUVEAU BLOC : FIX DE LA TAILLE DES IMAGES (TRES IMPORTANT) --- */
-
-/* 1. VIGNETTE DANS L'APERÇU TEMPORAIRE (AVANT ENVOI) */
+/* FIX IMAGES */
 .file-preview-wrapper .uploaded-preview-img {
-    /* Le .file-preview-img-temp cible la vignette dans l'aperçu */
     width: 120px !important; 
     height: 120px !important;
     max-width: 120px;
     max-height: 120px;
-    object-fit: cover; /* Assure que l'image remplit la zone sans déborder */
+    object-fit: cover;
     border-radius: 8px;
     flex-shrink: 0;
 }
 
-/* 2. IMAGE DANS LA BULLE DE MESSAGE UTILISATEUR (APRÈS ENVOI) */
 .message.user .message-content-wrapper .uploaded-preview-img {
-    /* L'image réelle dans le chat doit être plus grande mais limitée */
     max-width: 300px;
     max-height: 180px; 
     width: auto;
     height: auto;
-    object-fit: contain; /* Assure que l'image entière est visible */
+    object-fit: contain;
     border: 2px solid var(--color-user-bg);
     border-radius: 8px;
     margin-bottom: 10px;
+}
+
+/* ===========================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   =========================================== */
+
+@media (max-width: 768px) {
+    #right-sidebar-controls {
+        padding: 14px;
+        background: rgba(37, 37, 37, 0.95);
+    }
+    
+    .control-group {
+        flex: 1 1 45%;
+        min-width: 150px;
+    }
+    
+    #chat-box {
+        max-height: calc(100vh - 150px) !important;
+    }
+    
+    #chat-window {
+        padding: 16px;
+        min-height: calc(100vh - 250px);
+        max-height: calc(100vh - 250px);
+    }
+    
+    .message {
+        max-width: 90%; /* On prend plus de largeur */
+    }
+}
+
+/* Mobiles - OPTIMISATION ESPACE */
+@media (max-width: 480px) {
+    #chat-window {
+        padding: 10px 5px; /* Padding réduit pour gagner de la place */
+        min-height: calc(100vh - 380px);
+        max-height: calc(100vh - 380px);
+    }
+    
+    .message {
+        max-width: 95%; /* Les messages occupent presque tout l'écran */
+        margin-bottom: 10px; /* Messages plus resserrés verticalement */
+    }
+
+    /* Supprimer l'espace vide à droite pour les messages user */
+    .message.user {
+        align-self: flex-end;
+        width: 100%; /* Force le container à utiliser la largeur */
+    }
+
+    .message.gemini {
+        align-self: flex-start;
+        width: 100%;
+    }
+    
+    .message-content-wrapper {
+        padding: 0; /* On reset le padding interne */
+        gap: 5px;
+        width: 100%;
+    }
+    
+    .message.gemini p, .message.user p {
+        font-size: 1em; /* Texte un poil plus petit pour pas sauter de ligne direct */
+        padding: 10px 14px;
+        line-height: 1.4; /* Interligne plus serré */
+        max-width: 85%; /* La bulle elle-même prend de la place */
+    }
+
+    #chat-form {
+        padding: 8px;
+        margin: 5px 0;
+    }
+    
+    #user-input {
+        font-size: 15px;
+        padding: 8px 12px;
+        border-radius: 15px;
+    }
+    
+    .form-controls {
+        margin-top: 5px;
+    }
+
+    .send-chat-button {
+        padding: 8px 15px;
+    }
+
+    .file-button {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Ultra petits écrans */
+@media (max-width: 375px) {
+    #chat-window {
+        max-height: calc(100vh - 400px);
+    }
+    .message.gemini p, .message.user p {
+        max-width: 90%; /* Encore plus large sur mini tel */
+    }
 }

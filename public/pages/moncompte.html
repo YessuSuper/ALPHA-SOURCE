@@ -1,0 +1,101 @@
+<div id="moncompte-page">
+    <!-- Bandeau supérieur avec informations utilisateur -->
+    <div id="user-profile-header">
+        <div id="user-avatar-section">
+            <img src="/ressources/user-icon.png" alt="Photo de profil" id="user-avatar">
+        </div>
+        <div id="user-info-section">
+            <h2 id="user-name">Nom d'utilisateur</h2>
+            <p id="user-age">14 ans</p>
+        </div>
+    </div>
+
+    <!-- Boutons d'actions -->
+    <div id="account-actions">
+        <button id="change-avatar-btn" class="account-action-btn">Photo de profil</button>
+        <button id="change-password-btn" class="account-action-btn">Changer de mot de passe</button>
+        <button id="account-info-btn" class="account-action-btn">Informations du compte</button>
+        <button id="logout-button" class="account-action-btn logout-btn">Déconnexion</button>
+    </div>
+</div>
+
+<!-- Modal pour changer la photo de profil -->
+<div id="avatar-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Changer la photo de profil</h2>
+            <button type="button" class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Aperçu de la photo actuelle -->
+            <div id="avatar-preview-section">
+                <h3>Aperçu actuel</h3>
+                <img src="/ressources/user-icon.png" alt="Aperçu photo de profil" id="avatar-preview">
+            </div>
+
+            <!-- Boutons d'action -->
+            <div id="avatar-actions">
+                <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                <button id="select-avatar-btn" class="modal-action-btn">Sélectionner une photo</button>
+                <button id="validate-avatar-btn" class="modal-action-btn primary">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour changer le mot de passe -->
+<div id="password-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">CHANGER LE MOT DE PASSE</h2>
+            <button type="button" class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="password-change-form">
+                <div class="form-group">
+                    <label for="new-password">Nouveau mot de passe</label>
+                    <input type="password" id="new-password" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirmer le mot de passe</label>
+                    <input type="password" id="confirm-password" class="form-input">
+                </div>
+                <button id="validate-password-btn" class="modal-action-btn primary">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les informations du compte -->
+<div id="account-info-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Informations du compte</h2>
+            <button type="button" class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="account-info-content">
+                <div class="info-item">
+                    <label>Nom d'utilisateur:</label>
+                    <p id="info-username"></p>
+                </div>
+                <div class="info-item">
+                    <label>Date de naissance:</label>
+                    <p id="info-birthdate"></p>
+                </div>
+                <div class="info-item">
+                    <label>Nombre de connexions:</label>
+                    <p id="info-connexions"></p>
+                </div>
+                <div class="info-item">
+                    <label>Dernière connexion:</label>
+                    <p id="info-last-connexion"></p>
+                </div>
+                <div class="info-item">
+                    <label>Chemin de la photo de profil:</label>
+                    <p id="info-profile-pic"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

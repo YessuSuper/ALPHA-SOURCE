@@ -1,302 +1,446 @@
-// public/js/cours.js (Version Finale SANS ERREURS D'INITIALISATION)
+// public/js/cours.js
+// Version propre et corrigée - Affichage persistant des cours
+console.log('Script chargé !');
+console.log('document.readyState =', document.readyState);
 
-// Variables globales pour les éléments DOM
-let fileGrid;
-let courseCounterBox;
-let depositModalOverlay;
-let depositForm;
+(() => {
+	'use strict';
 
-// 🚨 FIX : Déclaration des modales de détails ici pour la cohérence globale
-let detailsModal; 
-let detailsContent;
-let detailsTitle;
+	// ----- Variables globales locales au module -----
+	let fileGrid = null;
+	let courseCounterBox = null;
+	let depositModalOverlay = null;
+	let depositForm = null;
 
-// Variable pour stocker les cours récupérés du serveur
-let coursesData = [];
+	let detailsModal = null;
+	let detailsContent = null;
+	let detailsTitle = null;
 
+	let deleteTimerInterval = null;
+	let deleteTimerTimeout = null;
+	let currentDeleteButton = null;
 
-// --- Logique d'affichage d'un seul cours (FIX du bouton détail) ---
-function createCourseCard(course) {
-    const card = document.createElement('div');
-    card.classList.add('course-file-card');
-    
-    const fileUrl = course.filePath; 
-    const extensionMatch = fileUrl.match(/\.([0-9a-z]+)(?=[?#])|(\.)([0-9a-z]+)$/i);
-    const extension = extensionMatch ? extensionMatch[3] || extensionMatch[1] : 'file';
+	let coursesData = [];
+	let filteredCourses = []; // 🚨 C'EST CE TABLEAU QUI SERA AFFICHÉ 🚨
 
-    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(extension.toLowerCase());
-    
-    // --- 1. Contenu de l'aperçu ---
-    let previewContent;
-    if (isImage) {
-        previewContent = `<img src="${fileUrl}" alt="Aperçu du fichier" class="file-image-preview">`;
-    } else {
-        previewContent = `
-            <div class="no-image-placeholder">
-                <p>📂 ${course.subject}</p>
-                <p>Title: ${course.title}</p>
-                <p>Type: .${extension.toUpperCase()}</p>
-            </div>
-        `;
-    }
-    
-    // Conteneur principal de l'aperçu
-    const previewArea = document.createElement('div');
-    previewArea.classList.add('file-preview-area');
-    previewArea.innerHTML = previewContent;
-    card.appendChild(previewArea);
+	// ----- Helpers -----
+	const safeJson = async (response) => {
+		try { return await response.json(); } 
+		catch (_) { return null; }
+	};
 
-    // --- 2. Construction du bandeau d'info (Action overlay) ---
-    const infoOverlay = document.createElement('div');
-    infoOverlay.classList.add('file-info-overlay');
-    
-    const downloadFileName = `${course.title.replace(/[^a-zA-Z0-9]/g, '_')}.${extension}`;
+	const getExtensionFromUrl = (url) => {
+		if (!url || typeof url !== 'string') return 'file';
+		const last = url.split('.').pop();
+		if (!last) return 'file';
+		return last.split(/[?#]/)[0].toLowerCase();
+	};
 
-    // Le HTML de l'overlay (titres et boutons)
-    infoOverlay.innerHTML = `
-        <div class="file-info-header">
-            <span class="file-title">${course.title}</span>
-            <span class="file-subject">${course.subject}</span>
-        </div>
-        <div class="file-actions">
-            <button class="detail-button" id="detail-btn-${course.id}">DÉTAILS</button>
-            <a href="${fileUrl}" download="${downloadFileName}" class="download-button">TÉLÉCHARGER</a>
-        </div>
-    `;
-    
-    // Ajout de l'overlay à la carte
-    card.appendChild(infoOverlay); 
+	function escapeHtml(str) {
+		if (str == null) return '';
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+	}
 
-    // --- 3. Attacher l'événement au bouton après l'insertion dans la carte ---
-    const detailButton = card.querySelector(`#detail-btn-${course.id}`);
-    
-    if (detailButton) {
-        detailButton.onclick = (e) => {
-            e.stopPropagation(); // Empêche le clic sur la carte de faire une action non désirée
-            showCourseDetails(course);
-        };
-    } else {
-        console.error(`BORDEL, bouton détail #${course.id} introuvable après création.`);
-    }
+	function escapeHtmlAttr(str) {
+		return escapeHtml(str).replace(/"/g, '&quot;');
+	}
 
-    return card;
-}
+	const cleanupDeleteButton = () => {
+		if (deleteTimerInterval) clearInterval(deleteTimerInterval);
+		if (deleteTimerTimeout) clearTimeout(deleteTimerTimeout);
+		if (currentDeleteButton) {
+			currentDeleteButton.classList.remove('visible');
+			setTimeout(() => {
+				if (currentDeleteButton && currentDeleteButton.parentNode) currentDeleteButton.remove();
+			}, 600);
+		}
+		deleteTimerInterval = null;
+		deleteTimerTimeout = null;
+	};
 
+	// ----- Création d’une carte cours -----
+	function createCourseCard(course) {
+		const card = document.createElement('div');
+		card.classList.add('course-file-card');
+		card.dataset.id = course.id;
 
-// --- FONCTION PRINCIPALE DE RENDU DES COURS ---
-function displayCourses() {
-    fileGrid = document.getElementById('file-grid');
-    courseCounterBox = document.getElementById('course-counter-box');
+		const fileUrl = course.filePath || course.filepath || course.file || '';
+		const extension = getExtensionFromUrl(fileUrl);
+		const isImage = ['jpg','jpeg','png','gif','webp'].includes(extension);
 
-    if (!fileGrid) return; 
+		const previewArea = document.createElement('div');
+		previewArea.classList.add('file-preview-area');
 
-    // 1. Mise à jour du compteur
-    if (courseCounterBox) {
-        courseCounterBox.textContent = `Cours : ${coursesData.length}`;
-    }
+		if (isImage) {
+			const img = document.createElement('img');
+			img.classList.add('file-image-preview');
+			img.src = fileUrl;
+			img.alt = course.title || 'Aperçu';
+			previewArea.appendChild(img);
+		} else {
+			const placeholder = document.createElement('div');
+			placeholder.classList.add('no-image-placeholder');
+			placeholder.innerHTML = `
+				<div style="text-align:center; padding: 10px;">
+					<div style="font-size: 18px;">📂 ${escapeHtml(course.subject || '—')}</div>
+					<div style="font-weight:600; margin-top:6px;">${escapeHtml(course.title || 'Sans titre')}</div>
+					<div style="opacity:0.8; margin-top:4px;">.${escapeHtml(extension.toUpperCase())}</div>
+				</div>
+			`;
+			previewArea.appendChild(placeholder);
+		}
 
-    // 2. Rendu de la grille
-    fileGrid.innerHTML = ''; 
-    
-    if (coursesData.length === 0) {
-        fileGrid.innerHTML = '<p class="no-course-message">Aucun cours de disponible pour le moment. Dépêche-toi d\'en uploader !</p>';
-        return;
-    }
+		card.appendChild(previewArea);
 
-    coursesData.forEach(course => {
-        fileGrid.appendChild(createCourseCard(course));
-    });
-}
+		// --- Overlay avec Titre/Matière + Actions ---
+		const infoOverlay = document.createElement('div');
+		infoOverlay.classList.add('file-info-overlay');
 
+		const fileInfoHeader = document.createElement('div');
+		fileInfoHeader.classList.add('file-info-header');
+		fileInfoHeader.innerHTML = `
+			<div class="file-title">${escapeHtml(course.title || 'Sans titre')}</div>
+			<div class="file-subject">${escapeHtml(course.subject || '—')}</div>
+		`;
+		infoOverlay.appendChild(fileInfoHeader);
 
-// --- Fonction de Fetching des données ---
-async function fetchCoursesAndDisplay() {
-    try {
-        const response = await fetch('/api/courses');
-        if (response.ok) {
-            coursesData = await response.json(); 
-            displayCourses(); 
-        } else {
-            console.error("BORDEL, Impossible de récupérer la liste des cours.", response.statusText);
-        }
-    } catch (e) {
-        console.error("Erreur réseau lors de la récupération des cours:", e);
-    }
-}
+		const safeTitleForFile = (course.title || 'download').replace(/[^a-zA-Z0-9-_\.]/g, '_');
+		const downloadFileName = `${safeTitleForFile}.${extension}`;
 
+		const fileActions = document.createElement('div');
+		fileActions.classList.add('file-actions');
+		fileActions.innerHTML = `
+			<button class="detail-button" data-course-id="${escapeHtml(String(course.id))}">DÉTAILS</button>
+			<a href="${escapeHtmlAttr(fileUrl)}" download="${escapeHtmlAttr(downloadFileName)}" class="download-button">TÉLÉCHARGER</a>
+		`;
+		infoOverlay.appendChild(fileActions);
 
-// --- Logique d'ouverture/fermeture de la Modale de Dépôt ---
-function setupModalListeners() {
-    depositModalOverlay = document.getElementById('deposit-modal');
-    const openModalButton = document.getElementById('deposit-course-button');
-    const closeModalButton = document.querySelector('.close-modal-btn');
-    
-    if (openModalButton && depositModalOverlay) {
-        openModalButton.onclick = () => {
-            depositModalOverlay.classList.add('active');
-        };
-    }
-    
-    if (closeModalButton) closeModalButton.onclick = () => depositModalOverlay.classList.remove('active');
-    if (depositModalOverlay) depositModalOverlay.onclick = (event) => {
-        if (event.target === depositModalOverlay) depositModalOverlay.classList.remove('active');
-    };
-}
+		card.appendChild(infoOverlay); 
 
+		const detailBtn = fileActions.querySelector('.detail-button');
+		if (detailBtn) {
+			detailBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				showCourseDetails(course);
+			}, { passive: true });
+		}
 
-// --- Logique de soumission du formulaire (AJAX) ---
-function setupFormSubmission() {
-    depositForm = document.getElementById('deposit-form'); 
+		return card;
+	}
 
-    if (depositForm) {
-        depositForm.onsubmit = async function(event) {
-            event.preventDefault(); 
-            
-            const formData = new FormData(depositForm);
-            
-            const submitButton = document.getElementById('submit-deposit-btn');
-            submitButton.textContent = "Chargement... (Zinzin)";
-            submitButton.disabled = true;
+	// ----- Filtres des cours 🚨 FONCTION DÉPLACÉE ET CORRIGÉE 🚨 -----
+	function applyFilters() {
+		// 🚨 CORRECTION 1: Utilisation des IDs corrects de ton HTML 🚨
+		const titleSearchText = document.getElementById('search-title-input')?.value?.toLowerCase() || "";
+		const idSearchText = document.getElementById('search-id-input')?.value || "";
+		const subjectValue = document.getElementById('filter-subject-select')?.value || "";
 
-            try {
-                const response = await fetch('/api/deposit-course', {
-                    method: 'POST',
-                    body: formData 
-                });
+		filteredCourses = coursesData.filter(course => {
+			const titleMatch = (course.title || "").toLowerCase().includes(titleSearchText);
+			const idMatch = idSearchText === "" || String(course.id || "").includes(idSearchText);
+			const subjectMatch = subjectValue === "" || course.subject === subjectValue;
 
-                if (response.ok) {
-                    await response.json();
-                    
-                    await fetchCoursesAndDisplay(); 
-                    
-                    if (depositModalOverlay) depositModalOverlay.classList.remove('active');
+			// Retourne TRUE si le cours correspond aux critères de recherche ET de matière
+			return (titleMatch && idMatch) && subjectMatch;
+		});
 
-                } else {
-                    const error = await response.json();
-                    alert(`"PUTAIN", Erreur de dépôt: ${error.message || response.statusText}`);
-                }
-            } catch (error) {
-                console.error("Erreur de réseau ou de serveur:", error);
-                alert('"GROS ZINZIN", Erreur de connexion au serveur.');
-            } finally {
-                submitButton.textContent = "Déposer le cours";
-                submitButton.disabled = false;
-                depositForm.reset();
-            }
-        };
-    } else {
-        console.error("BORDEL, le formulaire avec l'ID 'deposit-form' est introuvable !");
-    }
-}
+		// 🚨 CORRECTION 2: On ne fait qu'afficher les cours, on n'appelle PAS applyFilters ici ! 🚨
+		displayCourses(); 
+	}
+	
+	// ----- Affichage des cours -----
+	function displayCourses() {
+		const fileGridEl = document.getElementById('file-grid');
+		const courseCounterBoxEl = document.getElementById('course-counter-box');
+		if (!fileGridEl) return;
+
+		// 🚨 Utilise filteredCourses pour l'affichage 🚨
+		if (courseCounterBoxEl) courseCounterBoxEl.textContent = `Cours : ${filteredCourses.length}`;
+
+		fileGridEl.innerHTML = '';
+		if (!filteredCourses.length) {
+			const p = document.createElement('p');
+			p.className = 'no-course-message';
+			p.textContent = "Aucun cours disponible pour le moment. Dépêche-toi d'en uploader !";
+			fileGridEl.appendChild(p);
+			return;
+		}
+
+		const fragment = document.createDocumentFragment();
+		filteredCourses.forEach(c => fragment.appendChild(createCourseCard(c)));
+		fileGridEl.appendChild(fragment);
+	}
 
 
-// --- Gérer l'aperçu du fichier dans la Modale de Dépôt ---
-function setupFilePreview() {
-    const fileInput = document.getElementById('deposit-file-upload');
-    const previewContainer = document.getElementById('file-preview-thumbnail');
-    
-    if (!fileInput || !previewContainer) return;
+	// ----- Fetch des cours -----
+	async function fetchCoursesAndDisplay() {
+		try {
+			const url = `/public/api/course/list`; 
+			const response = await fetch(url, { headers: { 'Accept': 'application/json' }});
+			
+			const data = response.ok ? await safeJson(response) : { courses: [] };
+			coursesData = Array.isArray(data.courses) ? data.courses : [];
+			
+			// 🚨 CORRECTION 3: Lancement initial du filtre après le fetch 🚨
+			applyFilters(); // Ceci affiche les cours non filtrés au départ
+		} catch (err) {
+			console.error('Erreur fetch courses :', err);
+			coursesData = [];
+			filteredCourses = [];
+			displayCourses();
+		}
+	}
 
-    fileInput.onchange = (event) => {
-        const file = event.target.files[0];
-        previewContainer.innerHTML = '';
-        previewContainer.style.display = 'none';
+	// ----- Détails d’un cours -----
+	function showCourseDetails(course) {
+		if (!detailsModal || !detailsContent || !detailsTitle) return;
 
-        if (file) {
-            document.querySelector('.file-status-text').textContent = `Fichier sélectionné : ${file.name}`;
+		detailsTitle.textContent = course.title || 'Détails';
+		const fileUrl = course.filePath || course.filepath || course.file || '#';
 
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewContainer.style.display = 'block';
-                    previewContainer.innerHTML = `<img src="${e.target.result}" alt="Aperçu du fichier" style="width: 100%; height: auto; border-radius: 8px;">`;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewContainer.style.display = 'block';
-                previewContainer.innerHTML = `<p style="color: #bbb; text-align: center; padding: 10px;">Aperçu non disponible. Fichier : ${file.type}</p>`;
-            }
-        } else {
-            document.querySelector('.file-status-text').textContent = "Aucun fichier sélectionné.";
-        }
-    };
-}
+		detailsContent.innerHTML = `
+			<div class="course-detail-item"><strong>Matière:</strong> <span>${escapeHtml(course.subject || '—')}</span></div>
+			<div class="course-detail-item"><strong>Description:</strong> <p>${escapeHtml(course.description || 'Aucune description')}</p></div>
+			<div class="course-detail-item"><strong>Fichier:</strong> <a href="${escapeHtmlAttr(fileUrl)}" target="_blank" rel="noopener">Ouvrir / Télécharger</a></div>
+			<div class="course-detail-item"><strong>ID:</strong> <span>${escapeHtml(String(course.id || '—'))}</span></div>
+			<hr>
+			<div id="delete-btn-container" class="timer-container" style="display:flex; justify-content:center; align-items:center; min-height:40px;"></div>
+		`;
+		setupTemporaryDeleteButton(String(course.id), course.deleteTimer || 0);
+		detailsModal.classList.add('active');
+	}
 
+	// ----- Modals -----
+	function setupModalListeners() {
+		depositModalOverlay = depositModalOverlay || document.getElementById('deposit-modal');
+		const openModalButton = document.getElementById('deposit-course-button');
+		if (openModalButton && depositModalOverlay) {
+			openModalButton.addEventListener('click', () => depositModalOverlay.classList.add('active'), { passive: true });
+		}
 
-// --- AFFICHAGE DES DÉTAILS DU COURS (Méthode 100% Locale et Sûre) ---
-function showCourseDetails(course) {
-    // 🚨 On utilise les variables globales initialisées dans initCoursPage 🚨
-    if (!detailsModal || !detailsContent || !detailsTitle) {
-        console.error("BORDEL! La modale ou ses éléments internes sont introuvables. Problème d'IDs HTML manquants.");
-        // On ne fait rien si les éléments ne sont pas là.
-        return; 
-    }
+		document.querySelectorAll('.close-modal-btn').forEach(btn => {
+			btn.addEventListener('click', () => {
+				if (depositModalOverlay) depositModalOverlay.classList.remove('active');
+				if (detailsModal) {
+					detailsModal.classList.remove('active');
+					cleanupDeleteButton();
+				}
+			}, { passive: true });
+		});
 
-    // --- À partir d'ici, on sait que les éléments existent ---
-    
-    // Formattage de la date 
-    const uploadedDate = new Date(course.uploadedAt).toLocaleDateString('fr-FR', {
-        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+		if (depositModalOverlay) {
+			depositModalOverlay.addEventListener('click', e => {
+				if (e.target === depositModalOverlay) depositModalOverlay.classList.remove('active');
+			});
+		}
+	}
 
-    // Détermination du contenu de l'aperçu
-    const extensionMatch = course.filePath.match(/\.([0-9a-z]+)$/i);
-    const fileExtension = extensionMatch ? extensionMatch[1] : '';
+	// ----- Upload form -----
+	function setupFormSubmission() {
+		depositForm = depositForm || document.getElementById('deposit-form');
+		if (!depositForm || depositForm.dataset.listenerAdded === 'true') return;
 
-    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension.toLowerCase());
+		depositForm.dataset.listenerAdded = 'true';
 
-    const previewHtml = isImage 
-        ? `<img src="${course.filePath}" alt="Aperçu du fichier" style="max-width: 100%; max-height: 250px; display: block; margin: 15px auto; border-radius: 10px;">`
-        : `<div style="background-color: #444; padding: 20px; text-align: center; border-radius: 10px;">Aperçu non disponible pour ce type de fichier (.${fileExtension}).</div>`;
-    
-    detailsTitle.textContent = course.title;
+		depositForm.addEventListener('submit', async (event) => {
+			event.preventDefault();
+			const submitButton = document.getElementById('submit-deposit-btn');
+			if (submitButton) { submitButton.disabled = true; submitButton.textContent = 'Chargement…'; }
+			const formData = new FormData(depositForm);
 
-    const downloadFileName = `${course.title.replace(/[^a-zA-Z0-9]/g, '_')}.${fileExtension}`;
+			try {
+				const url = `/public/api/course/upload`; 
+				const response = await fetch(url, { method:'POST', body: formData, headers:{ 'Accept':'application/json' }});
+				if (response.ok) {
+					await safeJson(response);
+					await fetchCoursesAndDisplay();
+					if (depositModalOverlay) depositModalOverlay.classList.remove('active');
+				} else {
+					const err = await safeJson(response);
+					alert(`Erreur lors du dépôt : ${err?.message || response.statusText}`);
+				}
+			} catch (e) {
+				console.error('Erreur lors du dépôt :', e);
+				alert('Erreur réseau lors du dépôt.');
+			} finally {
+				if (submitButton) { submitButton.disabled = false; submitButton.textContent = 'Déposer le cours'; }
+				depositForm.reset();
+				const preview = document.getElementById('file-preview-thumbnail');
+				if (preview) preview.innerHTML = '', preview.style.display = 'none';
+				const status = document.querySelector('.file-status-text');
+				if (status) status.textContent = 'Aucun fichier sélectionné.';
+			}
+		});
+	}
 
-    detailsContent.innerHTML = `
-        <div class="course-detail-group">
-            <h3 style="color: var(--color-primary); margin-top: 0;">${course.subject}</h3>
-            <p><strong>Déposé le :</strong> ${uploadedDate}</p>
-            <p><strong>Description :</strong> ${course.description || '— Aucune description fournie —'}</p>
-        </div>
-        <hr style="border-color: #444; margin: 15px 0;">
-        <h4>Aperçu du Fichier :</h4>
-        ${previewHtml}
-        <a href="${course.filePath}" download="${downloadFileName}" 
-            style="display: block; text-align: center; background-color: var(--color-primary); color: white; padding: 10px; border-radius: 8px; text-decoration: none; margin-top: 20px;">
-            TÉLÉCHARGER LE FICHIER COMPLET
-        </a>
-    `;
+	// ----- Prévisualisation fichier -----
+	function setupFilePreview() {
+		const fileInput = document.getElementById('deposit-file-upload');
+		const previewContainer = document.getElementById('file-preview-thumbnail');
+		const statusText = document.querySelector('.file-status-text');
+		if (!fileInput || !previewContainer) return;
+		if (fileInput.dataset.listenerAdded === 'true') return;
 
-    detailsModal.classList.add('active'); 
-}
+		fileInput.dataset.listenerAdded = 'true';
 
+		fileInput.addEventListener('change', (event) => {
+			const file = event.target.files?.[0];
+			previewContainer.innerHTML = '';
+			previewContainer.style.display = 'none';
+			if (!statusText) return;
 
-// --- FONCTION D'INITIALISATION GLOBALE (APPELÉE PAR script.js) ---
-window.initCoursPage = function() {
-    console.log("Initialisation de la page Cours...");
-    
-    // 🚨 FIX CRUCIAL : Initialisation des références globales ici 🚨
-    detailsModal = document.getElementById('details-modal'); 
-    detailsContent = document.getElementById('details-content');
-    detailsTitle = document.getElementById('details-title');
+			if (file) {
+				statusText.textContent = `Fichier sélectionné : ${file.name}`;
+				if (file.type?.startsWith('image/')) {
+					const reader = new FileReader();
+					reader.onload = e => {
+						previewContainer.style.display = 'block';
+						previewContainer.innerHTML = `<img src="${e.target.result}" alt="Aperçu" style="width:100%;height:auto;border-radius:8px;">`;
+					};
+					reader.readAsDataURL(file);
+				} else {
+					previewContainer.style.display = 'block';
+					previewContainer.innerHTML = `<p style="color:#bbb;text-align:center;padding:10px;">Aperçu non disponible. Type: ${file.type || 'inconnu'}</p>`;
+				}
+			} else {
+				statusText.textContent = 'Aucun fichier sélectionné.';
+			}
+		}, { passive: true });
+	}
 
-    setupModalListeners(); // Modale de Dépôt
-    setupFormSubmission();
-    setupFilePreview();
+	// ----- Delete temporaire -----
+	function setupTemporaryDeleteButton(courseId, initialDurationSeconds) {
+		cleanupDeleteButton();
+		const duration = Number(initialDurationSeconds) || 0;
+		if (duration <= 0) return;
 
-    // GESTION ROBUSTE DE LA FERMETURE DE LA MODALE DÉTAILS
-    const closeDetailsBtn = document.getElementById('close-details-btn');
-    
-    if (detailsModal) {
-        if (closeDetailsBtn) {
-            closeDetailsBtn.onclick = () => detailsModal.classList.remove('active');
-        }
-        
-        detailsModal.onclick = (event) => {
-            if (event.target === detailsModal) detailsModal.classList.remove('active');
-        };
-    }
+		const deleteBtnContainer = document.getElementById('delete-btn-container');
+		if (!deleteBtnContainer || !detailsModal) return;
 
-    fetchCoursesAndDisplay(); 
-};
+		const deleteButton = document.createElement('button');
+		deleteButton.id = `delete-course-btn-${courseId}`;
+		deleteButton.className = 'delete-button-ephemeral';
+		deleteButton.textContent = `❌ SUPPRIMER (${duration}s)`;
+
+		currentDeleteButton = deleteButton;
+		deleteBtnContainer.appendChild(deleteButton);
+
+		setTimeout(() => deleteButton.classList.add('visible'), 50);
+
+		let remaining = duration;
+		deleteTimerInterval = setInterval(() => {
+			remaining -= 1;
+			if (remaining >= 0) deleteButton.textContent = `❌ SUPPRIMER (${remaining}s)`;
+		}, 1000);
+
+		deleteTimerTimeout = setTimeout(() => cleanupDeleteButton(), duration*1000);
+
+		deleteButton.addEventListener('click', async () => {
+			if (!deleteButton.parentNode) return;
+			if (!confirm(`Êtes-vous sûr de vouloir supprimer le cours ${courseId} ?`)) return;
+
+			cleanupDeleteButton();
+
+			try {
+				const url = `/public/api/course/delete/${encodeURIComponent(courseId)}`; 
+				const response = await fetch(url, { method: 'DELETE', headers: { 'Accept':'application/json'} });
+				if (response.ok) await safeJson(response);
+				else {
+					const err = await safeJson(response);
+					alert(`Erreur lors de la suppression : ${err?.message || response.statusText}`);
+				}
+				if (detailsModal) detailsModal.classList.remove('active');
+				await fetchCoursesAndDisplay();
+			} catch(e) {
+				console.error('Erreur lors de la suppression :', e);
+				alert('Erreur réseau lors de la suppression.');
+			}
+		}, { passive: true });
+	}
+
+	// ----- Initialisation -----
+	function initCoursePage() {
+		console.log('initCoursePage lancé');
+
+		fileGrid = document.getElementById('file-grid');
+		courseCounterBox = document.getElementById('course-counter-box');
+		depositModalOverlay = document.getElementById('deposit-modal');
+		detailsModal = document.getElementById('details-modal');
+		detailsContent = document.getElementById('details-content');
+		detailsTitle = document.getElementById('details-title');
+
+		setupModalListeners();
+
+		const closeDetailsBtn = document.getElementById('close-details-btn');
+		if (closeDetailsBtn && detailsModal) {
+			closeDetailsBtn.addEventListener('click', () => {
+				detailsModal.classList.remove('active');
+				cleanupDeleteButton();
+			}, { passive: true });
+		}
+
+		if (detailsModal) {
+			detailsModal.addEventListener('click', e => {
+				if (e.target === detailsModal) {
+					detailsModal.classList.remove('active');
+					cleanupDeleteButton();
+				}
+			});
+		}
+
+		const waitForFileGrid = () => {
+			fileGrid = document.getElementById('file-grid');
+			courseCounterBox = document.getElementById('course-counter-box');
+			if (!fileGrid) {
+				console.log('file-grid introuvable, retry dans 50ms');
+				setTimeout(waitForFileGrid, 50);
+				return;
+			}
+			console.log('file-grid trouvé, fetch des cours');
+			fetchCoursesAndDisplay().then(() => {
+				// Une fois que le DOM de la page cours est injecté, on setup le formulaire et preview
+				setupFormSubmission();
+				setupFilePreview();
+				
+				// 🚨 CORRECTION 4: Ajout des listeners pour les nouveaux filtres 🚨
+				const searchTitleInput = document.getElementById('search-title-input');
+				const searchIdInput = document.getElementById('search-id-input');
+				const subjectFilterSelect = document.getElementById('filter-subject-select');
+				const resetFiltersBtn = document.getElementById('reset-filters-btn');
+
+				if (searchTitleInput) searchTitleInput.addEventListener('input', applyFilters);
+				if (searchIdInput) searchIdInput.addEventListener('input', applyFilters);
+				if (subjectFilterSelect) subjectFilterSelect.addEventListener('change', applyFilters);
+				
+				// Listener pour réinitialiser
+				if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', () => {
+					if (searchTitleInput) searchTitleInput.value = '';
+					if (searchIdInput) searchIdInput.value = '';
+					if (subjectFilterSelect) subjectFilterSelect.value = '';
+					applyFilters();
+				});
+
+			});
+		};
+		waitForFileGrid();
+	}
+
+	// ----- Ré-affichage courses quand l’onglet redevient actif -----
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'visible') {
+			fetchCoursesAndDisplay(); // On refait un fetch pour être sûr d'avoir les derniers cours
+		}
+	});
+
+	document.addEventListener('DOMContentLoaded', initCoursePage);
+
+	// ----- Expose pour debug -----
+	window.__CourseModule = { fetchCoursesAndDisplay, displayCourses, applyFilters };
+	window.__CourseModuleInit = initCoursePage;
+
+})();

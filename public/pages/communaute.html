@@ -1,29 +1,146 @@
-<div id="community-layout">
-    <h2 class="page-title">Communauté - Messages</h2>
+<div id="community-main-layout">
 
-    <div id="messages-container" class="message-box-style">
-        <p class="placeholder-message">Chargement des messages...</p>
-    </div>
-
-    <div id="input-controls-wrapper">
-
-        <div id="community-file-preview-container" style="display: none;">
-            <div class="file-preview-wrapper">
-                <img id="community-file-preview-img" class="uploaded-preview-img" src="" alt="Aperçu du fichier">
-                <span id="community-file-name"></span>
+    <aside id="channel-browser-sidebar">
+        
+        <div id="sidebar-header">
+            <div id="user-profile-section">
+                <div class="profile-circle">
+                    <img src="/ressources/user-icon.png" alt="PP" id="user-pp">
+                </div>
+                <span id="current-user-display-name">bah_tgstp</span>
             </div>
-            <button type="button" id="community-remove-file-btn" class="remove-file-btn">X</button>
+            <button id="create-discussion-btn" title="Créer un nouveau Groupe ou Sujet">+</button>
         </div>
 
-        <div id="message-input-area">
-            <button type="button" id="community-file-button" class="file-button">📎</button>
-            <input type="file" id="community-file-input" accept="image/*" style="display: none;">
+        <div id="create-menu-overlay" style="display: none;">
+            <div id="create-menu-panel">
+                <div class="menu-item" data-action="newGroup">Nouveau groupe</div>
+                <div class="menu-item" data-action="newTopic">Nouveau sujet</div>
+                <div class="menu-item" data-action="newFill">Nouveau fill</div>
+                <div class="menu-item" data-action="newMp">Message privé</div>
+            </div>
+        </div>
 
-            <textarea id="community-message-input"
-                      placeholder="Écris un message à la communauté"
-                      rows="1"></textarea>
+        <!-- Modal de création -->
+        <div id="create-modal-overlay" style="display: none;">
+            <div id="create-modal">
+                <div id="modal-header">
+                    <h3 id="modal-title">Créer un élément</h3>
+                    <button id="close-modal-btn">&times;</button>
+                </div>
+                <div id="modal-body">
+                    <!-- Formulaire pour groupe -->
+                    <form id="group-form" class="modal-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="group-name">Nom du groupe :</label>
+                            <input type="text" id="group-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="group-description">Description :</label>
+                            <textarea id="group-description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="group-private">
+                                Groupe privé (coût : 30 points)
+                            </label>
+                        </div>
+                        <button type="submit" class="modal-submit-btn">Créer le groupe</button>
+                    </form>
 
-            <button id="send-community-message-btn">Envoyer</button>
+                    <!-- Formulaire pour sujet -->
+                    <form id="topic-form" class="modal-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="topic-name">Nom du sujet :</label>
+                            <input type="text" id="topic-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="topic-description">Description :</label>
+                            <textarea id="topic-description" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="modal-submit-btn">Créer le sujet (coût : 5 points)</button>
+                    </form>
+
+                    <!-- Formulaire pour fill -->
+                    <form id="fill-form" class="modal-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="fill-name">Nom du fill :</label>
+                            <input type="text" id="fill-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fill-description">Description :</label>
+                            <textarea id="fill-description" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="fill-parent-type">Type de parent :</label>
+                            <select id="fill-parent-type" required>
+                                <option value="">Choisir...</option>
+                                <option value="group">Groupe</option>
+                                <option value="topic">Sujet</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="fill-parent-select-group" style="display: none;">
+                            <label for="fill-parent-group">Groupe parent :</label>
+                            <select id="fill-parent-group">
+                                <option value="">Choisir un groupe...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="fill-parent-select-topic" style="display: none;">
+                            <label for="fill-parent-topic">Sujet parent :</label>
+                            <select id="fill-parent-topic">
+                                <option value="">Choisir un sujet...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="modal-submit-btn">Créer le fill</button>
+                    </form>
+
+                    <!-- Formulaire pour MP -->
+                    <form id="mp-form" class="modal-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="mp-recipient">Destinataire :</label>
+                            <input type="text" id="mp-recipient" required autocomplete="off">
+                            <div id="recipient-suggestions" class="suggestions-list" style="display: none;"></div>
+                        </div>
+                        <button type="submit" class="modal-submit-btn">Créer la conversation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+            <ul id="channel-list" class="discussion-list">
+                <!-- Les discussions seront chargées dynamiquement depuis global.json -->
+            </ul>
+    </aside>
+    
+    <div id="active-chat-column">
+        <h2 class="page-title"><span id="chat-title"># Joan Calixte Alex (Romains)</span></h2>
+        
+        <div id="messages-container" class="message-box-style">
+            <p class="placeholder-message">Sélectionnez une discussion pour commencer...</p>
+        </div>
+
+        <div id="input-controls-wrapper">
+
+            <div id="community-file-preview-container" style="display: none;">
+                <div class="file-preview-wrapper">
+                    <img id="community-file-preview-img" class="uploaded-preview-img" src="" alt="Aperçu du fichier">
+                    <span id="community-file-name"></span>
+                </div>
+                <button type="button" id="community-remove-file-btn" class="remove-file-btn">X</button>
+            </div>
+
+            <div id="message-input-area">
+                <button type="button" id="community-file-button" class="file-button">
+                    <img src="/ressources/details/dossiericon.png" alt="📎" style="width: 20px; height: 20px;">
+                </button>
+                <input type="file" id="community-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display: none;">
+
+                <textarea id="community-message-input"
+                                placeholder="Écris un message dans le fill actif..."
+                                rows="1"></textarea>
+
+                <button id="send-community-message-btn">Envoyer</button>
+            </div>
         </div>
     </div>
 </div>

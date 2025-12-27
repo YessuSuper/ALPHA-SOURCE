@@ -148,3 +148,118 @@
 
 /* Mercredi après-midi (Géré par JS via un style en ligne avec un dégradé) */
 /* Le JS va mettre un style en ligne pour gérer les 50/50 */
+
+/* ===========================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   =========================================== */
+
+/* Tablettes */
+@media (max-width: 768px) {
+    #stats-header {
+        left: 0;
+        width: 100%;
+        padding: 25px;
+        height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    #user-info-display,
+    #points-display {
+        width: 100%;
+        text-align: left;
+    }
+    
+    .stat-large-text {
+        font-size: 1.5em;
+    }
+    
+    .stat-small-text {
+        font-size: 1.1em;
+    }
+    
+    #info-layout {
+        padding: 20px;
+        padding-top: 130px;
+    }
+    
+    #info-layout .page-title {
+        font-size: 1.4em;
+        padding: 10px 18px;
+        margin-bottom: 25px;
+    }
+    
+    #info-layout .info-content-box {
+        padding: 18px;
+        margin-bottom: 25px;
+    }
+    
+    #info-layout h3 {
+        font-size: 1.2em;
+    }
+    
+    .calendar-container {
+        overflow-x: auto;
+    }
+    
+    .calendar-grid {
+        min-width: 650px;
+    }
+    
+    .calendar-day {
+        min-height: 70px;
+        padding: 5px;
+        font-size: 0.9em;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 480px) {
+    #stats-header {
+        padding: 18px;
+        gap: 10px;
+    }
+    
+    .stat-large-text {
+        font-size: 1.3em;
+    }
+    
+    .stat-small-text {
+        font-size: 1em;
+    }
+    
+    #info-layout {
+        padding: 12px;
+        padding-top: 110px;
+    }
+    
+    #info-layout .page-title {
+        font-size: 1.2em;
+        padding: 8px 15px;
+        margin-bottom: 18px;
+    }
+    
+    #info-layout .info-content-box {
+        padding: 15px;
+        margin-bottom: 18px;
+    }
+    
+    #info-layout h3 {
+        font-size: 1.1em;
+    }
+    
+    .calendar-grid {
+        min-width: 550px;
+    }
+    
+    .calendar-day {
+        min-height: 55px;
+        padding: 4px;
+        font-size: 0.85em;
+    }
+    
+    .day-number {
+        font-size: 0.95em;
+    }
+}

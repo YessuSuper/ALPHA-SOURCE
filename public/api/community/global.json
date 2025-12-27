@@ -1,0 +1,67 @@
+{
+  "groups": [
+    {
+      "id": "classe3c",
+      "name": "Classe 3emeC",
+      "description": "Groupe de classe par défaut contenant tous les élèves",
+      "type": "default",
+      "members": [
+        "Even",
+        "Alexandre",
+        "Calixte",
+        "Noé",
+        "Julia",
+        "Joan",
+        "Juliette",
+        "Jezzy",
+        "Inès",
+        "Timéo",
+        "Tyméo",
+        "Clautilde",
+        "Loanne",
+        "Lucie",
+        "Camille",
+        "Sofia",
+        "Lilia",
+        "Amir",
+        "Robin",
+        "Arthur",
+        "Maxime",
+        "Gaultier",
+        "Antoine",
+        "Louis",
+        "Anne-Victoria",
+        "Léa",
+        "Sarah",
+        "Ema",
+        "Jade",
+        "Alicia",
+        "ADMIN",
+        "testuser",
+        "testuser2",
+        "user",
+        "Claire"
+      ],
+      "admin": null,
+      "createdAt": "2025-12-17T00:00:00.000Z",
+      "isPrivate": false,
+      "cost": 0
+    },
+    {
+      "id": "group_1766339575483",
+      "name": "tkt",
+      "description": "tktktktt",
+      "type": "public",
+      "members": [
+        "Even"
+      ],
+      "admin": "Even",
+      "createdAt": "2025-12-21T17:52:55.483Z",
+      "isPrivate": false,
+      "cost": 0
+    }
+  ],
+  "topics": [],
+  "fills": [],
+  "mps": []
+}

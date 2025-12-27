@@ -1,36 +1,322 @@
 [
-    { "username": "Even", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Alexandre", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Calixte", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Noé", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62" , "pt": 0},
-    { "username": "Julia", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Joan", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Juliette", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Jezzy", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Inès", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Timéo", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Tyméo", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Clautilde", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Loanne", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Lucie", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Camille", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Sofia", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Lilia", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Amir", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Robin", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Arthur", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Maxime", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Gaultier", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Antoine", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Louis", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Anne-Victoria", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Léa", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Sarah", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Ema", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Jade", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "Alicia", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "ADMIN", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "testuser", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "testuser2", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 },
-    { "username": "user", "passwordHash": "$2b$10$Nd6LMiz0u0h4j81eVr9XJOHtQVKxyOJnmDvKd0ck8r21brp3Wyn62", "pt": 0 }
+  {
+    "username": "Even",
+    "passwordHash": "$2b$10$ky7QNVQITMTsBURRMrbM9OQVZj6q1.wygdhNc72ZDC968ArZOjkRe",
+    "pt": 1,
+    "connexions": 6,
+    "last_connexion": 1766666800973,
+    "active": true,
+    "banned": false,
+    "birth_date": "2012-01-28",
+    "messages_fill_count": 4,
+    "last_daily_login": 1766339531984,
+    "messages_ai_count": 1
+  },
+  {
+    "username": "Alexandre",
+    "passwordHash": "$2b$10$MJxIgEcZ05OjBRFmCpbCreY/VVDfV405EUO43594eFqpHxNrb2b1S",
+    "pt": 0,
+    "connexions": 1,
+    "last_connexion": 1766333506779,
+    "active": true,
+    "banned": false,
+    "birth_date": "2011-03-15"
+  },
+  {
+    "username": "Calixte",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Noé",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Julia",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Joan",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Juliette",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Jezzy",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Inès",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Timéo",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Tyméo",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Clautilde",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Loanne",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Lucie",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Camille",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Sofia",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Lilia",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Amir",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Robin",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Arthur",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Maxime",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Gaultier",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Antoine",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Louis",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Anne-Victoria",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Léa",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Sarah",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Ema",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Jade",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Alicia",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "ADMIN",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "testuser",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "testuser2",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "user",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  },
+  {
+    "username": "Claire",
+    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "pt": 0,
+    "connexions": 0,
+    "last_connexion": null,
+    "active": false,
+    "banned": false
+  }
 ]

@@ -1,15 +1,16 @@
-// public/script.js (Logique principale d'initialisation - Version corrigée pour Communauté)
+// public/script.js (Logique principale d'initialisation - Version originale avec fix home)
 
 // 🚨 ÉLÉMENTS DE BASE (peuvent être null si le DOM change)
 const sidebar = document.getElementById('sidebar');
 const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
 const mainMenu = document.getElementById('main-menu');
 const pageContentWrapper = document.getElementById('page-content-wrapper');
 const depositModal = document.getElementById('deposit-modal');
 const mainTitle = document.querySelector('#main-content-wrapper h1');
 
 // 🚨 VARIABLES GLOBALES
-let currentPage = 'home';
+let currentPage = 'accueil';
 let currentMessages = [];    // Pour la communauté
 let pollingInterval = null;  // Pour la communauté
 let currentUsername = null;  // Nom d'utilisateur courant (mis par updateTitleWithUsername)
@@ -23,13 +24,31 @@ function updateTitleWithUsername() {
 
     if (username) {
         currentUsername = username;
-        document.title = `SOURCE AI - ${username}`;
+        // Auto increment connexions if eligible
+        fetch('/api/auto_increment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username })
+        }).catch(err => console.error('Auto increment failed:', err));
+        // Check if banned
+        fetch('/api/check_ban', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: username })
+        }).then(res => res.json()).then(data => {
+            if (data.banned) {
+                window.location.href = '/pages/ban.html';
+            }
+        }).catch(err => console.error('Ban check failed:', err));
+        document.title = `ALPHA SOURCE - ${username}`;
         console.log(`PUTAIN LOG : Titre mis à jour pour l'utilisateur ${username}.`);
         return true;
     } else {
         document.title = "SOURCE AI - Bienvenue (Redirection)";
-        // Si la page doit être protégée, on redirige
-        window.location.href = '/';
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/pages/login.html') {
+            window.location.href = '/pages/login.html'; 
+        }
         return false;
     }
 }
@@ -43,6 +62,21 @@ if (toggleSidebarBtn && sidebar) {
     });
 }
 
+// Gestion de l'overlay pour fermer la sidebar sur mobile
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+    });
+}
+
+// Gestion du hamburger menu mobile
+const mobileHamburgerBtn = document.getElementById('mobile-hamburger-btn');
+if (mobileHamburgerBtn && sidebar) {
+    mobileHamburgerBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
+}
+
 /* ------------------------------------------------------------------
    renderPage(page) : charge dynamiquement la page et initialise
    les scripts spécifiques après injection.
@@ -50,17 +84,25 @@ if (toggleSidebarBtn && sidebar) {
 async function renderPage(page) {
     currentPage = page;
 
-    // éléments dépendants du layout (peuvent être absents selon la page)
     const rightSidebarControls = document.getElementById('right-sidebar-controls');
     const depositCourseButton = document.getElementById('deposit-course-button');
     const localMainTitle = document.querySelector('#main-content-wrapper h1');
+    
+    // Gérer le titre du header mobile
+    const mobileHeaderTitle = document.querySelector('#mobile-header-title');
+    if (mobileHeaderTitle) {
+        if (page === 'home' || page === 'chat') {
+            mobileHeaderTitle.textContent = '';
+        } else {
+            mobileHeaderTitle.textContent = 'ALPHA SOURCE';
+        }
+    }
 
     if (!pageContentWrapper) {
         console.error("PUTAIN LOG : #page-content-wrapper introuvable.");
         return;
     }
 
-    // Si on quittait la communauté, arrêter son polling proprement
     if (pollingInterval) {
         clearInterval(pollingInterval);
         pollingInterval = null;
@@ -68,19 +110,20 @@ async function renderPage(page) {
         console.log("PUTAIN LOG : Polling arrêté (changement de page).");
     }
 
-    // Choix du fichier à charger
     let contentFile = '';
-    if (page === 'home' || page === 'chat') contentFile = '/pages/chat.html';
-    else if (page === 'cours') contentFile = '/pages/cours.html';
-    else if (page === 'communaute') contentFile = '/pages/communaute.html';
-    else if (page === 'info') contentFile = '/pages/info.html';
-    else {
-        pageContentWrapper.innerHTML = '<h2>Page non trouvée.</h2>';
-        updateActiveMenuClass(page);
-        return;
-    }
+    if (page === 'home' || page === 'chat') contentFile = '/pages/chat.html';
+    else if (page === 'cours') contentFile = '/pages/cours.html';
+    else if (page === 'communaute') contentFile = '/pages/communaute.html';
+    else if (page === 'messagerie') contentFile = '/pages/mess.html'; // 🚨 AJOUT MESSAGERIE 🚨
+    else if (page === 'accueil') contentFile = '/pages/home.html';
+    else if (page === 'info') contentFile = '/pages/info.html';
+    else if (page === 'moncompte') contentFile = '/pages/moncompte.html';
+    else {
+        pageContentWrapper.innerHTML = '<h2>Page non trouvée.</h2>';
+        updateActiveMenuClass(page);
+        return;
+    }
 
-    // Chargement via fetch
     try {
         const response = await fetch(contentFile);
         if (!response.ok) {
@@ -90,7 +133,6 @@ async function renderPage(page) {
 
         let contentHtml = await response.text();
 
-        // Cas particulier pour cours qui injecte aussi une modale
         if (page === 'cours') {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = contentHtml;
@@ -107,39 +149,76 @@ async function renderPage(page) {
         return;
     }
 
-    // Petit délai pour que le DOM injecté soit disponible (50-150ms selon besoin)
+    // --- INITIALISATIONS SPECIFIQUES POST-INJECTION ---
     setTimeout(() => {
-        // Gestion visuelle/contrôles selon page
         if (page === 'home' || page === 'chat') {
             if (rightSidebarControls) rightSidebarControls.style.display = 'block';
             if (depositCourseButton) depositCourseButton.style.display = 'none';
-            if (localMainTitle) localMainTitle.style.display = 'block';
+            // Masquer le titre principal sur mobile pour la page chat
+            if (localMainTitle) {
+                if (window.innerWidth <= 768 && (page === 'home' || page === 'chat')) {
+                    localMainTitle.style.display = 'none';
+                } else {
+                    localMainTitle.style.display = 'block';
+                }
+            }
             if (typeof window.initChatPage === 'function') window.initChatPage();
+        } else if (page === 'accueil') { // <-- init home
+            if (rightSidebarControls) rightSidebarControls.style.display = 'block';
+            if (depositCourseButton) depositCourseButton.style.display = 'none';
+            
+            // --- Cacher le h1 "The Source" uniquement pour home
+            if (localMainTitle) localMainTitle.style.display = 'none';
+
+            if (typeof window.initHomePage === 'function') {
+                try { window.initHomePage(); } catch (e) { console.error(e); }
+            }
         } else if (page === 'cours') {
             if (rightSidebarControls) rightSidebarControls.style.display = 'none';
             if (depositCourseButton) depositCourseButton.style.display = 'block';
             if (localMainTitle) localMainTitle.style.display = 'none';
-            if (typeof window.initCoursPage === 'function') window.initCoursPage();
+
+            const courseContentLayout = document.getElementById('course-content-layout');
+            if (courseContentLayout) {
+                const observer = new MutationObserver((mutations, obs) => {
+                    const fileGrid = document.getElementById('file-grid');
+                    if (fileGrid) {
+                        fileGrid.style.display = 'grid';
+                        fileGrid.style.placeItems = 'center';
+                        console.log("PUTAIN LOG : #file-grid layout appliqué via MutationObserver (cours)");
+                        obs.disconnect();
+                    }
+                });
+                observer.observe(courseContentLayout, { childList: true, subtree: true });
+            }
+
+            if (typeof window.__CourseModuleInit === 'function') {
+                try { window.__CourseModuleInit(); } 
+                catch (e) { console.error("Erreur init Cours :", e); }
+            }
         } else if (page === 'communaute') {
             if (rightSidebarControls) rightSidebarControls.style.display = 'none';
             if (depositCourseButton) depositCourseButton.style.display = 'none';
             if (localMainTitle) localMainTitle.style.display = 'none';
 
-            // Ici on appelle l'initialisateur de communauté **le plus approprié**
-            // 1) initCommunityChat() (si tu utilises la version longue que je t'ai fournie)
-            // 2) sinon initCommunautePage() (si ton ancien code l'attend)
-            // On essaye les deux, avec un léger délai pour être sûr que tout est dans le DOM.
             setTimeout(() => {
                 if (typeof window.initCommunityChat === 'function') {
-                    console.log("PUTAIN LOG : Appel initCommunityChat()");
                     try { window.initCommunityChat(); } catch (e) { console.error(e); }
                 } else if (typeof window.initCommunautePage === 'function') {
-                    console.log("PUTAIN LOG : Appel initCommunautePage()");
                     try { window.initCommunautePage(); } catch (e) { console.error(e); }
-                } else {
-                    console.warn("PUTAIN LOG : Aucun initCommunity*() trouvé (initCommunityChat/initCommunautePage absents).");
                 }
             }, 60);
+
+        } else if (page === 'messagerie') { // 🚨 NOUVELLE INITIALISATION MESSAGERIE 🚨
+            if (rightSidebarControls) rightSidebarControls.style.display = 'none';
+            if (depositCourseButton) depositCourseButton.style.display = 'none';
+            if (localMainTitle) localMainTitle.style.display = 'none'; // Cache le h1
+
+            // Appelle la fonction d'initialisation de mess.js si elle existe
+            if (typeof window.initMessageriePage === 'function') {
+                try { window.initMessageriePage(); } 
+                catch (e) { console.error("Erreur init Messagerie :", e); }
+            }
         } else if (page === 'info') {
             if (rightSidebarControls) rightSidebarControls.style.display = 'none';
             if (depositCourseButton) depositCourseButton.style.display = 'none';
@@ -148,11 +227,19 @@ async function renderPage(page) {
             const displayUsernameElement = document.getElementById('user-name-placeholder');
             if (typeof window.initInfoPage === 'function' && displayUsernameElement) {
                 try { window.initInfoPage(displayUsernameElement); } catch (e) { console.error(e); }
-            } else if (!displayUsernameElement) {
-                console.error("PUTAIN LOG : #user-name-placeholder introuvable après injection.");
+            }
+        } else if (page === 'moncompte') {
+            if (rightSidebarControls) rightSidebarControls.style.display = 'none';
+            if (depositCourseButton) depositCourseButton.style.display = 'none';
+            if (localMainTitle) localMainTitle.style.display = 'none';
+
+            // Appelle la fonction d'initialisation de moncompte.js si elle existe
+            if (typeof window.initMonComptePage === 'function') {
+                try { window.initMonComptePage(); }
+                catch (e) { console.error("Erreur init Mon Compte :", e); }
             }
         }
-    }, 60); // 60ms fonctionne bien ; augmente à 100-150ms si ton injection est plus lente
+    }, 60);
 
     updateActiveMenuClass(page);
 }
@@ -161,8 +248,17 @@ async function renderPage(page) {
    updateActiveMenuClass : met la classe active sur le menu
    ------------------------------------------------------------------ */
 function updateActiveMenuClass(page) {
-    if (!mainMenu) return;
-    mainMenu.querySelectorAll('a').forEach(link => {
+    // Mettre à jour le menu principal (sidebar)
+    if (mainMenu) {
+        mainMenu.querySelectorAll('a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-page') === page) link.classList.add('active');
+        });
+    }
+    
+    // Mettre à jour la navigation mobile
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileNavLinks.forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('data-page') === page) link.classList.add('active');
     });
@@ -178,11 +274,14 @@ function createMenu() {
     }
 
     const pages = [
-        { name: '-SOURCE AI', id: 'home', iconFile: '/ressources/kiraaimenuicon.png' },
-        { name: '-Mes Cours', id: 'cours', iconFile: '/ressources/coursmenuicon.png' },
-        { name: '-Communauté', id: 'communaute', iconFile: '/ressources/communautemenuicon.png' },
-        { name: '-Info', id: 'info', iconFile: '/ressources/infomenuicon.png' }
-    ];
+        { name: '-Accueil', id: 'accueil', iconFile: '/ressources/homemenuicon.png' },
+        { name: '-SOURCE AI', id: 'home', iconFile: '/ressources/kiraaimenuicon.png' },
+        { name: '-Mes Cours', id: 'cours', iconFile: '/ressources/coursmenuicon.png' },
+        { name: '-Communauté', id: 'communaute', iconFile: '/ressources/communautemenuicon.png' },
+        { name: '-Messagerie', id: 'messagerie', iconFile: '/ressources/messageriemenuicon.png' }, // 🚨 AJOUT MESSAGERIE 🚨
+        { name: '-Info', id: 'info', iconFile: '/ressources/infomenuicon.png' },
+        { name: '-Mon Compte', id: 'moncompte', iconFile: '/ressources/comptemenuicon.png' }
+    ];
 
     mainMenu.innerHTML = '';
     pages.forEach(p => {
@@ -209,13 +308,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     createMenu();
     renderPage(currentPage);
+    
+    // Ajouter les event listeners pour la navigation mobile
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileNavLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = link.getAttribute('data-page');
+            renderPage(page);
+        });
+    });
 });
 
 /* ==================================================================
-   Fonctions "Communauté" utiles (elles sont here juste pour être
-   disponibles globalement si tu veux les utiliser/overrider)
-   - Note : la logique lourde (upload, preview, etc.) peut rester dans
-     public/js/communaute.js (initCommunityChat / initCommunautePage).
+   Fonctions "Communauté" utiles (helpers)
    ================================================================== */
 
 /* Formatage date */
@@ -227,21 +333,16 @@ function formatTimestamp(timestamp) {
     });
 }
 
-/* createMessageElement, addNewMessagesToContainer, loadCommunityMessages,
-   postCommunityMessage, window.initCommunautePage etc. sont supposés
-   exister dans ton communaute.js complet. Ici on laisse des helpers
-   utils si besoin. */
-
 /* ------------------------------------------------------------------
    logout helper
    ------------------------------------------------------------------ */
 function logoutAndRedirect() {
     localStorage.removeItem('source_username');
-    window.location.href = '/';
+    window.location.href = '/pages/login.html'; // <-- chemin exact de ta page de connexion
 }
 
 /* ==================================================================
-   Page INFO helpers (progress bar...) - inchangés sauf protection null
+   Page INFO helpers (progress bar...) 
    ================================================================== */
 const WEEK_DAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const PASSED_COLOR = '#a38d2b';
@@ -317,12 +418,10 @@ window.initInfoPage = (displayUsernameElement) => {
 document.addEventListener('submit', function (e) {
     const formId = e.target?.id;
 
-    // Formulaires autorisés
     if (formId === 'login-form' || formId === 'chat-form' || formId === 'deposit-form') {
         return;
     }
 
-    // Tous les autres → bloqués
     console.warn(`Blocage formulaire non géré (ID: ${formId}).`);
     e.preventDefault();
     e.stopImmediatePropagation();

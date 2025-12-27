@@ -1,0 +1,398 @@
+/* ========================================================================= */
+/* --- Styles pour la page Mon Compte --- */
+/* ========================================================================= */
+
+#moncompte-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    color: white;
+}
+
+/* Bandeau supérieur avec informations utilisateur */
+#user-profile-header {
+    display: flex;
+    align-items: center;
+    background-color: rgba(10, 26, 72, 0.9);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#user-avatar-section {
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+#user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    object-fit: cover;
+}
+
+#user-info-section {
+    flex-grow: 1;
+}
+
+#user-info-section h2 {
+    margin: 0 0 5px 0;
+    font-size: 1.6em;
+    font-weight: 700;
+    color: white;
+}
+
+#user-info-section p {
+    margin: 0;
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+/* Boutons d'actions */
+#account-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin: 0 auto; /* Centrage du conteneur */
+}
+
+.account-action-btn {
+    background-color: #4cd997;
+    color: #121212;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.account-action-btn:hover {
+    background-color: #246756;
+}
+
+.logout-btn {
+    background-color: #e74c3c;
+    color: white;
+    margin: 20px auto 0 auto; /* Centrage et espacement supérieur */
+    max-width: 300px; /* Largeur réduite */
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #moncompte-page {
+        padding: 15px;
+    }
+
+    #user-profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    #user-avatar-section {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    #user-avatar {
+        width: 60px;
+        height: 60px;
+    }
+
+    #user-info-section h2 {
+        font-size: 1.4em;
+    }
+
+    #account-actions {
+        max-width: none;
+    }
+
+    .account-action-btn {
+        padding: 10px 15px;
+        font-size: 0.95em;
+    }
+}
+
+/* ========================================================================= */
+/* --- Styles du Modal Avatar --- */
+/* ========================================================================= */
+
+#avatar-modal.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	z-index: 9999999 !important;
+	justify-content: center;
+	align-items: center;
+	pointer-events: none;
+}
+
+#avatar-modal.modal-overlay.active {
+	display: flex !important;
+	pointer-events: auto;
+}
+
+#avatar-modal .modal-content {
+	background-color: #2a2a2a;
+	color: white;
+	padding: 25px;
+	border-radius: 15px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+	width: 90%;
+	max-width: 400px;
+	transform: scale(0.95);
+	opacity: 0;
+	transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+#avatar-modal.active .modal-content {
+	transform: scale(1);
+	opacity: 1;
+}
+
+#avatar-modal .modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #444;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+}
+
+#avatar-modal .modal-header h2 {
+	margin: 0;
+	color: #71d94c;
+	font-size: 1.4em;
+}
+
+#avatar-modal .close-modal-btn {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 1.8em;
+	cursor: pointer;
+	padding: 0;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: background-color 0.2s;
+}
+
+#avatar-modal .close-modal-btn:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+#avatar-preview-section {
+	text-align: center;
+	margin-bottom: 25px;
+}
+
+#avatar-preview-section h3 {
+	margin: 0 0 15px 0;
+	color: white;
+	font-size: 1.1em;
+}
+
+#avatar-preview {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	border: 3px solid rgba(255, 255, 255, 0.2);
+	object-fit: cover;
+	display: block;
+	margin: 0 auto;
+}
+
+#avatar-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.modal-action-btn {
+	background-color: #71d94c;
+	color: #121212;
+	border: none;
+	border-radius: 8px;
+	padding: 12px 20px;
+	font-size: 1em;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	text-align: center;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.modal-action-btn:hover {
+	background-color: #5cb85c;
+}
+
+.modal-action-btn.primary {
+	background-color: #4D7CFF;
+	color: white;
+}
+
+.modal-action-btn.primary:hover {
+	background-color: #3a5fc7;
+}
+
+/* ========================================================================= */
+/* --- Styles du Modal Mot de Passe --- */
+/* ========================================================================= */
+
+#password-modal.modal-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+	z-index: 9999999 !important;
+	justify-content: center;
+	align-items: center;
+	pointer-events: none;
+}
+
+#password-modal.modal-overlay.active {
+	display: flex !important;
+	pointer-events: auto;
+}
+
+#password-modal .modal-content {
+	background-color: #2a2a2a;
+	color: white;
+	padding: 25px;
+	border-radius: 15px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+	width: 90%;
+	max-width: 400px;
+	transform: scale(0.95);
+	opacity: 0;
+	transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+#password-modal.active .modal-content {
+	transform: scale(1);
+	opacity: 1;
+}
+
+#password-modal .modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #444;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+}
+
+#password-modal .modal-header h2 {
+	margin: 0;
+	color: #71d94c;
+	font-size: 1.4em;
+}
+
+#password-modal .close-modal-btn {
+	background: none;
+	border: none;
+	color: white;
+	font-size: 1.8em;
+	cursor: pointer;
+	padding: 0;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: background-color 0.2s;
+}
+
+#password-modal .close-modal-btn:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+#password-change-form {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.form-group label {
+	color: white;
+	font-weight: 500;
+	font-size: 1em;
+}
+
+.form-input {
+	padding: 12px;
+	border: 1px solid #444;
+	border-radius: 8px;
+	background-color: #3a3a3a;
+	color: white;
+	font-size: 1em;
+	transition: border-color 0.2s;
+}
+
+.form-input:focus {
+	outline: none;
+	border-color: #71d94c;
+}
+
+/* Styles pour le modal des informations du compte */
+#account-info-content {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.info-item {
+	padding: 15px;
+	background-color: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+}
+
+.info-item label {
+	display: block;
+	font-weight: 700;
+	color: #71d94c;
+	margin-bottom: 8px;
+	font-size: 0.95em;
+}
+
+.info-item p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.8);
+	word-break: break-all;
+	font-size: 0.9em;
+}

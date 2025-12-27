@@ -11,7 +11,7 @@
                 
                 <div class="form-controls"> 
                     <label for="file-upload" class="file-button action-button" title="Joindre une image">
-                        📁
+                        <img src="/ressources/details/dossiericon.png" alt="📁">
                     </label>
                     <input type="file" id="file-upload" accept="image/*" style="display: none;">
                     
@@ -23,45 +23,48 @@
                     
                 </div>
             </form>
+
+            <!-- Contrôles déplacés ici, après le formulaire -->
+            <div id="right-sidebar-controls">
+                <h3>Paramètres The Source</h3> 
+                <div id="controls-container">
+                    <div class="control-group slider-group">
+                        <label for="creativity-slider">Créativité:</label>
+                        <input type="range" id="creativity-slider" min="0" max="1" step="0.1" value="0.7">
+                        <span id="creativity-value">0.7</span>
+                    </div>
+                    
+                    <div class="control-group slider-group">
+                        <label for="response-length-slider">Longueur de Réponse:</label>
+                        <input type="range" id="response-length-slider" min="100" max="1000" step="50" value="500">
+                        <span id="response-length-value">500 mots</span>
+                    </div>
+                    
+                    <div class="control-group select-group">
+                        <label for="ai-mode-select">Mode IA:</label>
+                        <select id="ai-mode-select">
+                            <option value="basique" selected>Basique</option>
+                            <option value="apprentissage">Apprentissage</option>
+                            <option value="devoirs">Devoirs</option>
+                        </select>
+                        <p id="mode-warning" style="color: red; font-size: 12px; display: none;">Mode Devoirs : coût de 3 points par message.</p>
+                    </div>
+                    
+                    <div class="control-group select-group">
+                        <label for="school-level-select">Niveau:</label>
+                        <select id="school-level-select">
+                            <option value="3eme" selected>3ème</option>
+                            <option value="4eme">4ème</option>
+                            <option value="2nde">2nde</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
-    <div id="right-sidebar-controls">
-        <h3>Paramètres The Source</h3> 
-        <div id="controls-container">
-            <div class="control-group slider-group">
-                <label for="creativity-slider">Créativité:</label>
-                <input type="range" id="creativity-slider" min="0" max="1" step="0.1" value="0.7">
-                <span id="creativity-value">0.7</span>
-            </div>
-            
-            <div class="control-group slider-group">
-                <label for="response-length-slider">Longueur de Réponse:</label>
-                <input type="range" id="response-length-slider" min="100" max="1000" step="50" value="500">
-                <span id="response-length-value">500 mots</span>
-            </div>
-            
-            <div class="control-group select-group">
-                <label for="ai-mode-select">Mode IA:</label>
-                <select id="ai-mode-select">
-                    <option value="basique" selected>Basique</option>
-                    <option value="apprentissage">Apprentissage</option>
-                    <option value="devoirs">Devoirs</option>
-                </select>
-            </div>
-            
-            <div class="control-group select-group">
-                <label for="school-level-select">Niveau:</label>
-                <select id="school-level-select">
-                    <option value="3eme" selected>3ème</option>
-                    <option value="4eme">4ème</option>
-                    <option value="2nde">2nde</option>
-                </select>
-            </div>
-        </div>
-    </div>
     <script>
     if (window.initChatPage) initChatPage();
-</script>
+    </script>
 
 </div>

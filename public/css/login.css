@@ -57,7 +57,7 @@ body {
 #login-container h1::after {
     content: '';
     display: block;
-    width: 60px;
+    width: 250px;
     height: 3px;
     background-color: var(--color-secondary); /* Ligne Jaune Néon */
     margin: 10px auto 0;
@@ -137,4 +137,83 @@ body {
     font-weight: bold;
     font-size: 1.1em;
     /* La couleur rouge est déjà dans ton HTML (style="color: red;") */
+}
+
+/* ===========================================
+   ONBOARDING MODAL
+   =========================================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #2a2a2a;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9);
+    border: 2px solid var(--color-primary);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    color: var(--color-text);
+}
+
+.step h2 {
+    color: var(--color-primary);
+    margin-bottom: 20px;
+}
+
+.step p {
+    margin-bottom: 20px;
+}
+
+.profile-pic-section {
+    margin: 20px 0;
+}
+
+#profile-preview {
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: var(--color-primary);
+    color: #121212;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #6a96ff;
+}
+
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+.guide-nav {
+    margin-top: 20px;
+}
+
+#guide-indicator {
+    margin: 0 10px;
+    font-weight: bold;
 }

@@ -1,0 +1,963 @@
+{
+  "id": "classe3c",
+  "name": "Classe 3emeC",
+  "description": "Groupe de classe par défaut contenant tous les élèves",
+  "type": "default",
+  "members": [
+    "Even",
+    "Alexandre",
+    "Calixte",
+    "Noé",
+    "Julia",
+    "Joan",
+    "Juliette",
+    "Jezzy",
+    "Inès",
+    "Timéo",
+    "Tyméo",
+    "Clautilde",
+    "Loanne",
+    "Lucie",
+    "Camille",
+    "Sofia",
+    "Lilia",
+    "Amir",
+    "Robin",
+    "Arthur",
+    "Maxime",
+    "Gaultier",
+    "Antoine",
+    "Louis",
+    "Anne-Victoria",
+    "Léa",
+    "Sarah",
+    "Ema",
+    "Jade",
+    "Alicia",
+    "ADMIN",
+    "testuser",
+    "testuser2",
+    "user",
+    "Claire"
+  ],
+  "admin": null,
+  "createdAt": "2025-12-17T00:00:00.000Z",
+  "isPrivate": false,
+  "cost": 0,
+  "messages": [
+    {
+      "id": "msg_1765984286111",
+      "sender": "Even",
+      "content": "",
+      "timestamp": "2025-12-17T15:11:26.111Z",
+      "type": "document",
+      "file": {
+        "filename": "community-1765984286110-840632727.docx",
+        "originalName": "AVEC Viola Davis.docx",
+        "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "size": 12137
+      }
+    },
+    {
+      "id": "msg_1765988454373",
+      "sender": "Alexandre",
+      "content": "dzéz",
+      "timestamp": "2025-12-17T16:20:54.373Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766241216929",
+      "sender": "Jezzy",
+      "content": "khgkhgkjh",
+      "timestamp": "2025-12-20T14:33:36.929Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337913018",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:13.018Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337914221",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:14.221Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337914685",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:14.685Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337915110",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:15.110Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337916471",
+      "sender": "Even",
+      "content": "gtyhsegtyhsegtyhse",
+      "timestamp": "2025-12-21T17:25:16.471Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337917121",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:17.121Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337917673",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:17.673Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337918128",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:18.129Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337918585",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:18.585Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337919048",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:19.048Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337919498",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:19.498Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337919958",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:19.958Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337920894",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:20.894Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337925947",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:25.947Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337928231",
+      "sender": "Even",
+      "content": "gtyhsegtyhse",
+      "timestamp": "2025-12-21T17:25:28.231Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337929126",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:29.126Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337929660",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:29.660Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337930762",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:30.762Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337931295",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:31.295Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337933279",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:25:33.279Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766337937395",
+      "sender": "Even",
+      "content": "gtyhsegtyhsegtyhse",
+      "timestamp": "2025-12-21T17:25:37.395Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338132741",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:52.741Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338133203",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:53.203Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338134281",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:54.281Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338135084",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:55.084Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338135657",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:55.657Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338136346",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:56.346Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338136854",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:56.854Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338137444",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:57.444Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338137937",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:57.937Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338138403",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:58.403Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338138895",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:58.895Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338139349",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:59.349Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338139773",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:28:59.773Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338140182",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:29:00.182Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338140571",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:29:00.571Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338141416",
+      "sender": "Even",
+      "content": "gtyhsegtyhse",
+      "timestamp": "2025-12-21T17:29:01.416Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338142751",
+      "sender": "Even",
+      "content": "r",
+      "timestamp": "2025-12-21T17:29:02.751Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338143690",
+      "sender": "Even",
+      "content": "gtyhse",
+      "timestamp": "2025-12-21T17:29:03.690Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338144433",
+      "sender": "Even",
+      "content": "d",
+      "timestamp": "2025-12-21T17:29:04.433Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338145947",
+      "sender": "Even",
+      "content": "d",
+      "timestamp": "2025-12-21T17:29:05.947Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338151741",
+      "sender": "Even",
+      "content": "d",
+      "timestamp": "2025-12-21T17:29:11.741Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338369423",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:49.423Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338369749",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:49.749Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338370020",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:50.020Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338370261",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:50.261Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338370510",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:50.510Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338370767",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:50.767Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338370979",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:50.979Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338371196",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:51.196Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338371402",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:51.402Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338371621",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:51.621Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338371823",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:51.823Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372008",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.008Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372202",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.202Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372393",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.393Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372578",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.578Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372761",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.761Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338372939",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:52.939Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338373121",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:53.121Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338373295",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:53.295Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338373487",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:53.487Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338373683",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:53.683Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338373878",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:53.878Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338374086",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:54.086Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338374301",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:54.301Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338374512",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:54.512Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338374716",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:54.716Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338374934",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-21T17:32:54.934Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338666128",
+      "sender": "Even",
+      "content": "efzf",
+      "timestamp": "2025-12-21T17:37:46.128Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338666586",
+      "sender": "Even",
+      "content": "zdqsdsq",
+      "timestamp": "2025-12-21T17:37:46.586Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338666871",
+      "sender": "Even",
+      "content": "dsqd",
+      "timestamp": "2025-12-21T17:37:46.871Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338667184",
+      "sender": "Even",
+      "content": "qszdqzd",
+      "timestamp": "2025-12-21T17:37:47.184Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338667472",
+      "sender": "Even",
+      "content": "zqdzq",
+      "timestamp": "2025-12-21T17:37:47.472Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338668309",
+      "sender": "Even",
+      "content": "dzqdzdz",
+      "timestamp": "2025-12-21T17:37:48.309Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338668700",
+      "sender": "Even",
+      "content": "dzdz",
+      "timestamp": "2025-12-21T17:37:48.700Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338669060",
+      "sender": "Even",
+      "content": "dzdz",
+      "timestamp": "2025-12-21T17:37:49.060Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338669483",
+      "sender": "Even",
+      "content": "dzd",
+      "timestamp": "2025-12-21T17:37:49.483Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338669962",
+      "sender": "Even",
+      "content": "dzdz",
+      "timestamp": "2025-12-21T17:37:49.962Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338670360",
+      "sender": "Even",
+      "content": "dzdz",
+      "timestamp": "2025-12-21T17:37:50.360Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338670943",
+      "sender": "Even",
+      "content": "dzdzd",
+      "timestamp": "2025-12-21T17:37:50.943Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766338671502",
+      "sender": "Even",
+      "content": "zdz",
+      "timestamp": "2025-12-21T17:37:51.502Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339138991",
+      "sender": "Even",
+      "content": "gefezf",
+      "timestamp": "2025-12-21T17:45:38.991Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339139393",
+      "sender": "Even",
+      "content": "ezfezf",
+      "timestamp": "2025-12-21T17:45:39.393Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339139720",
+      "sender": "Even",
+      "content": "ezfezf",
+      "timestamp": "2025-12-21T17:45:39.720Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339139958",
+      "sender": "Even",
+      "content": "ezfez",
+      "timestamp": "2025-12-21T17:45:39.958Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140128",
+      "sender": "Even",
+      "content": "fez",
+      "timestamp": "2025-12-21T17:45:40.128Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140342",
+      "sender": "Even",
+      "content": "fez",
+      "timestamp": "2025-12-21T17:45:40.342Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140411",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:40.411Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140528",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:40.528Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140654",
+      "sender": "Even",
+      "content": "fez",
+      "timestamp": "2025-12-21T17:45:40.654Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140814",
+      "sender": "Even",
+      "content": "fez",
+      "timestamp": "2025-12-21T17:45:40.814Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140939",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:40.939Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339140999",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:40.999Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141096",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:41.096Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141223",
+      "sender": "Even",
+      "content": "ef",
+      "timestamp": "2025-12-21T17:45:41.223Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141354",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:41.354Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141521",
+      "sender": "Even",
+      "content": "ef",
+      "timestamp": "2025-12-21T17:45:41.521Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141630",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:41.630Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141758",
+      "sender": "Even",
+      "content": "fez",
+      "timestamp": "2025-12-21T17:45:41.758Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141829",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:41.829Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141895",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:41.895Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339141967",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:41.967Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339142037",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:42.037Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339142150",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:45:42.150Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339142232",
+      "sender": "Even",
+      "content": "ez",
+      "timestamp": "2025-12-21T17:45:42.232Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339582848",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:02.848Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339583160",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:03.160Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339583379",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:03.379Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339583571",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:03.571Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339583764",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:03.764Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339583952",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:03.952Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584108",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.108Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584269",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.269Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584425",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.425Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584578",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.578Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584734",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.734Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339584881",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:04.881Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339585034",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:05.034Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339585191",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:05.191Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339585373",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:05.373Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339585759",
+      "sender": "Even",
+      "content": "f",
+      "timestamp": "2025-12-21T17:53:05.759Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766339591046",
+      "sender": "Even",
+      "content": "fh",
+      "timestamp": "2025-12-21T17:53:11.046Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766406743531",
+      "sender": "Even",
+      "content": "",
+      "timestamp": "2025-12-22T12:32:23.531Z",
+      "type": "image",
+      "file": {
+        "filename": "community-1766406743529-674854533.jpg",
+        "originalName": "logo_Plan de travail 1_Plan de travail 1.jpg",
+        "type": "image/jpeg",
+        "size": 64793
+      }
+    },
+    {
+      "id": "msg_1766406799571",
+      "sender": "Even",
+      "content": "lol",
+      "timestamp": "2025-12-22T12:33:19.571Z",
+      "type": "image",
+      "file": {
+        "filename": "community-1766406799565-355547617.jpg",
+        "originalName": "IMG_20250511_191745.jpg",
+        "type": "image/jpeg",
+        "size": 1714769
+      }
+    }
+  ]
+}

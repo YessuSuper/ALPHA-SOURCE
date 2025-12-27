@@ -1,0 +1,94 @@
+<div id="messaging-app-container">
+    
+    <aside id="inbox-sidebar">
+        <h2>Messages</h2>
+        
+        <button id="compose-message-btn" class="action-button primary">
+            <span class="icon-pen"></span> Nouveau
+        </button>
+
+        <div id="message-list-inbox">
+        </div>
+    </aside>
+
+    <main id="messaging-main-content">
+        
+        <!-- Header mobile pour revenir au menu -->
+        <div class="mobile-message-header">
+            <button class="mobile-message-close-btn" id="mobile-message-close-btn">&times;</button>
+            <span id="mobile-message-title">Messages</span>
+        </div>
+        
+        <div id="messaging-welcome-screen" class="active">
+            <h2>Source de Messages</h2>
+            <p>Cliquez sur "Nouveau" pour envoyer un nouveau message ou sélectionnez un message dans la liste.</p>
+        </div>
+
+        <div id="compose-form-container" class="hidden">
+            <h2>Nouveau Message</h2>
+            <form id="send-message-form">
+                
+                <div class="form-group recipient-group">
+                    <label for="recipient-input-field">Destinataire(s) :</label>
+                    
+                    <div id="recipient-input-container">
+                        <input type="text" id="recipient-input-field" placeholder="Commence à taper le nom d'un élève...">
+                    </div>
+                    
+                    <ul id="autocomplete-list" class="hidden"></ul>
+
+                    <input type="hidden" id="selected-recipients-ids" name="recipients" required data-min-recipients="1">
+
+                    <div class="recipient-actions">
+                        <button type="button" id="add-all-class-btn" class="action-button secondary">Ajouter toute la classe</button>
+                    </div>
+                    
+                    <p class="hint">Tu peux ajouter plusieurs noms.</p>
+                </div>
+                
+                <div class="form-group" id="subject-group">
+                    <label for="message-subject">Objet :</label>
+                    <input type="text" id="message-subject" name="subject" placeholder="Sujet de ton putain de message" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message-body">Contenu :</label>
+                    <textarea id="message-body" name="body" rows="12" required placeholder="Tape le contenu ici, avec la 'stricte vérité'."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <div class="left-actions">
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="is-anonymous-checkbox" name="is-anonymous">
+                            <label for="is-anonymous-checkbox">Envoyer Anonymement (coût : 3 points)</label>
+                        </div>
+                        
+                        <button type="button" id="attach-file-btn" class="action-button tertiary">
+                             Joindre Fichier (0)
+                        </button>
+                    </div>
+
+                    <div class="right-actions">
+                        <button type="submit" class="action-button primary">Envoyer</button>
+                        <button type="reset" class="action-button secondary">Annuler/Effacer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="message-detail-view" class="hidden">
+            <h3 id="detail-subject">Objet du Message</h3>
+            <p id="detail-sender">De : <span class="sender-name-detail"></span></p>
+            <p id="detail-recipients">À : <span class="recipients-list-detail"></span></p>
+            <hr>
+            <div id="detail-body-content">
+            </div>
+            
+            <div id="detail-attachments" class="attachments-list">
+                </div>
+            
+            <button id="reply-to-message-btn" class="action-button primary mt-20">Répondre</button>
+        </div>
+
+    </main>
+</div>

@@ -1,45 +1,60 @@
 /* public/css/cours.css - Styles Spécifiques à l'onglet Cours */
 
 /* --- Conteneur général --- */
-#cours-page-container {
+#course-content-layout {
 	padding: 20px 0;
 	width: 100%; 
 	box-sizing: border-box;
 	position: relative;
 }
 
+#course-subject {
+	appearance: auto;
+	-webkit-appearance: auto;
+	background-color: #383838;
+	border: 1px solid #555;
+	padding: 12px;
+	border-radius: 8px;
+	color: white;
+	font-size: 1em;
+	cursor: pointer;
+}
+#course-subject:hover {
+	border-color: var(--color-primary);
+}
+
+
 /* --- NOUVEL ÉLÉMENT POUR CENTRER LE BANDEAU --- */
 #course-header-wrapper {
 	/* Utilise Flexbox pour centrer l'élément avec max-width */
 	display: flex;
-	justify-content: center; 
+	/* 🚨 CHANGEMENT MAJEUR : Affichage en colonne pour empiler les éléments 🚨 */
+	flex-direction: column; 
+	align-items: center; /* Centre le contenu au milieu du wrapper */
+	
 	width: 100%;
-	margin-bottom: 20px; /* Espace sous le bandeau */
-	/* Empêche la boîte de rester 'sticky' si le parent ne gère pas le défilement */
+	margin-bottom: 20px;
 	position: relative; 
 	z-index: 50;
 }
 
 /* --- 1. COMPTEUR (BOÎTE NOIRE) --- */
-/* On retire la position sticky ici, car elle est difficile à gérer
-	quand on a le défilement sur le parent. */
 #course-counter-box {
-	/* 🚨 SUPPRESSION DE STICKY / TOP 🚨 */
+	/* 🚨 AJOUT : On force le compteur à apparaître en premier (en haut) 🚨 */
+	order: 1;
+	/* 🚨 AJOUT : Marge pour séparer du filtre qui sera en dessous 🚨 */
+	margin-bottom: 20px; 
 	
-	/* On garde le style que tu as déjà: */
 	width: 100%;
 	max-width: 600px; 
 	background-color: #1a1a1a; 
 	color: var(--color-text);
-	padding: 15px 20px; /* J'augmente un peu le padding pour un look plus "premium" */
+	padding: 15px 20px; 
 	border-radius: 10px;
 	text-align: center;
 	font-weight: bold;
-	font-size: 1.5em; /* J'augmente la taille de la police */
-	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); /* J'augmente l'ombre */
-	
-	/* 🚨 SUPPRIME LE MARGIN DU BAS car il est géré par le wrapper 🚨 */
-	/* margin-bottom: 20px; */
+	font-size: 1.5em; 
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); 
 	
 	z-index: 50;
 	box-sizing: border-box;
@@ -47,44 +62,59 @@
 
 /* --- 2. FILTRES --- */
 #course-filters {
+	/* 🚨 AJOUT : On force les filtres à apparaître en deuxième (en bas) 🚨 */
+	order: 2;
+	/* On lui donne la même largeur que le compteur */
+	width: 100%;
+	max-width: 600px;
+	
+	/* Styles existants pour l'alignement interne */
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
-	margin-bottom: 20px;
+	
+	/* 🚨 SUPPRIME le margin-bottom car il est géré par course-counter-box 🚨 */
+	/* margin-bottom: 20px; */ 
 	padding: 10px;
 	background-color: rgba(30, 30, 30, 0.8);
 	border-radius: 8px;
+	box-sizing: border-box; /* S'assure que le padding est inclus dans max-width: 600px */
 }
 
-#subject-filter {
-	padding: 8px 12px;
-	margin-left: 10px;
-	border-radius: 5px;
-	background-color: #383838;
-	color: var(--color-text);
-	border: 1px solid var(--color-primary);
-	cursor: pointer;
+/* 🚨 AJOUT : Rend le filtre flexible si l'espace est petit 🚨 */
+@media (max-width: 700px) {
+	#course-filters {
+		/* Force le wrap des éléments sur petit écran */
+		flex-wrap: wrap; 
+		justify-content: center;
+	}
+	#course-filters input, #course-filters select, #course-filters button {
+		margin-bottom: 10px;
+		width: 100%; /* Les fait prendre toute la largeur */
+	}
+	#course-filters input[type="number"] {
+		margin-left: 0; /* Retire le décalage pour le centrage */
+	}
 }
 
-#course-filters label {
-	font-weight: bold;
-}
 
 /* --- 3. ESPACE DES FICHIERS (GRILLE) --- */
+/* ... (Reste du CSS non modifié pour les cartes/modales) ... */
 #file-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+	grid-template-columns: repeat(auto-fit, minmax(280px, auto));
 	gap: 20px;
 	padding: 0;
+	justify-content: center;
 }
 
 .course-file-card {
 	background-color: #303030;
 	border-radius: 12px;
-	overflow: hidden; /* Important pour l'arrondi et l'overlay */
+	overflow: hidden;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 	position: relative;
-	height: 300px; /* Hauteur fixe pour un affichage uniforme */
+	height: 330px;
 	transition: transform 0.2s ease;
 }
 
@@ -95,13 +125,14 @@
 
 .file-preview-area {
 	width: 100%;
-	height: 100%;
+	height: calc(100% - 75px);
+	overflow: hidden;
 }
 
 .file-image-preview {
 	width: 100%;
 	height: 100%;
-	object-fit: cover; /* Recadre l'image pour remplir la carte */
+	object-fit: cover;
 	display: block;
 }
 
@@ -122,20 +153,54 @@
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 0.95); /* Noir plus opaque */
+	background-color: rgba(0, 0, 0, 0.95);
 	color: white;
-	padding: 10px;
+	padding: 8px 10px;
 	box-sizing: border-box;
-	/* 🚨 CHANGEMENT MAJEUR : Structure du bandeau 🚨 */
 	display: flex;
-	flex-direction: column; /* Les éléments vont s'empiler */
+	flex-direction: column;
 	justify-content: space-between;
-	height: 90px; /* 🚨 HAUTEUR FIXE PLUS GRANDE 🚨 */
+	height: 75px;
 	
 	transform: translateY(100%); 
 	opacity: 0;
 	transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
+/* Overlay de la modale */
+#deposit-modal.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.7);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 2000;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .3s;
+}
+
+#deposit-modal.active {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Taille correcte de la modale */
+#deposit-modal .modal-content {
+	background-color: #2a2a2a !important;
+	width: 90% !important;
+	max-width: 500px !important;
+	max-height: 80vh !important;
+	overflow-y: auto !important;
+	padding: 20px !important;
+	border-radius: 12px !important;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+
 
 .course-file-card:hover .file-info-overlay {
 	transform: translateY(0);
@@ -158,7 +223,7 @@
 }
 
 .file-title {
-	font-size: 1.1em; /* Titre plus grand */
+	font-size: 1.1em;
 	font-weight: bold;
 	white-space: nowrap;
 	overflow: hidden;
@@ -167,7 +232,7 @@
 }
 
 .detail-button {
-	background-color: #2a7e71; /* Un bleu-vert différent */
+	background-color: #2a7e71;
 	color: white;
 	border: none;
 	padding: 6px 10px;
@@ -184,26 +249,25 @@
 
 /* Le bouton Télécharger */
 .download-button {
-	/* ... tes styles existants ... */
-	padding: 6px 10px; /* S'assure qu'il est bien dimensionné */
+	padding: 6px 10px;
 }
 
 .file-actions {
 	display: flex;
-	gap: 10px; /* Espace entre les deux boutons */
+	gap: 10px;
 	flex-shrink: 0;
 }
 
 .file-info-header {
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-start; /* Alignement en haut */
+	align-items: flex-start;
 	width: 100%;
-	margin-bottom: 5px; /* Petit espace sous le titre */
+	margin-bottom: 5px;
 }
 
 .download-button {
-	background-color: var(--color-secondary); /* Rouge-Orange */
+	background-color: var(--color-secondary);
 	color: white;
 	border: none;
 	padding: 6px 10px;
@@ -219,17 +283,11 @@
 }
 
 /* --- 4. BOUTON DÉPÔT FIXE --- */
-/* #deposit-course-button - Le BOUTON FLOTTANT (celui en bas de la page) */
 #deposit-course-button {
-	/* Positionnement */
 	position: fixed; 
 	bottom: 20px; 
-	
-	/* 🚨 Centrage parfait 🚨 */
 	left: 50%;
 	transform: translateX(-50%); 
-	
-	/* Style de la boîte */
 	background-color: #ff4141; 
 	color: white;
 	border: none;
@@ -239,19 +297,11 @@
 	font-weight: bold;
 	z-index: 1000; 
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-
-	/* 🚨 LA CORRECTION POUR L'ADAPTATION DE LA LARGEUR 🚨 */
-	white-space: nowrap; /* Maintient le texte sur une seule ligne */
-	padding: 15px 30px; /* 🚨 C'EST LE PADDING QUI DONNE L'ESPACE INTÉRIEUR 🚨 */
-	
-	/* Force le bouton à prendre la largeur exacte de son contenu (texte + padding) */
+	white-space: nowrap;
+	padding: 15px 30px;
 	width: fit-content; 
-	
 	text-align: center; 
-	/* S'assurer que le padding est compté correctement */
 	box-sizing: border-box; 
-	
-	/* Laisse-le affiché en CSS si tu l'as retiré du HTML (comme conseillé) */
 	display: block; 
 }
 
@@ -317,3 +367,165 @@
 	margin-top: 5px;
 }
 /* --- FIN STYLE FENETRE MODALE --- */
+
+/* --- Styles Spécifiques à la Modale de Détails --- */
+
+/* Conteneur principal des actions (Télécharger + Supprimer) */
+.detail-actions-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 20px;
+	gap: 10px;
+}
+
+/* Le conteneur du bouton qui peut disparaître */
+#delete-btn-container {
+	min-width: 150px;
+	min-height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+/* Style du bouton de suppression éphémère */
+.delete-button-ephemeral {
+	background-color: #ff4141;
+	color: white;
+	border: none;
+	padding: 10px 15px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1em;
+	opacity: 0;
+	transform: scale(0.9);
+	transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* Le bouton devient visible et prend sa taille normale */
+.delete-button-ephemeral.visible {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.delete-button-ephemeral:hover {
+	background-color: #c82333;
+}
+
+#course-subject {
+	-webkit-appearance: menulist-button !important;
+	-moz-appearance: menulist-button !important;
+	appearance: menulist-button !important;
+	padding-right: 36px;
+}
+
+/* ===========================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   =========================================== */
+
+/* Tablettes */
+@media (max-width: 768px) {
+    #course-content-layout {
+        padding: 20px 0;
+    }
+    
+    #course-header-wrapper {
+        margin-bottom: 20px;
+    }
+    
+    #course-counter-box {
+        margin-bottom: 20px;
+        padding: 15px 18px;
+        font-size: 1.3em;
+        max-width: 100%;
+    }
+    
+    #course-filters {
+        padding: 12px;
+        max-width: 100%;
+    }
+    
+    #course-filters input,
+    #course-filters select,
+    #course-filters button {
+        margin-bottom: 10px;
+        width: 100%;
+        font-size: 16px; /* Empêche zoom iOS */
+    }
+    
+    /* Grille de fichiers adaptée */
+    #file-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 0 15px;
+    }
+    
+    .course-file-card {
+        height: 320px;
+    }
+    
+    .file-info-overlay {
+        height: 75px;
+        padding: 8px 10px;
+    }
+    
+    /* Modale adaptée */
+    #deposit-modal .modal-content {
+        width: 95% !important;
+        padding: 20px !important;
+        margin: 15px;
+    }
+    
+    .modal-form-group {
+        margin-bottom: 18px;
+    }
+    
+    .modal-form-group input,
+    .modal-form-group textarea,
+    .modal-form-group select {
+        font-size: 16px;
+    }
+    
+    .modal-submit-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.1em;
+    }
+}
+
+/* Mobiles */
+@media (max-width: 480px) {
+    #course-content-layout {
+        padding: 10px 0;
+    }
+    
+    #course-counter-box {
+        padding: 12px;
+        font-size: 1.2em;
+    }
+    
+    /* Cards en 2 COLONNES sur mobile */
+    #file-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 colonnes au lieu d'1 */
+        gap: 12px; /* Gap réduit pour plus de cards */
+        padding: 0 8px;
+    }
+    
+    .course-file-card {
+        height: 220px; /* RÉDUIT pour 2 colonnes */
+        width: 100%; /* Prendre toute la largeur disponible */
+    }
+    
+    .file-info-overlay {
+        height: 60px; /* RÉDUIT proportionnellement */
+        padding: 5px 6px;
+        font-size: 0.85em; /* Texte plus petit */
+    }
+    
+    #deposit-modal .modal-content {
+        width: 98% !important;
+        padding: 15px !important;
+    }
+}

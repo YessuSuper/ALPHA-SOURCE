@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1765031480988,
+    "title": "Thales cours",
+    "subject": "Mathématiques",
+    "description": "juste le chap1",
+    "filePath": "/uploads/course-file-1765031480984-557566079-esezz.png",
+    "uploadedAt": "2025-12-06T14:31:20.988Z",
+    "deleteTimer": 300,
+    "supprime": false
+  },
+  {
+    "id": 1765031545801,
+    "title": "francais pour mardi",
+    "subject": "Français",
+    "description": "bandeau de frzncias quon a mis 6ans a faire pour les fautes dorthoographha la",
+    "filePath": "/uploads/course-file-1765031545800-659600953-Capture d'Ã©cran 2025-09-20 142239.png",
+    "uploadedAt": "2025-12-06T14:32:25.801Z",
+    "deleteTimer": 300,
+    "supprime": false
+  }
+]

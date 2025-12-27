@@ -1,0 +1,22 @@
+{
+  "id": "group_1766339575483",
+  "name": "tkt",
+  "description": "tktktktt",
+  "type": "public",
+  "members": [
+    "Even"
+  ],
+  "admin": "Even",
+  "createdAt": "2025-12-21T17:52:55.483Z",
+  "isPrivate": false,
+  "cost": 0,
+  "messages": [
+    {
+      "id": "msg_1766406708903",
+      "sender": "Even",
+      "content": "h",
+      "timestamp": "2025-12-22T12:31:48.903Z",
+      "type": "text"
+    }
+  ]
+}

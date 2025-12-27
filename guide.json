@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "content": "<p>Bienvenue dans Alpha Source !</p><p>Ceci est la première page du guide.</p>[IMAGE]",
+      "image": "/uploads/aiqpo1f3jbzpd0silc6b0qqot9ao_1766274157.png"
+    },
+    {
+      "content": "<p>Deuxième page du guide</p>",
+      "image": ""
+    }
+  ]
+}

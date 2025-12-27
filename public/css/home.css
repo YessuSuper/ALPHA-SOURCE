@@ -1,0 +1,248 @@
+/*
+ * /css/home.css
+ * * Ce fichier est corrigé pour utiliser Flexbox afin d'aligner le classement et le sac à dos
+ * et pour retirer les règles CSS inutiles ou conflictuelles.
+ */
+
+/* * 1. #home-content : Devient le rectangle gris */
+#home-content {
+    position: fixed; 
+    
+    /* Le left: 250px correspond à la largeur de ta sidebar */
+    left: 250px; 
+    
+    top: 20px; 
+    right: 150px; 
+    bottom: 20px;
+    
+    background-color: rgba(128, 128, 128, 0.5); 
+    border-radius: 20px;
+    z-index: 10; 
+
+    /* CORRECTION : On retire text-align: center qui centrait tout y compris le titre */
+    display: block; 
+    text-align: left; /* Tout le contenu commence à gauche */
+    
+    /* Marge intérieure pour le titre et le contenu */
+    padding: 30px; 
+}
+
+/* ⭐ AJOUT CRUCIAL : Conteneur Flexbox pour aligner les widgets côte à côte ⭐ */
+#widgets-container {
+    display: flex; /* Active Flexbox */
+    justify-content: flex-start; /* Aligne les éléments au début de la ligne */
+    gap: 25px; /* Espace entre les deux widgets */
+    margin-top: 30px; /* Espace sous le message d'accueil */
+    width: 100%; /* Important pour occuper l'espace disponible */
+}
+
+/* Style commun aux deux widgets (Classement et Sac à Dos) */
+.widget-box {
+    text-align: left; 
+    padding: 15px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.3); 
+    color: #ffffff;
+    
+    /* Les deux widgets prennent chacun la même place dans le flexbox */
+    flex: 1; 
+    min-width: 300px;
+    max-width: 45%; /* S'assure qu'ils ne débordent pas et laissent de la place pour le gap */
+}
+
+/* --- Styles spécifiques aux deux widgets --- */
+
+/* On annule la marge qui centrait le classement (maintenant géré par flexbox) */
+#leaderboard-display {
+    margin: 0; 
+    width: auto;
+}
+
+#leaderboard-display h3,
+#backpack-display h3 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    padding-bottom: 5px;
+}
+
+.leader-name {
+    font-weight: bold;
+    color: #fce300; /* Jaune pour le boss */
+    font-size: 1.2rem;
+}
+
+/* Styles pour les sous-titres h5 des widgets */
+.widget-box h5 {
+    color: #ffffff;
+    margin-top: 10px;
+    margin-bottom: 5px; /* Réduit l'espace avant la liste */
+    font-size: 1.1rem; /* Plus petit et discret */
+}
+
+/* --- Styles spécifiques au Sac à Dos --- */
+
+#backpack-display ul {
+    list-style-type: none; /* Retire les puces */
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+#backpack-display li {
+    background-color: rgba(255, 255, 255, 0.1); /* Fond léger pour la matière */
+    padding: 5px 10px;
+    margin-bottom: 3px;
+    border-radius: 5px;
+}
+
+
+/* --- ⭐ CORRECTION : Styles pour les Boutons d'Action (Déconnexion et Notice) ⭐ --- */
+
+/* Conteneur pour centrer les boutons sous les widgets */
+#action-buttons-container {
+    margin-top: 50px; 
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; /* Espace entre les deux boutons */
+    width: 100%; 
+}
+
+/* Style commun de base pour tous les boutons d'action */
+#logout-button,
+#notice-button {
+    text-decoration: none; 
+    font-size: 1.2rem; /* Taille harmonisée */
+    font-weight: bold;
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s;
+}
+
+/* Style spécifique pour le bouton NOTICE (bleu/gris sombre) */
+#notice-button {
+    background-color: #2c3e50; 
+    color: #ffffff;
+}
+
+/* Style spécifique pour le bouton DÉCONNEXION (Rouge d'alerte) */
+#logout-button {
+    background-color: #e74c3c; /* Rouge */
+    color: #ffffff;
+}
+
+#logout-button:hover,
+#notice-button:hover {
+    transform: translateY(-2px); 
+}
+
+#notice-button:hover {
+    background-color: #34495e; 
+}
+
+#logout-button:hover {
+    background-color: #c0392b; /* Rouge plus foncé au survol */
+}
+
+#logout-button:active,
+#notice-button:active {
+    transform: translateY(0);
+}
+
+/* ===========================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   =========================================== */
+
+/* Tablettes et mobiles */
+@media (max-width: 768px) {
+    /* Conteneur principal adapté mais moins drastique */
+    #home-content {
+        position: static;
+        left: auto;
+        top: auto;
+        right: auto;
+        bottom: auto;
+        margin: 20px;
+        width: auto;
+        padding: 25px;
+        height: auto;
+        min-height: 70vh;
+    }
+    
+    /* Widgets en colonne mais avec plus d'espace */
+    #widgets-container {
+        flex-direction: column;
+        gap: 25px;
+        margin-top: 25px;
+    }
+    
+    .widget-box {
+        flex: none;
+        width: auto; /* CHANGÉ : largeur automatique au lieu de 100% */
+        max-width: 400px; /* AJOUTÉ : largeur maximale pour éviter le débordement */
+        min-width: auto;
+        padding: 20px;
+        margin: 0 auto; /* AJOUTÉ : centrage automatique */
+    }
+    
+    /* Boutons d'action en colonne avec espacement */
+    #action-buttons-container {
+        margin-top: 35px;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    #logout-button,
+    #notice-button {
+        width: auto; /* Largeur automatique pour s'adapter au texte */
+        min-width: 100px; /* Largeur minimale pour cohérence */
+        max-width: 180px; /* Largeur maximale pour éviter trop large */
+        padding: 14px 20px; /* Padding adapté */
+        font-size: 1.1em;
+        white-space: nowrap;
+        text-align: center; /* Centrer le texte dans le bouton */
+        display: inline-block; /* Pour que text-align fonctionne */
+    }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+    #home-content {
+        margin: 5px;
+        padding: 15px;
+    }
+    
+    #widgets-container {
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .widget-box {
+        padding: 12px;
+        width: auto; /* CHANGÉ : largeur automatique */
+        max-width: 350px; /* AJOUTÉ : largeur maximale adaptée aux petits écrans */
+        margin: 0 auto; /* AJOUTÉ : centrage automatique */
+    }
+    
+    .widget-box h3,
+    .widget-box h5 {
+        font-size: 1em;
+    }
+    
+    #action-buttons-container {
+        margin-top: 20px;
+        gap: 10px;
+    }
+    
+    #logout-button,
+    #notice-button {
+        width: auto; /* CHANGÉ : largeur automatique */
+        min-width: 100px; /* AJOUTÉ : largeur minimale adaptée */
+        max-width: 180px; /* AJOUTÉ : largeur maximale adaptée */
+        padding: 10px 15px;
+        font-size: 0.9em;
+        white-space: nowrap; /* AJOUTÉ : empêche le texte de passer à la ligne */
+    }
+}

@@ -1,0 +1,214 @@
+{
+  "logs": [
+    {
+      "timestamp": "2025-12-21T17:43:03.524Z",
+      "level": "info",
+      "message": "Route POST /api/messagerie/send configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:43:03.526Z",
+      "level": "info",
+      "message": "Route GET /api/messagerie/messages configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:43:11.907Z",
+      "level": "info",
+      "message": "Route POST /api/messagerie/send configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:43:11.908Z",
+      "level": "info",
+      "message": "Route GET /api/messagerie/messages configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:43:11.954Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:43:11.955Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:44:10.694Z",
+      "level": "info",
+      "message": "Route POST /api/messagerie/send configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:44:10.695Z",
+      "level": "info",
+      "message": "Route GET /api/messagerie/messages configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:44:10.750Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:44:10.753Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:14.828Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:14.830Z",
+      "level": "info",
+      "message": "[POINTS] Récompense pour Even: +2 points pour 24 messages fills",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:14.830Z",
+      "level": "info",
+      "message": "[POINTS] Mise à jour des utilisateurs après récompenses messages",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:39.131Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:39.133Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:59.312Z",
+      "level": "info",
+      "message": "Route POST /api/messagerie/send configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:59.313Z",
+      "level": "info",
+      "message": "Route GET /api/messagerie/messages configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:59.354Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:47:59.356Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:09.129Z",
+      "level": "info",
+      "message": "Route POST /api/messagerie/send configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:09.130Z",
+      "level": "info",
+      "message": "Route GET /api/messagerie/messages configurée.",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:09.168Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:09.170Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:19.177Z",
+      "level": "info",
+      "message": "[VERIFICATIONS] Vérifications périodiques en cours...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:19.178Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:19.179Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:29.177Z",
+      "level": "info",
+      "message": "[VERIFICATIONS] Vérifications périodiques en cours...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:29.178Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:29.179Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:39.183Z",
+      "level": "info",
+      "message": "[VERIFICATIONS] Vérifications périodiques en cours...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:39.185Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:39.185Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:49.184Z",
+      "level": "info",
+      "message": "[VERIFICATIONS] Vérifications périodiques en cours...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:49.185Z",
+      "level": "info",
+      "message": "[POINTS] Vérification des récompenses de messages...",
+      "source": "server"
+    },
+    {
+      "timestamp": "2025-12-21T17:48:49.186Z",
+      "level": "info",
+      "message": "[POINTS] Aucune récompense de messages à appliquer",
+      "source": "server"
+    }
+  ]
+}

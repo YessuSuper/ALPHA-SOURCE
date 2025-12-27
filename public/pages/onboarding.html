@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue - Alpha Source</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--color-background) 60%, rgba(77, 124, 255, 0.05) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .onboarding-container {
+            background: #1e1e1e;
+            border: 2px solid var(--color-primary);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9);
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        h2 {
+            color: var(--color-primary);
+            margin-top: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--color-text);
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        input[type="date"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #3a3a3a;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: var(--color-text);
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        input[type="file"]:focus {
+            border-color: var(--color-secondary);
+            outline: none;
+        }
+        
+        #profile-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            margin: 15px auto;
+            display: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: #121212;
+        }
+        
+        .btn-primary:hover {
+            background: #6a96ff;
+        }
+        
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #444;
+            color: var(--color-text);
+        }
+        
+        .btn-secondary:hover {
+            background: #555;
+        }
+        
+        .step-indicator {
+            text-align: center;
+            color: var(--color-secondary);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        #guide-content {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 200px;
+            text-align: left;
+            color: var(--color-text);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        #guide-content img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <!-- Étape 1: Photo de profil -->
+        <div class="step active" id="step-1">
+            <div class="step-indicator">Étape 1/4</div>
+            <h2>Salut <span id="user-name"></span>!</h2>
+            <p>Bienvenue sur Alpha Source!</p>
+            <p>Choisis ta photo de profil (elle sera modifiable à tout instant)</p>
+            
+            <div class="form-group">
+                <img id="profile-preview" alt="Aperçu">
+                <input type="file" id="profile-pic-input" accept="image/*">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="skipStep1()">Passer</button>
+                <button class="btn-primary" id="btn-validate-pic" onclick="validatePic()">Valider</button>
+            </div>
+        </div>
+
+        <!-- Étape 2: Date d'anniversaire -->
+        <div class="step" id="step-2">
+            <div class="step-indicator">Étape 2/4</div>
+            <h2>Date d'anniversaire</h2>
+            <p>Quand es-tu né(e)?</p>
+            
+            <div class="form-group">
+                <input type="date" id="birth-date-input">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevStep()">Retour</button>
+                <button class="btn-primary" id="btn-validate-birth" onclick="validateBirth()">Valider</button>
+            </div>
+        </div>
+
+        <!-- Étape 3: Mot de passe -->
+        <div class="step" id="step-3">
+            <div class="step-indicator">Étape 3/4</div>
+            <h2>Choisis ton mot de passe</h2>
+            
+            <div class="form-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" id="new-password" oninput="checkPassword()">
+            </div>
+            
+            <div class="form-group">
+                <label>Confirmer le mot de passe</label>
+                <input type="password" id="confirm-password" oninput="checkPassword()">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="prevStep()">Retour</button>
+                <button class="btn-primary" id="btn-validate-pwd" onclick="validatePassword()">Valider</button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Guide -->
+        <div class="step" id="step-4">
+            <div class="step-indicator">Étape 4/4 - <span id="guide-counter">1/1</span></div>
+            <h2>Guide d'accueil</h2>
+            
+            <div id="guide-content">Chargement du guide...</div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" id="btn-prev-guide" onclick="prevGuide()">Précédent</button>
+                <button class="btn-primary" id="btn-next-guide" onclick="nextGuide()">Suivant</button>
+                <button class="btn-primary" id="btn-finish" onclick="finishOnboarding()" style="display:none;">Terminer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let guidePages = [];
+        let currentGuidePage = 0;
+        const username = localStorage.getItem('source_username');
+
+        document.getElementById('user-name').textContent = username;
+
+        // Étape 1: Photo
+        function skipStep1() { goToStep(2); }
+        
+        function validatePic() {
+            const file = document.getElementById('profile-pic-input').files[0];
+            if (file) {
+                const fd = new FormData();
+                fd.append('profilePic', file);
+                fd.append('username', username);
+                fetch('/api/update-profile-pic', { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(d => { if (d.success) goToStep(2); })
+                    .catch(e => console.error(e));
+            } else {
+                goToStep(2);
+            }
+        }
+
+        document.getElementById('profile-pic-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('profile-preview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Étape 2: Date
+        function validateBirth() {
+            const bd = document.getElementById('birth-date-input').value;
+            if (!bd) { alert('Choisis une date'); return; }
+            fetch('/api/update-birth-date', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, birthDate: bd })
+            })
+            .then(r => r.json())
+            .then(d => { if (d.success) goToStep(3); })
+            .catch(e => console.error(e));
+        }
+
+        // Étape 3: Mot de passe
+        function checkPassword() {
+            const p1 = document.getElementById('new-password').value;
+            const p2 = document.getElementById('confirm-password').value;
+            document.getElementById('btn-validate-pwd').disabled = !(p1 && p2 && p1 === p2);
+        }
+
+        function validatePassword() {
+            const pwd = document.getElementById('new-password').value;
+            fetch('/api/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, newPassword: pwd })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    loadGuide();
+                    goToStep(4);
+                }
+            })
+            .catch(e => console.error(e));
+        }
+
+        // Étape 4: Guide
+        function loadGuide() {
+            fetch('/api/guide')
+                .then(r => r.json())
+                .then(d => {
+                    guidePages = d.pages || [{ content: '<p>Bienvenue!</p>' }];
+                    showGuidePage(0);
+                })
+                .catch(e => {
+                    guidePages = [{ content: '<p>Guide indisponible</p>' }];
+                    showGuidePage(0);
+                });
+        }
+
+        function showGuidePage(i) {
+            if (!guidePages || guidePages.length === 0) return;
+            let page = guidePages[i];
+            let html = page.content;
+            
+            // Ajouter l'image si elle existe
+            if (page.image && page.image.trim() !== '') {
+                html += `<br><img src="${page.image}" alt="Guide image" style="max-width: 100%; margin-top: 15px; border-radius: 8px;">`;
+            }
+            
+            document.getElementById('guide-content').innerHTML = html;
+            document.getElementById('guide-counter').textContent = `${i + 1}/${guidePages.length}`;
+            document.getElementById('btn-prev-guide').disabled = i === 0;
+            document.getElementById('btn-next-guide').style.display = i < guidePages.length - 1 ? 'inline-block' : 'none';
+            document.getElementById('btn-finish').style.display = i === guidePages.length - 1 ? 'inline-block' : 'none';
+            currentGuidePage = i;
+        }
+
+        function prevGuide() { if (currentGuidePage > 0) showGuidePage(currentGuidePage - 1); }
+        function nextGuide() { if (currentGuidePage < guidePages.length - 1) showGuidePage(currentGuidePage + 1); }
+
+        function finishOnboarding() {
+            window.location.href = '/index.html';
+        }
+
+        // Navigation générale
+        function goToStep(n) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + n).classList.add('active');
+            currentStep = n;
+            window.scrollTo(0, 0);
+        }
+
+        function prevStep() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        }
+    </script>
+</body>
+</html>
