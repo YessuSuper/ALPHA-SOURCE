@@ -5,11 +5,14 @@
     display: flex;
     max-width: 1200px;
     min-width: 1200px;
-    margin: 20px auto;
+    margin: 20px 0;
     background-color: #2a2a2a; /* Fond pro, moins noir */
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     min-height: 80vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding: 0;
 }
 
 /* --- Colonne de la Liste (Sidebar/Inbox) --- */
@@ -33,21 +36,15 @@
 }
 
 /* --- Bouton Composer --- */
-#compose-message-btn {
-    width: 100%;
-    padding: 12px;
+#compose-actions {
+    display: flex;
+    gap: 10px;
     margin-bottom: 20px;
-    background-color: var(--color-primary); /* Couleur principale */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
 }
 
-#compose-message-btn:hover {
-    background-color: #6a1ba0;
+#compose-actions .action-button {
+    flex: 1;
+    padding: 12px;
 }
 
 /* --- Liste des Messages (Inbox) --- */
@@ -58,9 +55,12 @@
 
 .message-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 5px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 10px;
     border-bottom: 1px solid #333;
     cursor: pointer;
     transition: background-color 0.1s;
@@ -87,20 +87,29 @@
 }
 
 .message-sender-preview, .message-subject-preview {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 100%;
+    white-space: normal;
+    word-break: break-word;
 }
 .message-sender-preview {
-    flex-basis: 30%;
     font-weight: 600;
 }
 .message-subject-preview {
-    flex-basis: 55%;
     color: #bbb;
 }
+
+/* Exigence: uniquement les non-lus en gras dans le menu */
+.message-item:not(.unread) .message-sender-preview,
+.message-item:not(.unread) .message-subject-preview {
+    font-weight: normal;
+}
+
+.message-item.unread .message-sender-preview,
+.message-item.unread .message-subject-preview {
+    font-weight: 800;
+}
 .message-date {
-    flex-basis: 15%;
+    align-self: flex-end;
     text-align: right;
     font-size: 0.8em;
     color: #888;
@@ -127,11 +136,51 @@
     max-width: 900px;
 }
 
+/* --- Pill cliquable pour ID de cours dans un message --- */
+.course-id-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 10px;
+    margin: 0 2px;
+    border-radius: 999px;
+    border: 1px solid rgba(124, 58, 237, 0.55);
+    background: rgba(124, 58, 237, 0.12);
+    color: #e9d5ff;
+    font-weight: 700;
+    font-size: 0.95em;
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+}
+
+.course-id-pill:hover {
+    background: rgba(124, 58, 237, 0.22);
+    border-color: rgba(124, 58, 237, 0.9);
+}
+
+.course-id-pill:focus-visible {
+    outline: 2px solid rgba(124, 58, 237, 0.95);
+    outline-offset: 2px;
+}
+
 #compose-form-container h2 {
     color: white;
     border-bottom: 2px solid var(--color-secondary);
     padding-bottom: 10px;
     margin-bottom: 25px;
+}
+
+#rescue-form-container h2 {
+    color: #ffebd1;
+    border-bottom: 2px solid #d97706;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+#rescue-form-container .hint {
+    margin: 0 0 12px 0;
+    color: #f1c27d;
 }
 
 .form-group label {
@@ -145,6 +194,7 @@
 #message-subject, 
 #message-body {
     width: 100%;
+    max-width: 100%;
     padding: 12px;
     border: 1px solid #555;
     border-radius: 6px;
@@ -217,6 +267,30 @@
     background-color: #3b659c;
 }
 
+.action-button.warning {
+    background-color: #d97706;
+    color: #fff;
+}
+.action-button.warning:hover {
+    background-color: #f59e0b;
+}
+
+.message-item.urgent {
+    border-left: 3px solid #f59e0b;
+    background-color: #3b2a12;
+}
+
+#detail-urgent-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #f59e0b;
+    color: #1a1205;
+    font-weight: 700;
+    font-size: 0.85em;
+}
+
 
 /* --- Vue Détail Message --- */
 #message-detail-view h3 {
@@ -247,6 +321,21 @@
     min-height: 300px;
 }
 .mt-20 { margin-top: 20px; }
+
+#rescue-actions {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: #1f1f1f;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #ddd;
+}
+
+#rescue-actions .vote-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
 
 /* --- Utilitaires --- */
 .hidden {
@@ -280,6 +369,7 @@
 }
 #recipient-input-field:focus {
     outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-2) 50%, transparent);
 }
 
 .recipient-tag {
@@ -384,6 +474,7 @@
 @media (max-width: 768px) {
     #messaging-app-container {
         flex-direction: column;
+        width: 100%;
         max-width: 100%;
         min-width: auto;
         margin: 0;
@@ -420,8 +511,11 @@
         background-color: #1a1a1a;
     }
     
-    #compose-message-btn {
-        margin: 15px;
+    #compose-actions {
+        padding: 0 15px 10px 15px;
+    }
+    #compose-actions .action-button {
+        margin: 0;
         padding: 12px;
         font-size: 0.95em;
         border-radius: 8px;
@@ -566,8 +660,10 @@
         padding: 12px;
     }
     
-    #compose-message-btn {
-        margin: 12px;
+    #compose-actions {
+        padding: 0 12px 8px 12px;
+    }
+    #compose-actions .action-button {
         padding: 11px;
         font-size: 0.9em;
     }
@@ -603,6 +699,11 @@
     
     #messaging-main-content {
         top: 60px;
+        padding: 15px;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        width: calc(100% - 10px) !important;
+        margin-left: 5px !important;
     }
     
     .mobile-back-button {

@@ -9,7 +9,7 @@ window.loadInfoData = async function() {
     }
     
     try {
-        const API_URL = `/public/api/points/${username}`; 
+        const API_URL = `/api/all.json`; // 🔥 MODIFIÉ : Lecture directe depuis all.json
         
         console.log(`PUTAIN LOG (TEST API) : Je tente de charger les points depuis l'API : ${API_URL}`);
         
@@ -80,4 +80,131 @@ window.handlePointUpdate = function(newIndividualPoints) {
     // Mais pour l'instant, on se contente de passer l'ordre d'affichage.
     console.log("PUTAIN LOG (INFO.JS) : Commande reçue de communaute.js. Mise à jour des points...");
     window.updatePointsDisplay(newIndividualPoints);
+};
+
+
+// =================================================================
+// 🔥 GRAPHIQUE D'ÉVOLUTION DES POINTS 🔥
+// =================================================================
+
+let pointsChart = null; // Variable globale pour stocker l'instance du graphique
+
+/**
+ * Charge et affiche le graphique d'évolution des points de l'utilisateur
+ */
+window.loadPointsChart = async function() {
+    const username = window.currentUsername || localStorage.getItem('source_username');
+    
+    if (!username) {
+        console.error("PUTAIN LOG (GRAPH) : Utilisateur non défini.");
+        return;
+    }
+    
+    try {
+        // Charger les données utilisateur depuis users.json
+        const response = await fetch('/api/users.json');
+        if (!response.ok) {
+            console.error("PUTAIN LOG (GRAPH) : Erreur lors du chargement de users.json");
+            return;
+        }
+        
+        const users = await response.json();
+        const currentUser = users.find(u => u.username === username);
+        
+        if (!currentUser || !Array.isArray(currentUser.graph_pt) || currentUser.graph_pt.length === 0) {
+            console.warn(`PUTAIN LOG (GRAPH) : Aucune donnée graph_pt pour ${username}`);
+            // Afficher un message si pas de données
+            const canvas = document.getElementById('points-chart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText('Pas encore de données de progression...', canvas.width / 2, canvas.height / 2);
+            }
+            return;
+        }
+        
+        // Préparer les données pour Chart.js
+        const labels = currentUser.graph_pt.map(entry => {
+            const date = new Date(entry.date);
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+        });
+        
+        const data = currentUser.graph_pt.map(entry => entry.points);
+        
+        // Calcul d'une échelle adaptative pour l'axe Y
+        const maxPoints = Math.max(...data);
+        const paddedMax = Math.max(10, Math.ceil(maxPoints * 1.2));
+        const yStep = Math.max(1, Math.ceil(paddedMax / 6));
+
+        // Détruire l'ancien graphique s'il existe
+        if (pointsChart) {
+            pointsChart.destroy();
+        }
+        
+        // Créer le graphique
+        const ctx = document.getElementById('points-chart').getContext('2d');
+        pointsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Points',
+                    data: data,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#fff',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#fff',
+                            stepSize: yStep
+                        },
+                        suggestedMax: paddedMax,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#fff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log(`PUTAIN LOG (GRAPH) : Graphique chargé avec ${currentUser.graph_pt.length} points de données`);
+        
+    } catch (error) {
+        console.error("PUTAIN LOG (GRAPH) : Erreur lors du chargement du graphique:", error);
+    }
 };

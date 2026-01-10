@@ -163,6 +163,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
+        margin-top: 60px;
     }
     
     #user-info-display,
@@ -181,7 +182,7 @@
     
     #info-layout {
         padding: 20px;
-        padding-top: 130px;
+        padding-top: 160px;
     }
     
     #info-layout .page-title {
@@ -219,6 +220,7 @@
     #stats-header {
         padding: 18px;
         gap: 10px;
+        margin-top: 60px;
     }
     
     .stat-large-text {
@@ -261,5 +263,91 @@
     
     .day-number {
         font-size: 0.95em;
+    }
+}
+
+/* ------------------------------------------------ */
+/* --- GRAPHIQUE D'ÉVOLUTION DES POINTS --- */
+/* ------------------------------------------------ */
+#info-main-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#points-chart-container {
+    flex: 0 0 55%;
+    max-width: 560px;
+    margin: 0;
+    padding: 25px;
+    background: rgba(26, 26, 26, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#points-chart-container h3 {
+    color: #fff;
+    margin-bottom: 16px;
+    font-size: 1.35em;
+    text-align: left;
+}
+
+#points-chart {
+    max-height: 320px;
+    width: 100% !important;
+    max-width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 12px;
+    display: block;
+    box-sizing: border-box;
+}
+
+#info-side-slot {
+    flex: 1;
+    min-height: 200px;
+    padding: 20px;
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    color: #cfcfcf;
+}
+
+@media (max-width: 1024px) {
+    #info-main-row {
+        flex-direction: column;
+    }
+    #info-main-row {
+        width: 100%;
+    }
+    #points-chart-container {
+        flex: 1;
+        max-width: none;
+        width: 100%;
+    }
+    #points-chart {
+        max-height: 380px;
+    }
+}
+
+@media (max-width: 600px) {
+    #points-chart-container {
+        padding: 18px;
+    }
+    #points-chart-container {
+        width: 100%;
+    }
+    #points-chart {
+        max-height: 260px;
+        padding: 10px;
+    }
+    #info-side-slot {
+        padding: 16px;
     }
 }

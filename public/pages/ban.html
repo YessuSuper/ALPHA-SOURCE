@@ -3,18 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banni - ALPHA SOURCE</title>
+    <title>BANNI - ALPHA SOURCE</title>
     <link rel="stylesheet" href="/css/ban.css">
 </head>
 <body>
-    <div class="login-container">
-        <h1>ALPHA SOURCE</h1>
-        <h1>------------</h1>
-        <h2>Tu as été banni!</h2>
-        <p>Ton compte a été banni. Contacte l'administrateur pour plus d'informations.</p>
-        <p>Il se peut que tu aies été banni pour avoir violé les règles de l'application.</p>
-        <p>mail: vrai.alpha.source@gmail.com     -   tel: 0626568662</p>
-        <button onclick="window.location.href='/pages/login.html'">Réessayer de se connecter</button>
+    <div class="banned-overlay"></div>
+    <div class="banned-container">
+        <div class="banned-image-container">
+            <img src="/ressources/details/banned.png" alt="BANNED" class="banned-image">
+        </div>
+        <div class="banned-content">
+            <h1 class="banned-title">TU AS ÉTÉ BANNI</h1>
+            <div class="banned-separator"></div>
+            <p class="banned-reason">Violations graves des règles de la communauté</p>
+            <p class="banned-warning" id="ban-duration">Chargement...</p>
+            <p class="ban-motif" id="ban-motif"></p>
+            <div class="banned-contact">
+                <p class="contact-label">POUR CONTESTER :</p>
+                <p>📧 vrai.alpha.source@gmail.com</p>
+                <p>📞 0626568662</p>
+            </div>
+            <button class="banned-button" onclick="window.location.href='/pages/login.html'">
+                ↻ Réessayer de se connecter
+            </button>
+        </div>
     </div>
+    <script src="/js/ban.js"></script>
 </body>
 </html>

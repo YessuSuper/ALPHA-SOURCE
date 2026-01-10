@@ -3,7 +3,9 @@
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById('username').value;
+    // Trim and remove invisible characters to avoid mismatch
+    const rawUsername = document.getElementById('username').value || '';
+    const username = rawUsername.trim().replace(/[\u200B-\u200D\uFEFF]/g, '');
     const password = document.getElementById('password').value;
     const errorMessage = document.getElementById('error-message');
     
@@ -37,6 +39,13 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             }
         } else {
             if (data.redirect) {
+                // Stocker les infos du ban si présentes
+                if (data.ban_until) {
+                    localStorage.setItem('ban_until', data.ban_until);
+                }
+                if (data.ban_reason) {
+                    localStorage.setItem('ban_reason', data.ban_reason);
+                }
                 window.location.href = data.redirect;
             } else {
                 // Statut 401 ou succès à false
@@ -111,11 +120,11 @@ function initOnboarding(){
                     showStep(2);
                 }else{
                     console.error('Upload failed:', d.message);
-                    alert('Erreur upload: ' + (d.message || 'Erreur inconnue'));
+                    await showModal('Erreur upload: ' + (d.message || 'Erreur inconnue'));
                 }
             }catch(e){
                 console.error('Erreur upload onboarding:', e);
-                alert('Erreur réseau lors de l\'upload');
+                await showModal('Erreur réseau lors de l\'upload');
             }
         }else showStep(2);
     };

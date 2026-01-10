@@ -1,0 +1,32 @@
+{
+  "id": "mp_1767543021294",
+  "participants": [
+    "Even",
+    "Alexandre"
+  ],
+  "createdBy": "Even",
+  "createdAt": "2026-01-04T16:10:21.294Z",
+  "messages": [
+    {
+      "id": "msg_1767543027949",
+      "sender": "Even",
+      "content": "ftg stp",
+      "timestamp": "2026-01-04T16:10:27.949Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1767628135228",
+      "sender": "Even",
+      "content": "gerges",
+      "timestamp": "2026-01-05T15:48:55.228Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768079647322",
+      "sender": "Even",
+      "content": "ftg",
+      "timestamp": "2026-01-10T21:14:07.322Z",
+      "type": "text"
+    }
+  ]
+}

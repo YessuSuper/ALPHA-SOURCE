@@ -96,8 +96,8 @@ body {
 /* Effet SIGMA au focus (Jaune Néon) */
 .form-group input[type="text"]:focus,
 .form-group input[type="password"]:focus {
-    border-color: var(--color-secondary); /* Bordure Jaune Néon */
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); /* Glow Néon subtil */
+    border-color: var(--accent-2); /* Bordure secondaire discrète */
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent); /* Glow subtil avec accent-2 */
     outline: none;
     background-color: #333;
 }

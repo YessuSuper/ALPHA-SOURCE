@@ -25,15 +25,65 @@
         </div>
         
         <div id="backpack-display" class="widget-box">
-            <h3 id="backpack-title">🎒 Sac à Dos</h3>
+            <div class="backpack-tabs">
+                <button id="tab-backpack" class="active">🎒 Sac à Dos</button>
+                <button id="tab-edt">📅 Emploi du Temps</button>
+            </div>
             
-            <h5 id="backpack-title-today">Aujourd'hui (...)</h5> 
-            <ul id="backpack-today-subjects">
+            <div id="view-backpack">
+                <h5 id="backpack-title-today">Aujourd'hui (...)</h5> 
+                <ul id="backpack-today-subjects">
+                    <li>Chargement...</li>
+                </ul>
+
+                <h5 id="backpack-title-tomorrow">Demain (...)</h5>
+                <ul id="backpack-tomorrow-subjects">
+                    <li>Chargement...</li>
+                </ul>
+            </div>
+
+            <div id="view-edt" style="display: none;">
+                <h5 id="edt-title-today">Emploi du temps</h5>
+                <ul id="edt-today-list" class="edt-list">
+                    <li>Chargement...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="controls-widget" class="widget-box" style="display: none;">
+            <h3>🧪 Contrôles à venir</h3>
+            <ul id="controls-list" class="home-widget-list">
                 <li>Chargement...</li>
             </ul>
+        </div>
 
-            <h5 id="backpack-title-tomorrow">Demain (...)</h5>
-            <ul id="backpack-tomorrow-subjects">
+        <div id="pending-homework-widget" class="widget-box" style="display: none;">
+            <h3>📚 Devoirs à faire</h3>
+            <ul id="pending-homework-list" class="home-widget-list">
+                <li>Chargement...</li>
+            </ul>
+        </div>
+
+        <div id="notes-widget" class="widget-box" style="display: none;">
+            <h3>📈 Moyenne & notes récentes</h3>
+            <div class="home-notes-summary">
+                <div class="home-notes-avg">Moyenne actuelle : <span id="notes-current-avg">-</span><span class="home-notes-avg-suffix">/20</span></div>
+                <ul id="notes-recent-list" class="home-widget-list">
+                    <li>Chargement...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="unread-messages-widget" class="widget-box" style="display: none;">
+            <h3>📨 Messages non lus</h3>
+            <ul id="unread-messages-list" class="home-widget-list">
+                <li>Chargement...</li>
+            </ul>
+        </div>
+
+        <div id="recent-conversations-widget" class="widget-box" style="display: none;">
+            <h3>💬 Derniers messages</h3>
+            <ul id="recent-conversations-list" class="home-widget-list">
                 <li>Chargement...</li>
             </ul>
         </div>

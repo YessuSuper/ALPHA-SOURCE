@@ -3,9 +3,14 @@
     <aside id="inbox-sidebar">
         <h2>Messages</h2>
         
-        <button id="compose-message-btn" class="action-button primary">
-            <span class="icon-pen"></span> Nouveau
-        </button>
+        <div id="compose-actions">
+            <button id="compose-message-btn" class="action-button primary">
+                <span class="icon-pen"></span> Nouveau
+            </button>
+            <button id="rescue-message-btn" class="action-button warning">
+                <span class="icon-flag"></span> Sauvetage
+            </button>
+        </div>
 
         <div id="message-list-inbox">
         </div>
@@ -76,6 +81,29 @@
             </form>
         </div>
 
+        <div id="rescue-form-container" class="hidden">
+            <h2>Sauvetage</h2>
+            <p class="hint">Coût : 5 points. Destinataire unique : Source AI. Le premier cours validé gagne 15 points.</p>
+            <form id="rescue-message-form">
+                <div class="form-group" id="rescue-subject-group">
+                    <label for="rescue-subject">Objet :</label>
+                    <input type="text" id="rescue-subject" name="subject" placeholder="Ex: Cours de maths manqué" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="rescue-body">Ta demande :</label>
+                    <textarea id="rescue-body" name="body" rows="10" required placeholder="Explique ce qu'il te manque, le chapitre, les consignes, la date, etc."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <div class="right-actions" style="margin-left:auto;">
+                        <button type="submit" class="action-button warning">Lancer le sauvetage (-5 pts)</button>
+                        <button type="button" id="cancel-rescue-btn" class="action-button secondary">Annuler</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <div id="message-detail-view" class="hidden">
             <h3 id="detail-subject">Objet du Message</h3>
             <p id="detail-sender">De : <span class="sender-name-detail"></span></p>
@@ -86,6 +114,8 @@
             
             <div id="detail-attachments" class="attachments-list">
                 </div>
+
+            <div id="rescue-actions" class="hidden"></div>
             
             <button id="reply-to-message-btn" class="action-button primary mt-20">Répondre</button>
         </div>

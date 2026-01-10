@@ -1,0 +1,40 @@
+{
+  "id": "group_1767622168458",
+  "name": "PARRE brise gANG",
+  "description": "tkt c pour un test",
+  "type": "group",
+  "members": [
+    "Even",
+    "Alexandre",
+    "Calixte"
+  ],
+  "admin": "Even",
+  "createdAt": "2026-01-05T14:09:28.458Z",
+  "isPrivate": true,
+  "cost": 30,
+  "photoUrl": "",
+  "messages": [
+    {
+      "id": "msg_1767626015962",
+      "sender": "Even",
+      "content": "fefza",
+      "timestamp": "2026-01-05T15:13:35.962Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768081642546",
+      "sender": "Alexandre",
+      "content": "lk",
+      "timestamp": "2026-01-10T21:47:22.546Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768082188018",
+      "sender": "Alexandre",
+      "content": "ftg",
+      "timestamp": "2026-01-10T21:56:28.018Z",
+      "type": "text",
+      "replies_to": "msg_1767626015962"
+    }
+  ]
+}

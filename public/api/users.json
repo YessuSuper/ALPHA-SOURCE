@@ -2,52 +2,451 @@
   {
     "username": "Even",
     "passwordHash": "$2b$10$ky7QNVQITMTsBURRMrbM9OQVZj6q1.wygdhNc72ZDC968ArZOjkRe",
-    "pt": 1,
-    "connexions": 7,
-    "last_connexion": 1766831724012,
+    "pt": 651,
+    "connexions": 52,
+    "last_connexion": 1768087065075,
     "active": true,
     "banned": false,
     "birth_date": "2012-01-28",
-    "messages_fill_count": 4,
-    "last_daily_login": 1766339531984,
-    "messages_ai_count": 1
+    "messages_fill_count": 18,
+    "last_daily_login": 1768085818394,
+    "messages_ai_count": 5,
+    "last_ranking_reward": 1768069130210,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 45
+      },
+      {
+        "date": "2025-12-28",
+        "points": 33
+      },
+      {
+        "date": "2025-12-29",
+        "points": 53
+      },
+      {
+        "date": "2025-12-31",
+        "points": 797
+      },
+      {
+        "date": "2026-01-01",
+        "points": 807
+      },
+      {
+        "date": "2026-01-02",
+        "points": 808
+      },
+      {
+        "date": "2026-01-03",
+        "points": 752
+      },
+      {
+        "date": "2026-01-04",
+        "points": 759
+      },
+      {
+        "date": "2026-01-05",
+        "points": 692
+      },
+      {
+        "date": "2026-01-09",
+        "points": 631
+      },
+      {
+        "date": "2026-01-10",
+        "points": 641
+      }
+    ],
+    "badges_current": [
+      "sociable",
+      "actif",
+      "rank1",
+      "robot",
+      "depenseur"
+    ],
+    "badges_obtained": [
+      "sociable",
+      "rank1",
+      "rank2",
+      "robot",
+      "actif",
+      "rank3",
+      "depenseur"
+    ],
+    "messages_total": 57,
+    "depenses": 120,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "skin-obsidienne",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique",
+      "skin-marbre",
+      "skin-chocolat",
+      "skin-verdure",
+      "skin-obsidienne",
+      "skin-sunset",
+      "skin-grenat",
+      "skin-rose",
+      "skin-neon",
+      "skin-indigo",
+      "skin-aurore"
+    ],
+    "color": "#ccf460",
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0,
+    "reports": [],
+    "warnings": [],
+    "ban_until": null
   },
   {
     "username": "Alexandre",
     "passwordHash": "$2b$10$MJxIgEcZ05OjBRFmCpbCreY/VVDfV405EUO43594eFqpHxNrb2b1S",
-    "pt": 0,
-    "connexions": 1,
-    "last_connexion": 1766333506779,
-    "active": true,
+    "pt": 530,
+    "connexions": 5,
+    "last_connexion": 1768083331706,
+    "active": false,
     "banned": false,
-    "birth_date": "2011-03-15"
+    "birth_date": "2011-03-15",
+    "last_ranking_reward": 1768069130210,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 5
+      },
+      {
+        "date": "2025-12-28",
+        "points": 56
+      },
+      {
+        "date": "2025-12-29",
+        "points": 500
+      },
+      {
+        "date": "2025-12-31",
+        "points": 510
+      },
+      {
+        "date": "2026-01-01",
+        "points": 515
+      },
+      {
+        "date": "2026-01-02",
+        "points": 520
+      },
+      {
+        "date": "2026-01-03",
+        "points": 525
+      },
+      {
+        "date": "2026-01-04",
+        "points": 515
+      },
+      {
+        "date": "2026-01-05",
+        "points": 515
+      },
+      {
+        "date": "2026-01-09",
+        "points": 520
+      },
+      {
+        "date": "2026-01-10",
+        "points": 525
+      }
+    ],
+    "badges_current": [
+      "sociable",
+      "fantome",
+      "rank2"
+    ],
+    "badges_obtained": [
+      "sociable",
+      "rank1",
+      "nouveau",
+      "fantome",
+      "rank2"
+    ],
+    "messages_total": 5,
+    "last_daily_login": 1768079666682,
+    "messages_fill_count": 5,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "jaune basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "#80a9f6",
+    "penalized_inactive": true,
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Calixte",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
-    "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "passwordHash": "$2b$10$VKR05Qy3dp0o5Ymwik73X.VZpd4KejxCzIj0MkWmsf2Y6DQQvmuYi",
+    "pt": 502,
+    "connexions": 22,
+    "last_connexion": 1768087758628,
+    "active": true,
+    "banned": false,
+    "last_ranking_reward": 1768069130210,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 2
+      },
+      {
+        "date": "2025-12-28",
+        "points": 2
+      },
+      {
+        "date": "2025-12-29",
+        "points": 483
+      },
+      {
+        "date": "2025-12-31",
+        "points": 488
+      },
+      {
+        "date": "2026-01-01",
+        "points": 490
+      },
+      {
+        "date": "2026-01-02",
+        "points": 492
+      },
+      {
+        "date": "2026-01-03",
+        "points": 494
+      },
+      {
+        "date": "2026-01-04",
+        "points": 496
+      },
+      {
+        "date": "2026-01-05",
+        "points": 496
+      },
+      {
+        "date": "2026-01-09",
+        "points": 498
+      },
+      {
+        "date": "2026-01-10",
+        "points": 500
+      }
+    ],
+    "badges_current": [
+      "sociable",
+      "robot",
+      "rank3"
+    ],
+    "badges_obtained": [
+      "nouveau",
+      "rank3",
+      "inactif",
+      "rank1",
+      "depenseur",
+      "rank2",
+      "sociable",
+      "robot"
+    ],
+    "messages_total": 4,
+    "last_daily_login": 1768085863175,
+    "birth_date": "2011-02-18",
+    "messages_fill_count": 3,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "skin-verdure",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique",
+      "skin-verdure",
+      "skin-obsidienne",
+      "skin-sunset",
+      "skin-grenat",
+      "skin-rose",
+      "skin-neon",
+      "skin-chocolat",
+      "skin-indigo",
+      "skin-marbre",
+      "skin-aurore"
+    ],
+    "messages_ai_count": 1,
+    "color": "#c6893e",
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0,
+    "reports": [],
+    "warnings": [],
+    "ban_until": null
   },
   {
     "username": "Noé",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "passwordHash": "$2b$10$qdiDVq1bQh73kjFyXXYAZeFrslNfh8czxzLHtmeQIU5VSSXls9XoS",
     "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
+    "connexions": 1,
+    "last_connexion": 1767980368642,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "last_daily_login": 1767980368643,
+    "birth_date": "2026-01-09",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Julia",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
-    "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "passwordHash": "$2b$10$Y3AG0KhJsG1l7JY0WAS4lOKDiZg4SRepIu56Hl6XlerxX7tNIR8uy",
+    "pt": -15,
+    "connexions": 2,
+    "last_connexion": 1767471327568,
+    "active": true,
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "last_daily_login": 1767462461218,
+    "birth_date": "2026-01-03",
+    "penalized_inactive": true,
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Joan",
@@ -56,7 +455,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Juliette",
@@ -65,16 +531,157 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "delegue",
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "delegue",
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Jezzy",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
-    "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "passwordHash": "$2b$10$Le8vK/ws6480BJiUJzoqs.FZX8L03wPtx52cQrg2FCyPy8qHc4d06",
+    "pt": -15,
+    "connexions": 2,
+    "last_connexion": 1766924621666,
+    "active": true,
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": -15
+      },
+      {
+        "date": "2026-01-05",
+        "points": -15
+      },
+      {
+        "date": "2026-01-09",
+        "points": -15
+      },
+      {
+        "date": "2026-01-10",
+        "points": -15
+      }
+    ],
+    "badges_current": [
+      "nouveau",
+      "inactif"
+    ],
+    "badges_obtained": [
+      "nouveau",
+      "inactif"
+    ],
+    "messages_total": 0,
+    "last_daily_login": 1766863757010,
+    "birth_date": "2025-12-02",
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "penalized_inactive": true,
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Inès",
@@ -83,7 +690,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Timéo",
@@ -92,7 +766,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Tyméo",
@@ -101,7 +842,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Clautilde",
@@ -110,7 +918,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Loanne",
@@ -119,7 +994,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Lucie",
@@ -128,7 +1070,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Camille",
@@ -137,7 +1146,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Sofia",
@@ -146,7 +1222,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Lilia",
@@ -155,7 +1298,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Amir",
@@ -164,7 +1374,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Robin",
@@ -173,7 +1450,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Arthur",
@@ -182,7 +1526,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Maxime",
@@ -191,7 +1602,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Gaultier",
@@ -200,16 +1678,158 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Antoine",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
-    "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "passwordHash": "$2b$10$/axMo9mH.8MpcjbwBrmefOh/Ev/631WHwxSQBjqIH1S1Ku1JyZJtW",
+    "pt": -15,
+    "connexions": 1,
+    "last_connexion": 1766859331943,
+    "active": true,
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": -15
+      },
+      {
+        "date": "2026-01-05",
+        "points": -15
+      },
+      {
+        "date": "2026-01-09",
+        "points": -15
+      },
+      {
+        "date": "2026-01-10",
+        "points": -15
+      }
+    ],
+    "badges_current": [
+      "delegue",
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "delegue",
+      "sociable",
+      "nouveau",
+      "inactif"
+    ],
+    "messages_total": 2,
+    "last_daily_login": 1766859331944,
+    "birth_date": "2025-12-10",
+    "messages_fill_count": 2,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "penalized_inactive": true,
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Louis",
@@ -218,7 +1838,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Anne-Victoria",
@@ -227,7 +1914,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Léa",
@@ -236,7 +1990,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Sarah",
@@ -245,7 +2066,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Ema",
@@ -254,7 +2142,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Jade",
@@ -263,16 +2218,152 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Alicia",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "passwordHash": "$2b$10$zTVT5FIMRl4PCnvsGncAuui.SFz21tsJUL90rqpD0qZszy0Q9BShm",
     "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "connexions": 1,
+    "last_connexion": 1767623891200,
+    "active": true,
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "last_daily_login": 1767623891202,
+    "birth_date": "2026-01-05",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "ADMIN",
@@ -281,7 +2372,78 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau",
+      "ecolo"
+    ],
+    "badges_obtained": [
+      "sociable",
+      "nouveau",
+      "robot",
+      "ecolo"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "testuser",
@@ -290,7 +2452,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "testuser2",
@@ -299,7 +2528,74 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "user",
@@ -308,15 +2604,151 @@
     "connexions": 0,
     "last_connexion": null,
     "active": false,
-    "banned": false
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   },
   {
     "username": "Claire",
-    "passwordHash": "$2b$10$lVP8QYpQQEttD1vKJdss8e.f/q6AdFKiOBIQX57dm6ufvgxPFS3kq",
+    "passwordHash": "$2b$10$B4i1HKM551JbTXP9AJR4hukbZMS5FpKIKGhlHgVCFbjAmMbcNCJ4m",
     "pt": 0,
-    "connexions": 0,
-    "last_connexion": null,
-    "active": false,
-    "banned": false
+    "connexions": 3,
+    "last_connexion": 1767631013543,
+    "active": true,
+    "banned": false,
+    "graph_pt": [
+      {
+        "date": "2025-12-27",
+        "points": 0
+      },
+      {
+        "date": "2025-12-28",
+        "points": 0
+      },
+      {
+        "date": "2025-12-29",
+        "points": 0
+      },
+      {
+        "date": "2025-12-31",
+        "points": 0
+      },
+      {
+        "date": "2026-01-01",
+        "points": 0
+      },
+      {
+        "date": "2026-01-02",
+        "points": 0
+      },
+      {
+        "date": "2026-01-03",
+        "points": 0
+      },
+      {
+        "date": "2026-01-04",
+        "points": 0
+      },
+      {
+        "date": "2026-01-05",
+        "points": 0
+      },
+      {
+        "date": "2026-01-09",
+        "points": 0
+      },
+      {
+        "date": "2026-01-10",
+        "points": 0
+      }
+    ],
+    "badges_current": [
+      "nouveau"
+    ],
+    "badges_obtained": [
+      "nouveau"
+    ],
+    "messages_total": 0,
+    "depenses": 0,
+    "last_depenses_reset": 1767538474352,
+    "active_skin": "bleu basique",
+    "skins_obtenus": [
+      "jaune basique",
+      "bleu basique"
+    ],
+    "color": "red",
+    "last_daily_login": 1767624021868,
+    "birth_date": "2026-01-14",
+    "messages_ai_count": 0,
+    "avg_pm_response_time": 0,
+    "validated_rescues": 0,
+    "connection_hours": [],
+    "pm_messages_count": 0,
+    "pm_response_count": 0
   }
 ]

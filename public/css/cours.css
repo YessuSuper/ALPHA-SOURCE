@@ -2,10 +2,12 @@
 
 /* --- Conteneur général --- */
 #course-content-layout {
-	padding: 20px 0;
-	width: 100%; 
+	padding: 20px 10px;
+	width: 100%;
+	max-width: 100vw;
 	box-sizing: border-box;
 	position: relative;
+	overflow-x: hidden;
 }
 
 #course-subject {
@@ -47,7 +49,9 @@
 	
 	width: 100%;
 	max-width: 600px; 
-	background-color: #1a1a1a; 
+	background-color: rgba(26, 26, 26, 0.4); 
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 	color: var(--color-text);
 	padding: 15px 20px; 
 	border-radius: 10px;
@@ -123,6 +127,13 @@
 	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
+/* Cours ciblé depuis un message (ID cliquable) */
+.course-file-card.course-target {
+	outline: 3px solid rgba(124, 58, 237, 0.95);
+	outline-offset: 3px;
+	box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.12), 0 18px 28px rgba(0, 0, 0, 0.55);
+}
+
 .file-preview-area {
 	width: 100%;
 	height: calc(100% - 75px);
@@ -153,7 +164,9 @@
 	bottom: 0;
 	left: 0;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 0.95);
+	background-color: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 	color: white;
 	padding: 8px 10px;
 	box-sizing: border-box;
@@ -353,6 +366,30 @@
 	background-color: #6a1ba0;
 }
 
+/* --- BOUTON TÉLÉCHARGEMENT MODALE --- */
+.modal-download-btn {
+	display: inline-block;
+	background-color: var(--color-primary);
+	color: white;
+	text-decoration: none;
+	padding: 12px 25px;
+	border-radius: 8px;
+	font-weight: bold;
+	font-size: 1.1em;
+	transition: background-color 0.2s, transform 0.1s;
+	box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.modal-download-btn:hover {
+	background-color: #6a1ba0; /* Même hover que le bouton submit */
+	transform: translateY(-2px);
+	box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+}
+
+.modal-download-btn:active {
+	transform: translateY(0);
+}
+
 /* Rends l'input de fichier visible si tu veux le styler */
 .file-upload-group input[type="file"] {
 	padding: 10px 0;
@@ -428,7 +465,10 @@
 /* Tablettes */
 @media (max-width: 768px) {
     #course-content-layout {
-        padding: 20px 0;
+        padding: 20px 10px;
+        width: 100%;
+        margin: 0;
+        overflow-x: hidden;
     }
     
     #course-header-wrapper {
@@ -459,7 +499,9 @@
     #file-grid {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
-        padding: 0 15px;
+        padding: 0 10px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     
     .course-file-card {
@@ -498,7 +540,10 @@
 /* Mobiles */
 @media (max-width: 480px) {
     #course-content-layout {
-        padding: 10px 0;
+        padding: 10px 5px;
+        width: calc(100% - 10px) !important;
+        margin-left: 5px !important;
+        overflow-x: hidden;
     }
     
     #course-counter-box {
@@ -510,7 +555,9 @@
     #file-grid {
         grid-template-columns: repeat(2, 1fr); /* 2 colonnes au lieu d'1 */
         gap: 12px; /* Gap réduit pour plus de cards */
-        padding: 0 8px;
+        padding: 0 5px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     
     .course-file-card {

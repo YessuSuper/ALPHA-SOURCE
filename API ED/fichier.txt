@@ -1,0 +1,577 @@
+GUIDE (DEV) — Accéder à l’API EcoleDirecte et récupérer les notes
+=============================================================
+
+Objectif
+--------
+Ce document explique EXACTEMENT (à partir du code de ce projet) :
+- comment établir une session EcoleDirecte (token + cookies)
+- comment appeler l’endpoint des notes
+- comment interpréter et exploiter la réponse (périodes, matières, évaluations)
+
+Il couvre aussi (dans ce projet) :
+- Devoirs (cahier de texte) + mise à jour “effectué”
+- Messagerie (lecture seule) + téléchargement des pièces jointes
+- Emploi du temps (semaine)
+
+Deux approches sont possibles :
+A) Passer par l’API locale du projet (recommandé pour un site)
+B) Appeler directement l’API EcoleDirecte (bas niveau)
+
+
+A) Utiliser l’API locale (proxy Express)
+=======================================
+
+Fichiers concernés
+------------------
+- test/api-web-server.js : serveur Express exposant des endpoints REST
+- test/ecoledirecte-api.js : client HTTPS EcoleDirecte (gère token/cookies)
+- test/index.html : front qui consomme /api/login, /api/notes, /api/logout
+
+Principe
+--------
+Le serveur Express maintient un “état de session” en mémoire (variable apiInstance).
+1) /api/login crée une instance EcoleDirecteAPI, se connecte, stocke token/cookies
+2) /api/notes appelle apiInstance.getNotes() et renvoie la réponse EcoleDirecte “data”
+3) /api/logout détruit apiInstance (session oubliée côté serveur)
+
+IMPORTANT :
+- Tant que /api/login n’a pas été appelé, /api/notes renvoie 401 {"error":"Not connected"}.
+- La session est globale au serveur (pas par utilisateur). En prod, il faut une vraie gestion de session.
+
+Démarrer le serveur
+-------------------
+Depuis la racine du projet (là où est le package.json correspondant) :
+1) Installer les dépendances :
+   npm install
+
+2) Démarrer le serveur :
+   npm run server
+
+Le serveur écoute par défaut sur : http://localhost:3001
+
+Note : vous pouvez changer le port en définissant la variable d’environnement PORT.
+Exemples :
+- PowerShell :   $env:PORT=3002 ; node .\api-web-server.js
+- CMD :          set PORT=3002 && node .\api-web-server.js
+
+Endpoints exposés
+-----------------
+- GET http://localhost:3001/api/login
+  Effet : crée la session EcoleDirecte côté serveur.
+  Réponse (exemple de forme) :
+  {
+    "success": true,
+    "account": { "id": ..., "prenom": ..., "nom": ..., "classe": ... }
+  }
+  Cas particulier : si double authentification (QCM) requise :
+  { "success": false, "requireQCM": true, ... }
+
+  Important (config) : dans ce projet, la route /api/login crée une instance
+  EcoleDirecteAPI(identifiant, motdepasse). Si vous clonez le projet pour un autre compte,
+  vous devez remplacer ces identifiants (voir test/api-web-server.js, route /api/login).
+
+- GET http://localhost:3001/api/notes
+  Pré-requis : être connecté (avoir fait /api/login).
+  Réponse : renvoie DIRECTEMENT le champ data de l’API EcoleDirecte “notes.awp”.
+  (Donc: un objet contenant notamment periodes[] et notes[])
+
+- GET http://localhost:3001/api/status
+  Statut “prêt / connecté” du serveur.
+  Réponse (forme) :
+  - { "connected": true, "user": "Prenom Nom" }
+  - { "connected": false, "lastError": "..." }
+
+- GET http://localhost:3001/api/timeline
+  Pré-requis : connecté.
+  Renvoie la timeline (liste d’événements) telle que renvoyée par EcoleDirecte.
+
+- GET http://localhost:3001/api/logout
+  Effet : oublie la session côté serveur.
+
+- GET http://localhost:3001/api/cahierdetexte/YYYY-MM-DD
+  Pré-requis : connecté.
+  Renvoie le “cahier de texte” de la date (structure ED brute : matieres[], etc.).
+
+- GET http://localhost:3001/api/viescolaire
+  Pré-requis : connecté.
+  Renvoie la vie scolaire (absences/retards, sanctions/encouragements) telle que renvoyée par ED.
+
+- GET http://localhost:3001/api/documents?archive=
+  Pré-requis : connecté.
+  Renvoie les documents administratifs.
+  Paramètre optionnel : archive (string) — laissé vide par défaut.
+
+- GET http://localhost:3001/api/espacestravail
+  Pré-requis : connecté.
+  Renvoie la liste des espaces de travail (structure ED).
+
+- GET http://localhost:3001/api/devoirs?start=YYYY-MM-DD&end=YYYY-MM-DD
+  Pré-requis : connecté.
+  Agrège une plage de dates et renvoie une liste “plate” de devoirs.
+  Format (exemple) :
+  {
+    "start": "2026-01-01",
+    "end": "2026-01-31",
+    "count": 12,
+    "devoirs": [
+      {
+        "date": "2026-01-06",
+        "matiere": "Mathématiques",
+        "nomProf": "...",
+        "contenu": "<p>Exercices...</p>",
+        "idDevoir": 6237,
+        "effectue": true
+      }
+    ]
+  }
+
+- POST http://localhost:3001/api/devoirs/effectue
+  Pré-requis : connecté.
+  Met à jour l’état “fait/pas fait” côté EcoleDirecte.
+  Body JSON (forme simple) :
+    { "idDevoir": 6237, "effectue": true }
+  (forme avancée possible) :
+    { "idDevoirsEffectues": [6237], "idDevoirsNonEffectues": [] }
+
+- GET http://localhost:3001/api/messages?mode=all|destinataire|expediteur&annee=YYYY-YYYY
+  Pré-requis : connecté.
+  Renvoie une liste de messages “détaillés” (inclut subject/content/files).
+  Note : si annee n’est pas fourni, le serveur déduit automatiquement l’année (ex: 2025-2026).
+  Réponse (forme) :
+  {
+    "annee": "2025-2026",
+    "mode": "all",
+    "count": 20,
+    "messages": [ { id, subject, content(base64), from(obj), files[]... } ]
+  }
+
+- GET http://localhost:3001/api/messages/<ID_MESSAGE>/files/<ID_FILE>?mode=destinataire|expediteur&annee=YYYY-YYYY&name=...
+  Pré-requis : connecté.
+  Télécharge une pièce jointe (réponse binaire, Content-Disposition: attachment).
+  Le paramètre name sert uniquement à nommer le fichier téléchargé.
+
+- GET http://localhost:3001/api/emploidutemps/YYYY-MM-DD/YYYY-MM-DD
+  Pré-requis : connecté.
+  Renvoie la liste des cours entre deux dates incluses.
+
+  Format attendu :
+  - dateDebut/dateFin doivent être au format YYYY-MM-DD
+  - la plage est inclusive (si vous voulez une semaine, faites lundi → dimanche)
+
+  Exemple (récupérer une semaine) :
+    const start = '2026-01-05'; // Lundi
+    const end   = '2026-01-11'; // Dimanche
+    fetch(`http://localhost:3001/api/emploidutemps/${start}/${end}`)
+      .then(r => r.json())
+      .then(console.log);
+
+  Page de test intégrée au serveur (utile pour déboguer rapidement sans toucher au front) :
+    http://localhost:3001/edt?start=YYYY-MM-DD&end=YYYY-MM-DD
+  Cette page :
+  - appelle /api/login
+  - puis appelle /api/emploidutemps/start/end
+  - et affiche une liste simple des cours regroupés par date
+
+  Données renvoyées (schéma général) :
+  - La route renvoie un tableau JSON (Array) de “cours/événements”.
+  - Selon l’établissement, les champs peuvent varier.
+  - Dans ce projet, le front (test/index.html) normalise plusieurs variantes.
+
+  Champs typiquement utilisés (et gérés avec fallback) :
+  - Date : date | jour | day | start/start_date/startDate | debut
+  - Heures : hde/heureDebut | hfin/heureFin (fallback si start/end ISO : slice(11,16))
+  - Libellé : matiere | text | libelle | remarque
+  - Salle : salle | salleLibelle | lieu
+  - Couleur : couleur | color | couleurFond | backgroundColor
+  - Annulation : annule | isAnnule | cancelled (ou texte contenant “annulé”)
+
+  Dépannage (EDT vide) :
+  - Vérifier que /api/login renvoie bien success:true.
+  - Tester d’abord une seule journée (start=end) pour valider que l’endpoint répond.
+  - Tester la page /edt (elle affiche aussi ce que l’API renvoie).
+  - Certains comptes n’ont pas de cours sur certaines semaines (vacances, alternance…).
+
+Exemple “front” minimal
+-----------------------
+1) Se connecter :
+   fetch('http://localhost:3001/api/login').then(r => r.json())
+
+2) Récupérer les notes :
+   fetch('http://localhost:3001/api/notes').then(r => r.json())
+
+3) Se déconnecter :
+   fetch('http://localhost:3001/api/logout')
+
+
+Exploiter le cahier de texte (devoirs) — lecture et mise à jour
+===============================================================
+
+Le “cahier de texte” (cahierdetexte) permet :
+- de récupérer, par date, le contenu des devoirs (souvent encodé en base64)
+- de connaître l’état “effectué” (fait/pas fait)
+- de mettre à jour cet état en envoyant une requête de type “put”
+
+Dans ce projet, la fonctionnalité est utilisée pour l’onglet “📖 Devoirs”.
+
+1) Lire le cahier de texte d’une date (ED)
+-----------------------------------------
+Méthode: POST (oui, même pour un “get”)
+Endpoint (important : Eleves avec E majuscule) :
+  /v3/Eleves/<ID_ELEVE>/cahierdetexte/<YYYY-MM-DD>.awp?verbe=get&v=<version>
+
+Body (data=...) :
+  {}
+
+Remarque critique (déjà vue en debug) :
+- le chemin en minuscules (/v3/eleves/...) peut renvoyer 403
+- un GET HTTP peut renvoyer un code ED d’erreur
+=> dans ce projet, on force POST + /v3/Eleves/ + verbe=get
+
+Réponse (forme générale) :
+- response.data.matieres[] : liste des matières de la journée
+- pour chaque matière :
+  - matiere (nom), nomProf
+  - aFaire : objet “devoir” si présent
+
+2) Comprendre aFaire (devoir) et décoder le contenu
+---------------------------------------------------
+Dans aFaire, les champs utiles sont souvent :
+- aFaire.contenu : string base64 qui contient du HTML (ou texte)
+- aFaire.effectue : booléen (true si “fait” côté ED)
+- aFaire.idDevoir : identifiant numérique du devoir (utile pour mise à jour)
+
+Décodage base64 (Node.js) :
+  const html = Buffer.from(b64, 'base64').toString('utf-8');
+
+Important : le contenu est du HTML, donc si vous l’affichez dans une page,
+assurez-vous de le traiter correctement (ex: l’échapper si vous ne voulez pas l’exécuter).
+
+3) Agréger une plage de dates (API locale)
+------------------------------------------
+Plutôt que d’appeler ED jour par jour depuis le navigateur, l’API locale fournit :
+  GET /api/devoirs?start=YYYY-MM-DD&end=YYYY-MM-DD
+
+Cette route :
+- boucle sur chaque date de la plage
+- appelle getCahierDeTexte(date)
+- extrait aFaire.contenu, le décode, et renvoie une liste triée
+- remonte aussi :
+  - effectue (bool)
+  - idDevoir (number)
+
+4) Mettre à jour “effectué” (ED)
+--------------------------------
+Requête observée dans DevTools (web officiel EcoleDirecte) :
+
+URL :
+  POST https://api.ecoledirecte.com/v3/Eleves/<ID_ELEVE>/cahierdetexte.awp?verbe=put&v=4.92.1
+
+Content-Type :
+  application/x-www-form-urlencoded
+
+Body (data=...) :
+  {
+    "idDevoirsEffectues": [6237],
+    "idDevoirsNonEffectues": []
+  }
+
+Pour marquer “non effectué”, il suffit d’inverser :
+  {
+    "idDevoirsEffectues": [],
+    "idDevoirsNonEffectues": [6237]
+  }
+
+Dans ce projet, l’API locale expose :
+  POST /api/devoirs/effectue
+avec soit :
+- { "idDevoir": 6237, "effectue": true|false }
+- ou directement les tableaux idDevoirsEffectues/idDevoirsNonEffectues
+
+Note : après mise à jour, on invalide le cache serveur (devoirs/cahier) pour éviter
+d’afficher un état obsolète.
+
+
+B) Appeler directement l’API EcoleDirecte (bas niveau)
+======================================================
+
+Fichier de référence
+--------------------
+- test/ecoledirecte-api.js
+
+Ce fichier implémente le protocole attendu par EcoleDirecte :
+- host : api.ecoledirecte.com
+- body : Content-Type application/x-www-form-urlencoded
+- payload : un champ form "data" contenant un JSON stringifié
+  Exemple : data={"identifiant":"...","motdepasse":"...",...}
+- headers importants :
+  - X-Token : token de session (souvent retourné dans les headers x-token)
+  - Cookie : cookies renvoyés par le serveur (stockés puis réenvoyés)
+  - X-Gtk : token GTK (peut être récupéré via cookies)
+
+Étape 0 — Comprendre le format des requêtes
+-------------------------------------------
+Le client envoie un form URL-encoded :
+  data=<JSON>
+
+Dans le code, ça correspond à :
+  querystring.stringify({ data: JSON.stringify(body) })
+
+Donc même si vous appelez l’API “en POST JSON”, dans CE projet, c’est du form-encoded.
+
+Étape 1 — Récupérer le GTK (pré-login)
+--------------------------------------
+Méthode: GET
+Endpoint (tel que codé) :
+  /v3/login.awp?gtk=1&v=<version>
+
+But :
+- le serveur renvoie souvent un cookie GTK (ou parfois un champ token)
+- le client le conserve comme this.gtkToken et/ou en cookies
+
+Dans ce projet, la version est définie dans EcoleDirecteAPI.version (ex: "4.75.0").
+
+Note (état actuel du projet) :
+- La version observée et utilisée ici est : "4.92.1"
+  (voir test/ecoledirecte-api.js)
+
+Étape 2 — Login
+---------------
+Méthode: POST
+Endpoint :
+  /v3/login.awp?v=<version>
+
+Body (dans data=...) :
+  {
+    identifiant: "<votre_identifiant>",
+    motdepasse: "<votre_motdepasse>",
+    isRelogin: false,
+    uuid: ""
+  }
+
+Réponse :
+- si code === 200 : connexion OK
+  - Récupérer le token :
+    - en priorité dans les headers: x-token
+    - sinon response.token
+  - Récupérer la liste des comptes: response.data.accounts
+  - Sélectionner un compte élève (dans le code: premier non-prof, sinon premier)
+  - Stocker this.account (doit contenir id, prenom, nom, etc.)
+
+- si code === 250 : double authentification (QCM) requise
+  => le projet gère ce cas via un script dédié (npm run qcm). Tant que le QCM n’est pas validé,
+     vous ne pourrez pas appeler les routes “notes”, “timeline”, etc.
+
+Étape 3 — Appeler les notes
+---------------------------
+Méthode: POST
+Endpoint :
+  /v3/eleves/<ID_ELEVE>/notes.awp?verbe=get&v=<version>
+
+Remarques:
+- Le code utilise withGet() pour ajouter verbe=get et v=<version>.
+
+Body (data=...) :
+  { "anneeScolaire": "" }
+
+Headers/cookies nécessaires :
+- X-Token: <token obtenu au login>
+- Cookie: cookies reçus (dont potentiellement GTK)
+- X-Gtk: gtkToken si disponible
+
+Résultat attendu :
+- response.code === 200
+- response.data est l’objet “métier” des notes :
+  - periodes: tableau de périodes (trimestres/semestres/année)
+  - notes: tableau d’évaluations détaillées
+  - foStat / parametrage (peu utiles pour l’affichage)
+
+
+Exploiter la réponse “Notes” (structure)
+======================================
+
+1) periodes[] (résumés par période)
+----------------------------------
+Chaque période contient typiquement :
+- codePeriode / idPeriode : identifiant de période (ex: "A001")
+- periode : libellé (ex: "Trimestre 1")
+- ensembleMatieres : résumé global + par discipline
+
+Dans ensembleMatieres, on trouve souvent :
+- moyenneGenerale, moyenneClasse, moyenneMin, moyenneMax, etc.
+- disciplines[] : liste des matières/“disciplines” avec moyennes.
+
+Dans disciplines[] (matières), on trouve selon les établissements :
+- discipline (nom affiché) (ex: "FRANCAIS")
+- codeMatiere (ex: "FRANC")
+- moyenne (souvent une string avec virgule: "14,45")
+- moyenneClasse / moyenneMin / moyenneMax …
+
+Attention :
+- Certaines “disciplines” peuvent être des regroupements (ex: "Pôle littéraire")
+  avec codeMatiere vide. Dans ce cas, l’association aux notes détaillées se fait plutôt par le label.
+
+2) notes[] (évaluations détaillées)
+-----------------------------------
+C’est la source “détail”. Chaque entrée correspond à une évaluation.
+Champs fréquents :
+- codePeriode : période de rattachement (ex: "A001")
+- codeMatiere : matière (ex: "HIGEO")
+- libelleMatiere : nom affiché (ex: "HISTOIRE & GEOGRAPH.")
+- devoir / typeDevoir : libellé de l’évaluation
+- date : date
+- valeur : note obtenue (string ou nombre)
+- noteSur : barème (ex: 20, 10, etc.)
+- coef : coefficient
+- moyenneClasse, minClasse, maxClasse : stats de classe parfois présentes au niveau de l’évaluation
+
+
+Comment “prendre les notes” par période et matière
+==================================================
+
+But
+---
+Afficher, pour une période sélectionnée et une matière sélectionnée :
+- la moyenne de l’élève (si dispo via disciplines[].moyenne)
+- les stats de classe (si dispo via disciplines[] ou via chaque note)
+- la liste des évaluations (notes[]) filtrées
+
+Étape 1 — Choisir une période
+-----------------------------
+1) Lire notesData.periodes
+2) Identifier la période choisie via codePeriode (ou idPeriode)
+
+Exemple logique:
+- periodCode = periode.codePeriode
+- label = periode.periode
+
+Étape 2 — Afficher la liste des matières (disciplines)
+------------------------------------------------------
+Source :
+- periode.ensembleMatieres.disciplines
+
+Pour chaque discipline :
+- nom : discipline.discipline (fallback: libellé)
+- moyenne élève : discipline.moyenne (ou moyenneEleve / moyenneGenerale selon cas)
+
+Étape 3 — Récupérer les évaluations pour UNE matière
+----------------------------------------------------
+Source :
+- notesData.notes (top-level)
+
+Filtre recommandé (le plus fiable) :
+- n.codePeriode === periodCode
+- n.codeMatiere === discipline.codeMatiere
+
+Fallback si codeMatiere vide/incohérent :
+- comparer les labels normalisés :
+  normalize(discipline.discipline) proche de normalize(n.libelleMatiere)
+  (sans accents, en minuscules, ponctuation simplifiée, “&” -> “et”)
+
+Étape 4 — Calculer une moyenne (fallback)
+-----------------------------------------
+Si la moyenne de la discipline n’est pas fournie, vous pouvez approximer :
+- convertir chaque note sur 20 : (valeur / noteSur) * 20
+- pondérer par coef (si présent)
+- moyenne = somme / sommeCoef
+
+Note : c’est une estimation, car certains devoirs peuvent être non comptés, ou filtrés par ED.
+
+
+Cas d’erreurs / dépannage
+========================
+
+1) 401 / "Not connected" côté serveur local
+------------------------------------------
+Cause : vous appelez /api/notes sans avoir fait /api/login, ou la session a été perdue.
+Solution : refaire /api/login puis /api/notes.
+
+2) Code 250 (QCM requis) au login
+---------------------------------
+Cause : double authentification ED.
+Solution : exécuter le script QCM du projet (npm run qcm) et valider.
+
+3) “Matières sans notes”
+------------------------
+Ca arrive si :
+- discipline.codeMatiere est vide (matière regroupée)
+- libellés différents (abréviations, “&”, accents)
+Solution : fallback par comparaison de libellés normalisés.
+
+4) Problèmes de virgules ("14,45")
+----------------------------------
+EcoleDirecte renvoie souvent des nombres en string avec virgule.
+Pour calculer : remplacer ',' par '.' avant parseFloat.
+
+
+Sécurité / bonnes pratiques (important)
+======================================
+
+- Ne stockez jamais identifiant/mot de passe en dur.
+  Utilisez des variables d’environnement (.env) et un secret manager en prod.
+
+- Ne faites pas porter à un front-end public les appels directs à api.ecoledirecte.com
+  (ça exposerait token/cookies). Préférez un backend proxy.
+
+- Le serveur Express de ce projet stocke UNE session globale en mémoire.
+  En prod, il faut :
+  - une session par utilisateur
+  - un store de session (redis, db) si multi-instance
+  - des contrôles d’accès
+
+- Le client HTTPS utilise rejectUnauthorized: false.
+  En prod, évitez ça (TLS doit être vérifié).
+
+
+Annexe — Référence rapide des endpoints ED utilisés
+==================================================
+- GET  /v3/login.awp?gtk=1&v=<version>           (récupération GTK)
+- POST /v3/login.awp?v=<version>                 (login)
+- POST /v3/eleves/<id>/notes.awp?verbe=get&v=...  (notes)
+- POST /v3/eleves/<id>/timeline.awp?verbe=get&v=...  (timeline)
+- POST /v3/eleves/<id>/viescolaire.awp?verbe=get&v=... (vie scolaire)
+- POST /v3/elevesDocuments.awp?archive=<archive>&verbe=get&v=... (documents)
+- POST /v3/Eleves/<id>/cahierdetexte/<date>.awp?verbe=get&v=...   (cahier de texte, par date)
+- POST /v3/Eleves/<id>/cahierdetexte.awp?verbe=put&v=...          (maj effectué/non effectué)
+
+Espaces de travail
+------------------
+- POST /v3/E/<id>/espacestravail.awp?verbe=get&v=... (espaces de travail)
+
+Messagerie (lecture seule)
+--------------------------
+- POST /v3/eleves/<id>/messages.awp?verbe=get&mode=destinataire&v=...
+  Body: { "anneeMessages": "2025-2026" }
+- POST /v3/eleves/<id>/messages/<ID_MESSAGE>.awp?verbe=get&mode=destinataire&v=...
+  Body: { "anneeMessages": "2025-2026" }
+
+Téléchargement (pièces jointes)
+-------------------------------
+- POST /v3/telechargement.awp?verbe=get&fichierId=<ID_FILE>&leTypeDeFichier=PIECE_JOINTE&v=...
+  Body: { "forceDownload": 0 }
+  Remarque : leTypeDeFichier peut venir du champ file.type dans message.files[].
+
+Emploi du temps
+---------------
+- GET /api/emploidutemps/<start>/<end> côté proxy.
+  - start/end au format YYYY-MM-DD (plage inclusive)
+  - le proxy appelle ensuite l’API ED “emploi du temps” avec POST + verbe=get
+
+Endpoint ED (bas niveau, tel qu’implémenté dans ce projet)
+----------------------------------------------------------
+Méthode : POST
+Endpoint :
+  /v3/E/<ID_ELEVE>/emploidutemps.awp?verbe=get&v=4.92.1
+
+Body (data=...) :
+  {
+    "dateDebut": "YYYY-MM-DD",
+    "dateFin": "YYYY-MM-DD",
+    "avecTrous": false
+  }
+
+Notes :
+- Oui : c’est POST même pour “verbe=get”.
+- Le chemin est /v3/E/<id>/... (différent de /v3/eleves/<id>/...).
+- Si vous souhaitez inclure les “trous” (plages vides) dans certains cas, changez avecTrous.
+
+Fin

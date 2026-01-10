@@ -148,7 +148,8 @@ class PanelApp:
         hash_pw = bcrypt.hashpw(password.encode(), salt).decode()
         users.append({
             "username": username, "passwordHash": hash_pw, "pt": 0,
-            "connexions": 0, "last_connexion": None, "active": False, "banned": False
+            "connexions": 0, "last_connexion": None, "active": False, "banned": False,
+            "active_skin": "bleu basique", "skins_obtenus": ["bleu basique", "jaune basique"]
         })
         with open(USERS_PATH, 'w', encoding='utf-8') as f: json.dump(users, f, indent=2)
         self.on_tab_change()

@@ -1,0 +1,195 @@
+/* Styles pour le panneau de connexion Cartable */
+#cartable-login-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.98) 100%);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 800px;
+    margin: 40px auto;
+    color: #fff;
+}
+
+.login-intro {
+    text-align: center;
+    margin-bottom: 30px;
+    max-width: 600px;
+}
+
+.login-intro h2 {
+    font-size: 2em;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #64b5f6, #ba68c8);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.login-intro p {
+    font-size: 1.1em;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.benefits-list li {
+    margin-bottom: 12px;
+    font-size: 1.05em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.benefits-list li strong {
+    color: #fff;
+}
+
+#cartable-login-form {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #ddd;
+}
+
+.form-row input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #222;
+    color: #fff;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+.form-row input[type="password"] {
+    color: #fff !important;
+    background: #222 !important;
+    caret-color: #64b5f6;
+}
+
+.form-row input[type="text"] {
+    color: #fff !important;
+    background: #222 !important;
+}
+
+.form-row input:focus {
+    border-color: #64b5f6;
+    outline: none;
+}
+
+.form-row input[type="password"]:focus {
+    border-color: #64b5f6;
+    outline: none;
+    background: #2a2a2a !important;
+}
+
+.form-actions button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #2196f3, #9c27b0);
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.form-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+.form-hint {
+    margin-top: 15px;
+    font-size: 0.85em;
+    color: #888;
+    text-align: center;
+}
+
+.status {
+    margin-top: 15px;
+    text-align: center;
+    color: #64b5f6;
+}
+
+.error {
+    margin-top: 15px;
+    text-align: center;
+    color: #ff5252;
+    background: rgba(255, 82, 82, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+/* --- ÉCRAN CONNEXION EN COURS --- */
+
+#cartable-connecting {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.98) 100%);
+}
+
+.connecting-container {
+    text-align: center;
+    max-width: 500px;
+}
+
+.connecting-spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 30px;
+    border: 4px solid rgba(100, 181, 246, 0.2);
+    border-top-color: #64b5f6;
+    border-right-color: #64b5f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.connecting-container h2 {
+    font-size: 1.8em;
+    color: #64b5f6;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+}
+
+.connecting-container p {
+    font-size: 1.05em;
+    color: #ccc;
+    margin: 0;
+}

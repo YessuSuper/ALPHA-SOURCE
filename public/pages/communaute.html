@@ -31,34 +31,87 @@
                 <div id="modal-body">
                     <!-- Formulaire pour groupe -->
                     <form id="group-form" class="modal-form" style="display: none;">
-                        <div class="form-group">
-                            <label for="group-name">Nom du groupe :</label>
-                            <input type="text" id="group-name" required>
+                        <!-- Étape 1 : infos -->
+                        <div id="group-step-1" class="group-wizard-step">
+                            <div class="form-group">
+                                <label for="group-name">Nom du groupe :</label>
+                                <input type="text" id="group-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="group-description">Description :</label>
+                                <textarea id="group-description" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="group-photo">Photo du groupe (facultatif) :</label>
+                                <input type="file" id="group-photo" accept="image/*">
+                            </div>
+                            <div class="form-group">
+                                <div id="group-cost-warning" class="group-cost-warning">
+                                    ⚠️ Créer un groupe coûte 30 pt.
+                                </div>
+                            </div>
+                            <button type="button" id="group-next-btn" class="modal-submit-btn">Étape suivante</button>
                         </div>
-                        <div class="form-group">
-                            <label for="group-description">Description :</label>
-                            <textarea id="group-description" rows="3"></textarea>
+
+                        <!-- Étape 2 : membres -->
+                        <div id="group-step-2" class="group-wizard-step" style="display: none;">
+                            <div class="form-group">
+                                <label for="group-members-search">Ajouter des membres (facultatif) :</label>
+                                <input type="text" id="group-members-search" autocomplete="off" placeholder="Rechercher un élève...">
+                                <div id="group-members-suggestions" class="suggestions-list" style="display: none;"></div>
+                            </div>
+                            <div class="form-group">
+                                <div id="group-members-list" class="group-members-list"></div>
+                            </div>
+                            <div class="group-wizard-actions">
+                                <button type="button" id="group-back-btn" class="modal-secondary-btn">Retour</button>
+                                <button type="submit" id="group-create-btn" class="modal-submit-btn">Créer le groupe</button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="group-private">
-                                Groupe privé (coût : 30 points)
-                            </label>
-                        </div>
-                        <button type="submit" class="modal-submit-btn">Créer le groupe</button>
                     </form>
 
                     <!-- Formulaire pour sujet -->
                     <form id="topic-form" class="modal-form" style="display: none;">
-                        <div class="form-group">
-                            <label for="topic-name">Nom du sujet :</label>
-                            <input type="text" id="topic-name" required>
+                        <!-- Étape 1 : infos -->
+                        <div id="topic-step-1" class="topic-wizard-step">
+                            <div class="form-group">
+                                <label for="topic-name">Nom du sujet :</label>
+                                <input type="text" id="topic-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="topic-description">Description :</label>
+                                <textarea id="topic-description" rows="3"></textarea>
+                            </div>
+                            <button type="button" id="topic-next-btn" class="modal-submit-btn">Étape suivante</button>
                         </div>
-                        <div class="form-group">
-                            <label for="topic-description">Description :</label>
-                            <textarea id="topic-description" rows="3"></textarea>
+
+                        <!-- Étape 2 : durée -->
+                        <div id="topic-step-2" class="topic-wizard-step" style="display: none;">
+                            <div class="form-group">
+                                <label for="topic-duration">Durée de base :</label>
+                                <select id="topic-duration" required>
+                                    <option value="43200000">12h</option>
+                                    <option value="86400000" selected>24h</option>
+                                    <option value="172800000">48h</option>
+                                    <option value="432000000">5j</option>
+                                </select>
+                            </div>
+                            <div class="group-wizard-actions">
+                                <button type="button" id="topic-back-btn" class="modal-secondary-btn">Retour</button>
+                                <button type="button" id="topic-next-btn-2" class="modal-submit-btn">Étape suivante</button>
+                            </div>
                         </div>
-                        <button type="submit" class="modal-submit-btn">Créer le sujet (coût : 5 points)</button>
+
+                        <!-- Étape 3 : confirmation -->
+                        <div id="topic-step-3" class="topic-wizard-step" style="display: none;">
+                            <div class="form-group">
+                                <div class="group-cost-warning">⚠️ Créer un sujet coûte 5 pt.</div>
+                            </div>
+                            <div class="group-wizard-actions">
+                                <button type="button" id="topic-back-btn-2" class="modal-secondary-btn">Retour</button>
+                                <button type="submit" class="modal-submit-btn">Créer le sujet</button>
+                            </div>
+                        </div>
                     </form>
 
                     <!-- Formulaire pour fill -->
@@ -71,25 +124,20 @@
                             <label for="fill-description">Description :</label>
                             <textarea id="fill-description" rows="3"></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="fill-parent-type">Type de parent :</label>
-                            <select id="fill-parent-type" required>
-                                <option value="">Choisir...</option>
-                                <option value="group">Groupe</option>
-                                <option value="topic">Sujet</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="fill-parent-select-group" style="display: none;">
-                            <label for="fill-parent-group">Groupe parent :</label>
-                            <select id="fill-parent-group">
-                                <option value="">Choisir un groupe...</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="fill-parent-select-topic" style="display: none;">
-                            <label for="fill-parent-topic">Sujet parent :</label>
+                        <input type="hidden" id="fill-parent-type" value="topic">
+                        <div class="form-group" id="fill-parent-select-topic">
+                            <label for="fill-parent-topic">Sujet :</label>
                             <select id="fill-parent-topic">
                                 <option value="">Choisir un sujet...</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fill-members-search">Ajouter des membres (facultatif) :</label>
+                            <input type="text" id="fill-members-search" autocomplete="off" placeholder="Rechercher un élève...">
+                            <div id="fill-members-suggestions" class="suggestions-list" style="display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <div id="fill-members-list" class="group-members-list"></div>
                         </div>
                         <button type="submit" class="modal-submit-btn">Créer le fill</button>
                     </form>
@@ -113,7 +161,11 @@
     </aside>
     
     <div id="active-chat-column">
-        <h2 class="page-title"><span id="chat-title"># Joan Calixte Alex (Romains)</span></h2>
+        <h2 class="page-title">
+            <button type="button" id="chat-title-pill" class="chat-title-pill" disabled>
+                <span id="chat-title"># Joan Calixte Alex (Romains)</span>
+            </button>
+        </h2>
         
         <div id="messages-container" class="message-box-style">
             <p class="placeholder-message">Sélectionnez une discussion pour commencer...</p>
@@ -129,18 +181,199 @@
                 <button type="button" id="community-remove-file-btn" class="remove-file-btn">X</button>
             </div>
 
+            <div id="reply-preview-area" style="display: none;"></div>
+
             <div id="message-input-area">
+                <textarea id="community-message-input"
+                                placeholder=""
+                                rows="1"></textarea>
+                
                 <button type="button" id="community-file-button" class="file-button">
-                    <img src="/ressources/details/dossiericon.png" alt="📎" style="width: 20px; height: 20px;">
+                    <img src="/ressources/details/dossiericon.png" alt="📁" style="width: 20px; height: 20px;">
                 </button>
                 <input type="file" id="community-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display: none;">
 
-                <textarea id="community-message-input"
-                                placeholder="Écris un message dans le fill actif..."
-                                rows="1"></textarea>
-
-                <button id="send-community-message-btn">Envoyer</button>
+                <button id="send-community-message-btn">➤</button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Profil Utilisateur -->
+<div id="user-profile-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content user-profile-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Profil Utilisateur</h2>
+            <button type="button" class="close-modal-btn" id="close-user-profile-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="user-profile-info">
+                <img src="/ressources/user-icon.png" alt="Photo de profil" id="profile-modal-avatar" class="profile-modal-avatar">
+                <h3 id="profile-modal-username">Username</h3>
+                <p id="profile-modal-birthdate" class="profile-detail">Date de naissance : --/--/----</p>
+            </div>
+            <div class="profile-badges-section">
+                <h4 id="profile-current-badges-title">Badges actuels</h4>
+                <div id="profile-current-badges" class="badges-display"></div>
+            </div>
+            <div class="profile-badges-section">
+                <h4 id="profile-obtained-badges-title">Badges possédés</h4>
+                <div id="profile-obtained-badges" class="badges-display"></div>
+            </div>
+
+            <button type="button" id="start-private-conversation-btn" class="profile-action-btn">
+                Démarrer une conversation privée
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip Badge -->
+<div id="badge-tooltip" class="badge-tooltip" style="display: none;">
+    <div class="badge-tooltip-content">
+        <h5 id="badge-tooltip-name"></h5>
+        <p id="badge-tooltip-description"></p>
+    </div>
+</div>
+
+<!-- Menu contextuel message -->
+<div id="message-context-menu" class="message-context-menu" style="display: none;">
+    <div class="context-menu-item" data-action="reply">
+        <span class="context-menu-icon"></span>
+        <span>Répondre</span>
+    </div>
+    <div class="context-menu-item" data-action="report">
+        <span class="context-menu-icon"></span>
+        <span>Signaler</span>
+    </div>
+    <div class="context-menu-item" data-action="copy">
+        <span class="context-menu-icon"></span>
+        <span>Copier</span>
+    </div>
+</div>
+
+<!-- Image Viewer Modal -->
+<div id="image-viewer-overlay" style="display: none;">
+    <div id="image-viewer-content">
+        <button id="close-image-viewer-btn">&times;</button>
+        <img id="image-viewer-img" src="" alt="Full size image">
+        <a id="download-image-btn" href="#" download class="modal-action-btn">Télécharger</a>
+    </div>
+</div>
+
+<!-- Panneau Détails Groupe -->
+<div id="group-details-overlay" class="group-details-overlay" style="display: none;">
+    <div id="group-details-panel" class="group-details-panel" role="dialog" aria-modal="true">
+        <div class="group-details-header">
+            <h3 class="group-details-title">Détails du groupe</h3>
+            <button type="button" id="close-group-details-btn" class="group-details-close-btn">&times;</button>
+        </div>
+
+        <div class="group-details-body">
+            <div class="group-details-top">
+                <img id="group-details-photo" class="group-details-photo" src="/ressources/communaute/grpicon.png" alt="Photo du groupe">
+                <button type="button" id="group-details-change-photo-btn" class="modal-secondary-btn">Changer l'icône</button>
+                <input type="file" id="group-details-photo-input" accept="image/*" style="display:none;">
+            </div>
+
+            <div class="form-group">
+                <label for="group-details-name">Nom du groupe :</label>
+                <input type="text" id="group-details-name">
+                <button type="button" id="group-details-save-name" class="modal-submit-btn" style="display: none;">Enregistrer le nom</button>
+            </div>
+
+            <div class="form-group">
+                <label for="group-details-description">Description :</label>
+                <textarea id="group-details-description" rows="4"></textarea>
+                <button type="button" id="group-details-save-description" class="modal-submit-btn">Enregistrer la description</button>
+            </div>
+
+            <div class="form-group">
+                <label>Membres :</label>
+                <div class="group-details-meta">
+                    <span id="group-details-members-count">0 membre</span>
+                    <span id="group-details-messages-count">0 message</span>
+                </div>
+                <div id="group-details-members" class="group-details-members"></div>
+            </div>
+
+            <button type="button" id="group-details-leave-btn" class="modal-secondary-btn">Quitter le groupe</button>
+
+            <div id="group-admin-transfer" class="admin-transfer" style="display: none;">
+                <div class="form-group">
+                    <label for="group-admin-successor">Choisir un successeur :</label>
+                    <select id="group-admin-successor"></select>
+                </div>
+                <div class="group-wizard-actions">
+                    <button type="button" id="group-admin-transfer-cancel" class="modal-secondary-btn">Annuler</button>
+                    <button type="button" id="group-admin-transfer-confirm" class="modal-submit-btn">Confirmer</button>
+                </div>
+            </div>
+
+            <button type="button" id="group-details-delete-btn" class="modal-submit-btn" style="display: none;">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Panneau Détails Fill -->
+<div id="fill-details-overlay" class="group-details-overlay" style="display: none;">
+    <div id="fill-details-panel" class="group-details-panel" role="dialog" aria-modal="true">
+        <div class="group-details-header">
+            <h3 class="group-details-title">Détails du fill</h3>
+            <button type="button" id="close-fill-details-btn" class="group-details-close-btn">&times;</button>
+        </div>
+
+        <div class="group-details-body">
+            <div class="form-group">
+                <label for="fill-details-name">Nom du fill :</label>
+                <input type="text" id="fill-details-name" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="fill-details-description">Description :</label>
+                <textarea id="fill-details-description" rows="4" disabled></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Informations :</label>
+                <div class="group-details-meta">
+                    <span id="fill-details-created-by">Créé par : -</span>
+                    <span id="fill-details-parent">Parent : -</span>
+                </div>
+                <div class="group-details-meta" style="margin-top:6px;">
+                    <span id="fill-details-expires">Expire : -</span>
+                    <span id="fill-details-messages-count">0 message</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Membres :</label>
+                <div class="group-details-meta">
+                    <span id="fill-details-members-count">0 membre</span>
+                </div>
+                <div id="fill-details-members" class="group-details-members"></div>
+            </div>
+
+            <button type="button" id="fill-details-request-btn" class="modal-submit-btn" style="display: none;">Demander à rejoindre</button>
+            <button type="button" id="fill-details-leave-btn" class="modal-secondary-btn" style="display: none;">Quitter le fill</button>
+
+            <div id="fill-admin-transfer" class="admin-transfer" style="display: none;">
+                <div class="form-group">
+                    <label for="fill-admin-successor">Choisir un successeur :</label>
+                    <select id="fill-admin-successor"></select>
+                </div>
+                <div class="group-wizard-actions">
+                    <button type="button" id="fill-admin-transfer-cancel" class="modal-secondary-btn">Annuler</button>
+                    <button type="button" id="fill-admin-transfer-confirm" class="modal-submit-btn">Confirmer</button>
+                </div>
+            </div>
+
+            <button type="button" id="fill-details-delete-btn" class="modal-submit-btn" style="display: none;">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulle action rapide (Créer un fill ici) -->
+<div id="quick-create-bubble" class="quick-create-bubble" style="display: none;">
+    <button type="button" id="quick-create-fill-btn" class="quick-create-bubble-btn">Créer un fill</button>
 </div>

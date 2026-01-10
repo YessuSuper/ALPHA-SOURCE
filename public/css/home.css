@@ -25,15 +25,21 @@
     
     /* Marge intérieure pour le titre et le contenu */
     padding: 30px; 
+
+    /* Permet de scroller si les widgets dépassent la hauteur */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* ⭐ AJOUT CRUCIAL : Conteneur Flexbox pour aligner les widgets côte à côte ⭐ */
 #widgets-container {
     display: flex; /* Active Flexbox */
     justify-content: flex-start; /* Aligne les éléments au début de la ligne */
-    gap: 25px; /* Espace entre les deux widgets */
-    margin-top: 30px; /* Espace sous le message d'accueil */
+    gap: 18px; /* Espace entre les widgets */
+    margin-top: 20px; /* Espace sous le message d'accueil */
     width: 100%; /* Important pour occuper l'espace disponible */
+    flex-wrap: wrap; /* Permet 2-3 widgets sans casser la mise en page */
+    align-items: stretch;
 }
 
 /* Style commun aux deux widgets (Classement et Sac à Dos) */
@@ -45,9 +51,123 @@
     color: #ffffff;
     
     /* Les deux widgets prennent chacun la même place dans le flexbox */
-    flex: 1; 
-    min-width: 300px;
-    max-width: 45%; /* S'assure qu'ils ne débordent pas et laissent de la place pour le gap */
+    flex: 1 1 300px;
+    min-width: 280px;
+    max-width: 480px; /* Un peu moins large pour éviter la coupe */
+}
+
+/* --- Widgets dynamiques (Contrôles / Devoirs / Notes) --- */
+.home-widget-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 12px 0 0 0;
+}
+
+.home-widget-list li {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.12s, background-color 0.12s;
+}
+
+.home-widget-list li:hover {
+    transform: translateY(-1px);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.home-item-title {
+    font-weight: 800;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.home-item-sub {
+    opacity: 0.8;
+    font-size: 0.9em;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.home-item-mid {
+    margin-top: 4px;
+    font-weight: 800;
+    opacity: 0.95;
+}
+
+.home-widget-list li.is-empty,
+.home-widget-list li.is-loading {
+    cursor: default;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    font-style: italic;
+}
+
+.home-notes-summary {
+    margin-top: 8px;
+}
+
+.home-notes-avg {
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.home-notes-avg-suffix {
+    opacity: 0.7;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+/* --- Taille fixe pour éviter le débordement écran --- */
+#pending-homework-widget {
+    max-height: 520px;
+    overflow: hidden;
+}
+
+#pending-homework-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#controls-widget {
+    max-height: 520px;
+    overflow: hidden;
+}
+
+#controls-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#unread-messages-widget {
+    max-height: 520px;
+    overflow: hidden;
+}
+
+#unread-messages-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#recent-conversations-widget {
+    max-height: 520px;
+    overflow: hidden;
+}
+
+#recent-conversations-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
 }
 
 /* --- Styles spécifiques aux deux widgets --- */
@@ -58,25 +178,45 @@
     width: auto;
 }
 
-#leaderboard-display h3,
-#backpack-display h3 {
+#leaderboard-display h3 {
     margin-top: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     padding-bottom: 5px;
 }
 
-.leader-name {
-    font-weight: bold;
-    color: #fce300; /* Jaune pour le boss */
-    font-size: 1.2rem;
+/* --- Tabs Sac à Dos / EDT --- */
+.backpack-tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 5px;
 }
 
-/* Styles pour les sous-titres h5 des widgets */
-.widget-box h5 {
-    color: #ffffff;
-    margin-top: 10px;
-    margin-bottom: 5px; /* Réduit l'espace avant la liste */
-    font-size: 1.1rem; /* Plus petit et discret */
+/* Augmentation de la spécificité pour surcharger theme.css */
+#backpack-display .backpack-tabs button {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    font-family: inherit;
+    box-shadow: none !important; /* Retire l'ombre potentielle du thème */
+}
+
+#backpack-display .backpack-tabs button.active {
+    opacity: 1;
+    border-bottom: 2px solid #ffffff !important;
+    background: transparent !important; /* Sécurité supplémentaire */
+}
+
+#backpack-display .backpack-tabs button:hover {
+    opacity: 0.8;
+    background: transparent !important; /* Empêche le changement de couleur au survol du thème */
 }
 
 /* --- Styles spécifiques au Sac à Dos --- */
@@ -92,6 +232,34 @@
     padding: 5px 10px;
     margin-bottom: 3px;
     border-radius: 5px;
+}
+
+/* --- Styles spécifiques à l'EDT --- */
+.edt-list li {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.2) !important; /* Fond plus sombre */
+    border-left: 4px solid #ccc; /* Couleur par défaut */
+    padding: 8px !important;
+    margin-bottom: 6px !important;
+}
+
+.edt-time {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #ddd;
+}
+
+.edt-subject {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.edt-details {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
 }
 
 

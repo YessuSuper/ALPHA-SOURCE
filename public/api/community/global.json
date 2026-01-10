@@ -3,7 +3,7 @@
     {
       "id": "classe3c",
       "name": "Classe 3emeC",
-      "description": "Groupe de classe par défaut contenant tous les élèves",
+      "description": "Groupe de classe",
       "type": "default",
       "members": [
         "Even",
@@ -45,23 +45,113 @@
       "admin": null,
       "createdAt": "2025-12-17T00:00:00.000Z",
       "isPrivate": false,
-      "cost": 0
+      "cost": 0,
+      "photoUrl": "/pictures_documents/community-1767624819336-637989026.jpg"
     },
     {
-      "id": "group_1766339575483",
-      "name": "tkt",
-      "description": "tktktktt",
-      "type": "public",
+      "id": "group_1767622168458",
+      "name": "PARRE brise gANG",
+      "description": "tkt c pour un test",
+      "type": "group",
       "members": [
-        "Even"
+        "Even",
+        "Alexandre",
+        "Calixte"
       ],
       "admin": "Even",
-      "createdAt": "2025-12-21T17:52:55.483Z",
-      "isPrivate": false,
-      "cost": 0
+      "createdAt": "2026-01-05T14:09:28.458Z",
+      "isPrivate": true,
+      "cost": 30,
+      "photoUrl": ""
+    },
+    {
+      "id": "group_1767623787441",
+      "name": "fq",
+      "description": "dserqz\"eqz",
+      "type": "group",
+      "members": [
+        "Even",
+        "Amir",
+        "Alicia",
+        "Alexandre"
+      ],
+      "admin": "Even",
+      "createdAt": "2026-01-05T14:36:27.442Z",
+      "isPrivate": true,
+      "cost": 30,
+      "photoUrl": "/pictures_documents/community-1767623787431-710696442.jpg"
     }
   ],
-  "topics": [],
-  "fills": [],
-  "mps": []
+  "topics": [
+    {
+      "id": "topic_1767622202039",
+      "name": "EXPOSE HISTOIRE",
+      "description": "test juste tkt",
+      "createdBy": "Even",
+      "createdAt": "2026-01-05T14:10:02.039Z",
+      "duration": 86400000,
+      "expiresAt": "2026-01-06T14:10:02.039Z"
+    }
+  ],
+  "fills": [
+    {
+      "id": "fill_1767623859609",
+      "name": "TESSTT",
+      "description": "ZFEEZFZ",
+      "parentType": "topic",
+      "parentId": "topic_1767622202039",
+      "members": [
+        "Even",
+        "Alexandre",
+        "Calixte",
+        "Alicia",
+        "Claire"
+      ],
+      "admin": "Even",
+      "createdBy": "Even",
+      "createdAt": "2026-01-05T14:37:39.609Z",
+      "duration": 43200000,
+      "expiresAt": "2026-01-06T02:37:39.609Z",
+      "penalized_low_activity": true
+    },
+    {
+      "id": "fill_1767629325981",
+      "name": "dfezfe<sf<",
+      "description": "dffsefez<qzrsd",
+      "parentType": "topic",
+      "parentId": "topic_1767622202039",
+      "members": [
+        "Even",
+        "Claire"
+      ],
+      "admin": "Even",
+      "createdBy": "Even",
+      "createdAt": "2026-01-05T16:08:45.981Z",
+      "duration": 43200000,
+      "expiresAt": "2026-01-06T04:08:45.981Z",
+      "penalized_low_activity": true
+    }
+  ],
+  "mps": [
+    {
+      "id": "mp_1767543021294",
+      "participants": [
+        "Even",
+        "Alexandre"
+      ],
+      "createdBy": "Even",
+      "createdAt": "2026-01-04T16:10:21.294Z",
+      "messages": []
+    },
+    {
+      "id": "mp_1767624759340",
+      "participants": [
+        "Even",
+        "Calixte"
+      ],
+      "createdBy": "Even",
+      "createdAt": "2026-01-05T14:52:39.340Z",
+      "messages": []
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "meta": {
     "description": "Base de données contextuelle pour Source AI (cours, élèves, professeurs, classe)",
-    "version": "1.1.2",
+    "version": "1.2.4",
     "last_updated": "14/12/2025 15h12"
   },
   "classe": {
@@ -609,5 +609,430 @@
     "evenements_notables": "Destitution de Tyméo comme délégué (histoire avec Noé).",
     "remarques_pedagogiques": "Plusieurs élèves ont un PAP (Noé, Louis, Léa, Jade).",
     "autres": "Le collège se situe à Tarbes (65)."
-  }
+  },
+  "collective_data": {
+    "collective_points_pc": 1638,
+    "last_updated": "2026-01-10T23:29:53.146Z"
+  },
+  "weekly_schedule": {
+    "week_A": {
+      "Monday": {
+        "08h-09h": "HISTOIRE & GÉOGRAPHIE",
+        "09h-10h": "SCIENCES VIE & TERRE",
+        "10h-11h": "MATHÉMATIQUES",
+        "11h-12h": "ANGLAIS LV1",
+        "12h-13h": "REPAS",
+        "13h-14h": "MATHÉMATIQUES",
+        "14h-15h": "PHYSIQUE-CHIMIE",
+        "15h-16h": "FRANÇAIS",
+        "16h-17h": "CAMBRIDGE/GREC",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Tuesday": {
+        "08h-09h": "ESPAGNOL/ALLEMAND",
+        "09h-10h": "ANGLAIS LV1",
+        "10h-11h": "FRANÇAIS",
+        "11h-12h": "FRANÇAIS",
+        "12h-13h": "REPAS",
+        "13h-14h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "14h-15h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "15h-16h": "ÉDUCATION MUSICALE",
+        "16h-17h": "ARTS PLASTIQUES",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Wednesday": {
+        "08h-09h": "LCA LATIN",
+        "09h-10h": "LCA LATIN",
+        "10h-11h": "ANGLAIS LV1",
+        "11h-12h": "MATHÉMATIQUES",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Thursday": {
+        "08h-09h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "09h-10h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "10h-11h": "VIE DE CLASSE",
+        "11h-12h": "PAS DE COURS",
+        "12h-13h": "REPAS",
+        "13h-14h": "HISTOIRE & GÉOGRAPHIE",
+        "14h-15h": "HISTOIRE & GÉOGRAPHIE",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Friday": {
+        "08h-09h": "ESPAGNOL/ALLEMAND",
+        "09h-10h": "DEVOIR SURVEILLÉ",
+        "10h-11h": "MATHÉMATIQUES",
+        "11h-12h": "FRANÇAIS",
+        "12h-13h": "REPAS",
+        "13h-14h": "TECHNOLOGIE",
+        "14h-15h": "TECHNOLOGIE",
+        "15h-16h": "LCA LATIN",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Saturday": {
+        "08h-09h": "PAS DE COURS",
+        "09h-10h": "PAS DE COURS",
+        "10h-11h": "PAS DE COURS",
+        "11h-12h": "PAS DE COURS",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Sunday": {
+        "08h-09h": "PAS DE COURS",
+        "09h-10h": "PAS DE COURS",
+        "10h-11h": "PAS DE COURS",
+        "11h-12h": "PAS DE COURS",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      }
+    },
+    "week_B": {
+      "Monday": {
+        "08h-09h": "HISTOIRE & GÉOGRAPHIE",
+        "09h-10h": "SCIENCES VIE & TERRE",
+        "10h-11h": "MATHÉMATIQUES",
+        "11h-12h": "ANGLAIS LV1",
+        "12h-13h": "REPAS",
+        "13h-14h": "ESPAGNOL/ALLEMAND",
+        "14h-15h": "PHYSIQUE-CHIMIE",
+        "15h-16h": "FRANÇAIS",
+        "16h-17h": "CAMBRIDGE/GREC",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Tuesday": {
+        "08h-09h": "ESPAGNOL/ALLEMAND",
+        "09h-10h": "ANGLAIS LV1",
+        "10h-11h": "FRANÇAIS",
+        "11h-12h": "FRANÇAIS",
+        "12h-13h": "REPAS",
+        "13h-14h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "14h-15h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "15h-16h": "ÉDUCATION MUSICALE",
+        "16h-17h": "ARTS PLASTIQUES",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Wednesday": {
+        "08h-09h": "LCA LATIN",
+        "09h-10h": "LCA LATIN",
+        "10h-11h": "ANGLAIS LV1",
+        "11h-12h": "MATHÉMATIQUES",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Thursday": {
+        "08h-09h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "09h-10h": "ÉDUCATION PHYSIQUE & SPORTIVE",
+        "10h-11h": "SCIENCES VIE & TERRE",
+        "11h-12h": "PHYSIQUE-CHIMIE",
+        "12h-13h": "REPAS",
+        "13h-14h": "HISTOIRE & GÉOGRAPHIE",
+        "14h-15h": "HISTOIRE & GÉOGRAPHIE",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Friday": {
+        "08h-09h": "ESPAGNOL/ALLEMAND",
+        "09h-10h": "DEVOIR SURVEILLÉ",
+        "10h-11h": "MATHÉMATIQUES",
+        "11h-12h": "FRANÇAIS",
+        "12h-13h": "REPAS",
+        "13h-14h": "HISTOIRE & GÉOGRAPHIE",
+        "14h-15h": "TECHNOLOGIE",
+        "15h-16h": "LCA LATIN",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Saturday": {
+        "08h-09h": "PAS DE COURS",
+        "09h-10h": "PAS DE COURS",
+        "10h-11h": "PAS DE COURS",
+        "11h-12h": "PAS DE COURS",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      },
+      "Sunday": {
+        "08h-09h": "PAS DE COURS",
+        "09h-10h": "PAS DE COURS",
+        "10h-11h": "PAS DE COURS",
+        "11h-12h": "PAS DE COURS",
+        "12h-13h": "PAS DE COURS",
+        "13h-14h": "PAS DE COURS",
+        "14h-15h": "PAS DE COURS",
+        "15h-16h": "PAS DE COURS",
+        "16h-17h": "PAS DE COURS",
+        "17h-18h": "PAS DE COURS"
+      }
+    }
+  },
+  "user_ranking": [
+    {
+      "username": "Even",
+      "points": 651,
+      "connexions": 52,
+      "last_connexion": 1768087065075,
+      "active": true
+    },
+    {
+      "username": "Alexandre",
+      "points": 530,
+      "connexions": 5,
+      "last_connexion": 1768083331706,
+      "active": false
+    },
+    {
+      "username": "Calixte",
+      "points": 502,
+      "connexions": 22,
+      "last_connexion": 1768087758628,
+      "active": true
+    },
+    {
+      "username": "Noé",
+      "points": 0,
+      "connexions": 1,
+      "last_connexion": 1767980368642,
+      "active": false
+    },
+    {
+      "username": "Julia",
+      "points": -15,
+      "connexions": 2,
+      "last_connexion": 1767471327568,
+      "active": true
+    },
+    {
+      "username": "Joan",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Juliette",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Jezzy",
+      "points": -15,
+      "connexions": 2,
+      "last_connexion": 1766924621666,
+      "active": true
+    },
+    {
+      "username": "Inès",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Timéo",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Tyméo",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Clautilde",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Loanne",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Lucie",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Camille",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Sofia",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Lilia",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Amir",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Robin",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Arthur",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Maxime",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Gaultier",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Antoine",
+      "points": -15,
+      "connexions": 1,
+      "last_connexion": 1766859331943,
+      "active": true
+    },
+    {
+      "username": "Louis",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Anne-Victoria",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Léa",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Sarah",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Ema",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Jade",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Alicia",
+      "points": 0,
+      "connexions": 1,
+      "last_connexion": 1767623891200,
+      "active": true
+    },
+    {
+      "username": "ADMIN",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "testuser",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "testuser2",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "user",
+      "points": 0,
+      "connexions": 0,
+      "last_connexion": null,
+      "active": false
+    },
+    {
+      "username": "Claire",
+      "points": 0,
+      "connexions": 3,
+      "last_connexion": 1767631013543,
+      "active": true
+    }
+  ]
 }

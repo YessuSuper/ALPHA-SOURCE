@@ -1,21 +1,43 @@
 <div id="moncompte-page">
-    <!-- Bandeau supérieur avec informations utilisateur -->
+    <!-- 1. HAUT: Profile Header -->
     <div id="user-profile-header">
         <div id="user-avatar-section">
-            <img src="/ressources/user-icon.png" alt="Photo de profil" id="user-avatar">
+            <div id="user-avatar-wrapper">
+                <img src="/ressources/user-icon.png" alt="Photo de profil" id="user-avatar">
+                <div class="avatar-overlay">
+                    <img src="/ressources/details/ppicon.png" alt="Modifier" class="edit-icon">
+                </div>
+            </div>
         </div>
         <div id="user-info-section">
-            <h2 id="user-name">Nom d'utilisateur</h2>
+            <div id="user-name-row">
+                <h2 id="user-name">Nom d'utilisateur</h2>
+                <div id="user-current-badges" aria-label="Badges actuels"></div>
+            </div>
             <p id="user-age">14 ans</p>
         </div>
     </div>
 
-    <!-- Boutons d'actions -->
-    <div id="account-actions">
-        <button id="change-avatar-btn" class="account-action-btn">Photo de profil</button>
-        <button id="change-password-btn" class="account-action-btn">Changer de mot de passe</button>
-        <button id="account-info-btn" class="account-action-btn">Informations du compte</button>
-        <button id="logout-button" class="account-action-btn logout-btn">Déconnexion</button>
+    <!-- Container principal avec gauche et droite -->
+    <div id="account-main-container">
+        <!-- 3. GAUCHE: Boutique et Thèmes -->
+        <div id="account-left-section">
+            <button id="shop-btn" class="account-action-btn">Boutique</button>
+            <button id="inventory-btn" class="account-action-btn">Inventaire Thèmes</button>
+            <button id="badges-btn" class="account-action-btn">Badges</button>
+        </div>
+
+        <!-- 2. DROITE: Actions Importantes -->
+        <div id="account-right-section">
+            <button id="change-password-btn" class="account-action-btn">Changer de mot de passe</button>
+            <button id="account-info-btn" class="account-action-btn">Informations du compte</button>
+        </div>
+    </div>
+
+    <!-- 4. BAS: Déconnexion Buttons -->
+    <div id="account-footer-section">
+        <button id="logout-button" class="logout-btn logout-btn-left">Déconnexion</button>
+        <button id="logout-ed-btn" class="logout-btn logout-ed-btn">Déconnexion ED</button>
     </div>
 </div>
 
@@ -97,5 +119,261 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal Badges -->
+<div id="badges-modal" class="modal-overlay">
+    <div class="modal-content badges-modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Mes Badges</h2>
+            <button type="button" class="close-modal-btn" id="close-badges-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Badges actuels -->
+            <div class="badges-section">
+                <h3>Badges actuels</h3>
+                <div id="current-badges-list" class="badges-grid"></div>
+            </div>
+
+            <!-- Badges obtenus (historique) -->
+            <div class="badges-section">
+                <h3>Badges déjà obtenus</h3>
+                <div id="obtained-badges-list" class="badges-grid"></div>
+            </div>
+
+            <!-- Tous les badges disponibles -->
+            <div class="badges-section">
+                <h3>Tous les badges</h3>
+                <div id="all-badges-list" class="badges-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Inventaire Thèmes -->
+<div id="inventory-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Mes Thèmes</h2>
+            <button type="button" class="close-modal-btn" id="close-inventory-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="inventory-content">
+                <!-- Thème actuellement équipé -->
+                <div id="current-skin-display">
+                    <h3>Thème équipé</h3>
+                    <div id="current-skin-card" class="inventory-item">
+                        <div class="inventory-item-icon">🎨</div>
+                        <div class="inventory-item-info">
+                            <p class="inventory-item-name">Bleu Basique</p>
+                            <p class="inventory-item-status">Actuellement équipé</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thèmes achetés disponibles -->
+                <div id="inventory-skins-display">
+                    <h3>Mes thèmes</h3>
+                    <div id="inventory-skins-grid" class="inventory-items-grid">
+                        <!-- Les thèmes achetés apparaîtront ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Boutique -->
+<div id="shop-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Boutique</h2>
+            <button type="button" class="close-modal-btn" id="close-shop-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="shop-content">
+                <!-- Affichage des points de l'utilisateur -->
+                <div id="user-points-display">
+                    <h3>Mes points: <span id="shop-user-points">0</span> pts</h3>
+                </div>
+
+                <!-- Zone Thèmes de page -->
+                <div class="shop-section">
+                    <h3 class="shop-section-title">Thèmes de page</h3>
+                    <div class="shop-items-grid" id="skins-grid">
+                        <!-- Verdure - Basique -->
+                        <div class="shop-item" data-item-id="skin-verdure" data-item-price="28" data-item-type="skin">
+                            <span class="shop-item-tag tag-basique">Basique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Verdure</p>
+                                <p class="shop-item-description">Un thème naturel et apaisant</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">28 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Obsidienne Royale - Exotique -->
+                        <div class="shop-item" data-item-id="skin-obsidienne" data-item-price="35" data-item-type="skin">
+                            <span class="shop-item-tag tag-exotique">Exotique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Obsidienne Royale</p>
+                                <p class="shop-item-description">L'élégance des profondeurs</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">35 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sunset Lofi - Exotique -->
+                        <div class="shop-item" data-item-id="skin-sunset" data-item-price="40" data-item-type="skin">
+                            <span class="shop-item-tag tag-exotique">Exotique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Sunset Lofi</p>
+                                <p class="shop-item-description">Ambiance crépusculaire relaxante</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">40 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grenat - Basique -->
+                        <div class="shop-item" data-item-id="skin-grenat" data-item-price="26" data-item-type="skin">
+                            <span class="shop-item-tag tag-basique">Basique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Grenat</p>
+                                <p class="shop-item-description">Rouge profond et chaleureux</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">26 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rose Pale - Basique -->
+                        <div class="shop-item" data-item-id="skin-rose" data-item-price="30" data-item-type="skin">
+                            <span class="shop-item-tag tag-basique">Basique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Rose Pâle</p>
+                                <p class="shop-item-description">Douceur et délicatesse</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">30 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Néon - Exotique -->
+                        <div class="shop-item" data-item-id="skin-neon" data-item-price="38" data-item-type="skin">
+                            <span class="shop-item-tag tag-exotique">Exotique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Néon</p>
+                                <p class="shop-item-description">Vivacité électrique et moderne</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">38 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chocolat Velours - Basique -->
+                        <div class="shop-item" data-item-id="skin-chocolat" data-item-price="24" data-item-type="skin">
+                            <span class="shop-item-tag tag-basique">Basique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Chocolat Velours</p>
+                                <p class="shop-item-description">Douceur riche et enveloppante du chocolat pur</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">24 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rêve Indigo - Exotique -->
+                        <div class="shop-item" data-item-id="skin-indigo" data-item-price="36" data-item-type="skin">
+                            <span class="shop-item-tag tag-exotique">Exotique</span>
+                            <div class="shop-item-icon">🎨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Rêve Indigo</p>
+                                <p class="shop-item-description">Profondeur mystérieuse des rêves nocturnes</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">36 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Jaune Basique - Gratuit (tous les utilisateurs) -->
+                        <div class="shop-item" data-item-id="jaune basique" data-item-price="0" data-item-type="skin">
+                            <span class="shop-item-tag tag-gratuit">Gratuit</span>
+                            <div class="shop-item-icon">☀️</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Jaune Basique</p>
+                                <p class="shop-item-description">Chaleur ensoleillée et rayonnante</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">Gratuit</span>
+                                    <button class="shop-buy-btn">Obtenir</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marbre Anthracite - Basique -->
+                        <div class="shop-item" data-item-id="skin-marbre" data-item-price="34" data-item-type="skin">
+                            <span class="shop-item-tag tag-basique">Basique</span>
+                            <div class="shop-item-icon">🪨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Marbre Anthracite</p>
+                                <p class="shop-item-description">Élégance minimaliste et sophistiquée</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">34 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aurore Boréale - Exotique -->
+                        <div class="shop-item" data-item-id="skin-aurore" data-item-price="45" data-item-type="skin">
+                            <span class="shop-item-tag tag-exotique">Exotique</span>
+                            <div class="shop-item-icon">✨</div>
+                            <div class="shop-item-info">
+                                <p class="shop-item-name">Aurore Boréale</p>
+                                <p class="shop-item-description">Magie fluorescente des lumières célestes</p>
+                                <div class="shop-item-footer">
+                                    <span class="shop-item-price">45 pts</span>
+                                    <button class="shop-buy-btn">Acheter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone Pass -->
+                <div class="shop-section">
+                    <h3 class="shop-section-title">Pass</h3>
+                    <div class="shop-items-grid" id="pass-grid">
+                        <p class="coming-soon-text">Bientôt disponible...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip Badge -->
+<div id="badge-tooltip-moncompte" class="badge-tooltip-moncompte" style="display: none;">
+    <div class="badge-tooltip-content">
+        <h5 id="badge-tooltip-name-moncompte"></h5>
+        <p id="badge-tooltip-description-moncompte"></p>
     </div>
 </div>

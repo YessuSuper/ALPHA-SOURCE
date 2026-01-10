@@ -1,0 +1,18 @@
+{
+  "id": "mp_1767624759340",
+  "participants": [
+    "Even",
+    "Calixte"
+  ],
+  "createdBy": "Even",
+  "createdAt": "2026-01-05T14:52:39.340Z",
+  "messages": [
+    {
+      "id": "msg_1767624763699",
+      "sender": "Even",
+      "content": "tg",
+      "timestamp": "2026-01-05T14:52:43.699Z",
+      "type": "text"
+    }
+  ]
+}

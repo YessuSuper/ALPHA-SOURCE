@@ -1,0 +1,129 @@
+<div id="cartable-layout">
+    <!-- Header removed as requested -->
+
+    <!-- Login panel (always shown on reload) -->
+    <div id="cartable-login-panel">
+        <div class="login-intro">
+            <h2>Connexion École Directe</h2>
+            <p>Connecte-toi à ton compte École Directe pour débloquer toutes les fonctionnalités :</p>
+            <ul class="benefits-list">
+                <li>-<strong>Accès à tes notes</strong> et calcul de tes moyennes</li>
+                <li>-<strong>Emploi du temps</strong> en temps réel sur ton tableau de bord</li>
+                <li>-<strong>Liste de tes devoirs</strong> avec contenu et pièces jointes</li>
+                <li>-<strong>IA personnalisée</strong> qui connaît tes cours et tes résultats</li>
+            </ul>
+        </div>
+        <form id="cartable-login-form">
+            <div class="form-row">
+                <label for="ed-identifiant">Identifiant</label>
+                <input type="text" id="ed-identifiant" name="identifiant" autocomplete="username" required placeholder="Identifiant ED">
+            </div>
+            <div class="form-row">
+                <label for="ed-motdepasse">Mot de passe</label>
+                <input type="password" id="ed-motdepasse" name="motdepasse" autocomplete="current-password" required placeholder="Mot de passe ED">
+            </div>
+            <div class="form-actions">
+                <button type="submit">Se connecter</button>
+            </div>
+            <div class="form-hint">Tes identifiants sont chiffrés.</div>
+            <div id="cartable-login-status" class="status" style="display:none;"></div>
+            <div id="cartable-login-error" class="error" style="display:none;"></div>
+        </form>
+    </div>
+
+    <!-- Connexion en cours screen -->
+    <div id="cartable-connecting" style="display:none;">
+        <div class="connecting-container">
+            <div class="connecting-spinner"></div>
+            <h2>Connexion en cours...</h2>
+            <p>Veuillez patienter pendant que nous vous connectons à École Directe</p>
+        </div>
+    </div>
+
+    <!-- Content after login -->
+    <div id="cartable-content" style="display:none;">
+        <div class="cartable-box">
+            <div class="cartable-tabs">
+                <button class="cartable-tab active" data-tab="notes">Notes</button>
+                <button class="cartable-tab" data-tab="devoirs">Devoirs</button>
+            </div>
+            <div class="cartable-panels">
+                <div class="cartable-panel active" data-tab="notes" id="panel-notes">
+                    <h2 class="desktop-panel-title">Mes Notes</h2>
+                    <div class="notes-controls">
+                        <label>
+                            Période:
+                            <select id="notes-periode">
+                                <option value="">Chargement des périodes...</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div id="notes-container">Chargement…</div>
+                </div>
+                <div class="cartable-panel" data-tab="devoirs" id="panel-devoirs">
+                    <h2 class="desktop-panel-title">Cahier de texte</h2>
+                    <div id="devoirs-container">Chargement…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour afficher les notes d'une matière -->
+    <div id="notes-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="notes-modal-header-left">
+                    <h3 id="modal-matiere-name">Notes de Matière</h3>
+                    <button id="modal-graph-btn" class="graph-btn" title="Voir le graphique">
+                        <div class="adaptive-icon"></div>
+                    </button>
+                    <button id="modal-sim-btn" class="graph-btn sim-btn" title="Simuler une note">
+                        <span class="sim-text">∑</span>
+                    </button>
+                </div>
+                <button class="modal-close" id="modal-close-btn">✕</button>
+            </div>
+            <div id="modal-notes-list" class="notes-list-modal">
+                <!-- Les notes seront remplies dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour afficher le graphique des notes -->
+    <div id="graph-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="graph-modal-title">Graphique</h3>
+                <button class="modal-close" id="graph-modal-close">✕</button>
+            </div>
+            <div class="graph-container" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="notes-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour simuler une note -->
+    <div id="sim-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="sim-modal-title">Simulation</h3>
+                <button class="modal-close" id="sim-modal-close">✕</button>
+            </div>
+            <div id="sim-modal-body" class="sim-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Modal pour afficher le détail d'un devoir -->
+    <div id="devoir-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="devoir-modal-title">Devoir</h3>
+                <button class="modal-close" id="devoir-modal-close">✕</button>
+            </div>
+            <div id="devoir-modal-body" class="devoir-modal-body">
+                <!-- Rempli dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+</div>

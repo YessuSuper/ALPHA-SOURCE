@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="/css/mess.css">
     <link rel="stylesheet" href="/css/communaute.css">
     <link rel="stylesheet" href="/css/moncompte.css">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/cartable.css">
+    <link rel="stylesheet" href="/css/cartable-login.css">
     
     <link rel="stylesheet" href="/css/home.css"> 
     
@@ -63,6 +66,9 @@
                 <a href="#" class="mobile-nav-link" data-page="messagerie">
                     <img src="/ressources/messageriemenuicon.png" alt="Messages" class="mobile-nav-icon">
                 </a>
+                <a href="#" class="mobile-nav-link" data-page="cartable">
+                    <img src="/ressources/cartablemenuicon.png" alt="Cartable" class="mobile-nav-icon">
+                </a>
                 <a href="#" class="mobile-nav-link" data-page="info">
                     <img src="/ressources/infomenuicon.png" alt="Info" class="mobile-nav-icon">
                 </a>
@@ -158,8 +164,22 @@
         </div>
     </div>
 
+    <!-- Custom Modal Structure -->
+    <div id="custom-modal-overlay">
+        <div id="custom-modal">
+            <h3 id="custom-modal-title">Notification</h3>
+            <p id="custom-modal-message"></p>
+            <div class="modal-buttons">
+                <button id="custom-modal-cancel" class="modal-btn modal-btn-cancel">Annuler</button>
+                <button id="custom-modal-confirm" class="modal-btn modal-btn-confirm">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/badge-config.js" defer></script>
     <script src="js/communaute.js" defer></script> 
     <script src="/script.js" defer></script>
     <script src="/js/home.js" defer></script>
@@ -168,5 +188,17 @@
     <script src="/js/moncompte.js" defer></script>
     <script src="/js/cours.js" defer></script>
     <script src="/js/mess.js" defer></script> 
+    <script src="/js/cartable.js" defer></script>
+        <script>
+            // Expose a simple skin apply hook early for CSS before module scripts
+            function applySkinTheme(skinName){
+                const name = (skinName||'bleu basique').toLowerCase();
+                if (name.includes('verdure')) {
+                    document.documentElement.setAttribute('data-skin', 'skin-verdure');
+                } else {
+                    document.documentElement.removeAttribute('data-skin');
+                }
+            }
+        </script>
 </body>
 </html>

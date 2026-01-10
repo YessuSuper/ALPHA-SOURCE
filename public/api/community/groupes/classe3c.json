@@ -1,7 +1,7 @@
 {
   "id": "classe3c",
   "name": "Classe 3emeC",
-  "description": "Groupe de classe par défaut contenant tous les élèves",
+  "description": "Groupe de classe",
   "type": "default",
   "members": [
     "Even",
@@ -958,6 +958,84 @@
         "type": "image/jpeg",
         "size": 1714769
       }
+    },
+    {
+      "id": "msg_1766863740110",
+      "sender": "Alexandre",
+      "content": "okkkk",
+      "timestamp": "2025-12-27T19:29:00.110Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766863744491",
+      "sender": "Alexandre",
+      "content": "tg un peu",
+      "timestamp": "2025-12-27T19:29:04.491Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1766936736602",
+      "sender": "Calixte",
+      "content": "hey",
+      "timestamp": "2025-12-28T15:45:36.602Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768069712874",
+      "sender": "Even",
+      "content": "blabla 1767369259987 ok",
+      "timestamp": "2026-01-10T18:28:32.874Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768073218701",
+      "sender": "Even",
+      "content": "@Joan ca va?",
+      "timestamp": "2026-01-10T19:26:58.701Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768073227045",
+      "sender": "Even",
+      "content": "Even",
+      "timestamp": "2026-01-10T19:27:07.045Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768074682644",
+      "sender": "Even",
+      "content": "",
+      "timestamp": "2026-01-10T19:51:22.644Z",
+      "type": "image",
+      "file": {
+        "filename": "community-1768074682642-480578108.avif",
+        "originalName": "planete-science-fiction-fond-ecran-generative-ai_138015-1678.avif",
+        "type": "image/avif",
+        "size": 46405
+      }
+    },
+    {
+      "id": "msg_1768077626771",
+      "sender": "Even",
+      "content": "1767369259987",
+      "timestamp": "2026-01-10T20:40:26.772Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768082207189",
+      "sender": "Alexandre",
+      "content": "tg",
+      "timestamp": "2026-01-10T21:56:47.189Z",
+      "type": "text",
+      "replies_to": "msg_1766406743531"
+    },
+    {
+      "id": "msg_1768087793142",
+      "sender": "Calixte",
+      "content": "hey",
+      "timestamp": "2026-01-10T23:29:53.142Z",
+      "type": "text"
     }
-  ]
+  ],
+  "photoUrl": "/pictures_documents/community-1767624819336-637989026.jpg"
 }

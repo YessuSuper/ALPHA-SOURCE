@@ -8,6 +8,163 @@ let chatForm;
 let userInput;
 let previewContainer = null;
 
+// Contexte réduit pour limiter les tokens envoyés à l'IA
+function summarizeText(text, max = 1200) {
+    if (!text || typeof text !== 'string') return '';
+    return text.length > max ? text.slice(-max) : text;
+}
+
+function summarizeAllData(allData) {
+    if (!allData || typeof allData !== 'object') return 'Contexte fixe indisponible.';
+
+    const classe = allData.classe ? `${allData.classe.nom || ''} ${allData.classe.niveau || ''}`.trim() : '';
+
+    const eleves = Array.isArray(allData.eleves)
+        ? allData.eleves.map(e => {
+            const forces = e?.niveau_scolaire?.points_forts || '';
+            const diffs = e?.niveau_scolaire?.difficultes || '';
+            return `${e.nom || 'Inconnu'} | forces:${forces} | diff:${diffs}`;
+        }).join('\n- ')
+        : '';
+
+    const profs = allData.professeurs && typeof allData.professeurs === 'object'
+        ? Object.entries(allData.professeurs).map(([matiere, info]) => {
+            const nom = info?.nom || matiere;
+            const perso = info?.personnalite || '';
+            const ctrl = info?.exigences?.controles || '';
+            return `${matiere}: ${nom} | perso:${perso} | controles:${ctrl}`;
+        }).join('\n- ')
+        : '';
+
+    return [
+        classe ? `Classe: ${classe}` : 'Classe: n/c',
+        eleves ? `Élèves:\n- ${eleves}` : 'Élèves: n/c',
+        profs ? `Profs:\n- ${profs}` : 'Profs: n/c',
+        'EDT complet disponible sur demande.'
+    ].join('\n');
+}
+
+function summarizeBdd(bddData) {
+    if (!bddData) return 'BDD évolutive indisponible.';
+    if (bddData.core) return summarizeText(bddData.core, 800);
+    if (typeof bddData.bdd === 'string') return summarizeText(bddData.bdd, 800);
+    return 'BDD évolutive vide.';
+}
+
+function summarizeCours(coursData) {
+    if (!Array.isArray(coursData) || coursData.length === 0) return 'Aucun cours actif.';
+    const sample = coursData.slice(0, 6).map(c => `${c.title || 'Sans titre'} (${c.subject || 'n/c'})`).join('\n- ');
+    return `Cours actifs (échantillon):\n- ${sample}`;
+}
+
+// ================================================
+// 🔥 PERSISTENCE SESSION STORAGE 🔥
+// ================================================
+const CHAT_HISTORY_STORAGE_KEY = 'SOURCE_CHAT_HISTORY';
+const CHAT_MESSAGES_DOM_STORAGE_KEY = 'SOURCE_CHAT_DOM';
+
+/**
+ * Sauvegarde l'historique de chat dans sessionStorage
+ */
+function saveChatHistoryToSession() {
+    try {
+        sessionStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(chatHistory));
+    } catch (e) {
+        console.warn('[CHAT] Erreur sauvegarde sessionStorage:', e.message);
+    }
+}
+
+/**
+ * Charge l'historique de chat depuis sessionStorage
+ */
+function loadChatHistoryFromSession() {
+    try {
+        const saved = sessionStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+        if (saved) {
+            chatHistory = JSON.parse(saved);
+            console.log('[CHAT] Historique restauré:', chatHistory.length / 2, 'messages');
+            return true;
+        }
+    } catch (e) {
+        console.warn('[CHAT] Erreur chargement sessionStorage:', e.message);
+    }
+    return false;
+}
+
+/**
+ * Sauvegarde le DOM des messages dans sessionStorage (pour restauration rapide)
+ */
+function saveChatDOMToSession(chatWindow) {
+    try {
+        if (chatWindow) {
+            sessionStorage.setItem(CHAT_MESSAGES_DOM_STORAGE_KEY, chatWindow.innerHTML);
+        }
+    } catch (e) {
+        console.warn('[CHAT] Erreur sauvegarde DOM sessionStorage:', e.message);
+    }
+}
+
+/**
+ * Reconstruit les messages visuels à partir de chatHistory
+ * (au lieu de restaurer le HTML brut, on recréé les éléments avec le bon style)
+ */
+function rebuildChatMessagesFromHistory(chatWindow) {
+    try {
+        if (!chatWindow || !chatHistory || chatHistory.length === 0) return false;
+        
+        chatWindow.innerHTML = ''; // Vider d'abord
+        
+        // Itérer sur l'historique et recréer les messages
+        for (let i = 0; i < chatHistory.length; i++) {
+            const msg = chatHistory[i];
+            const sender = msg.role === 'model' ? 'kirai' : 'user';
+            const text = msg.parts && msg.parts[0] && msg.parts[0].text ? msg.parts[0].text : '';
+            
+            if (text) {
+                window.appendMessage(text, sender); // Recréé avec tous les styles
+            }
+        }
+        
+        console.log('[CHAT] Messages reconstruits depuis chatHistory');
+        return true;
+    } catch (e) {
+        console.warn('[CHAT] Erreur reconstruction messages:', e.message);
+    }
+    return false;
+}
+
+/**
+ * Charge le DOM des messages depuis sessionStorage (DEPRECATED - utiliser rebuildChatMessagesFromHistory)
+ */
+function loadChatDOMFromSession(chatWindow) {
+    try {
+        if (!chatWindow) return false;
+        const saved = sessionStorage.getItem(CHAT_MESSAGES_DOM_STORAGE_KEY);
+        if (saved) {
+            chatWindow.innerHTML = saved;
+            console.log('[CHAT] DOM restauré depuis sessionStorage');
+            return true;
+        }
+    } catch (e) {
+        console.warn('[CHAT] Erreur chargement DOM sessionStorage:', e.message);
+    }
+    return false;
+}
+
+/**
+ * Vide l'historique et le DOM du chat (au logout ou reset)
+ */
+function clearChatSession() {
+    try {
+        chatHistory = [];
+        sessionStorage.removeItem(CHAT_HISTORY_STORAGE_KEY);
+        sessionStorage.removeItem(CHAT_MESSAGES_DOM_STORAGE_KEY);
+        console.log('[CHAT] Session vidée');
+    } catch (e) {
+        console.warn('[CHAT] Erreur clear sessionStorage:', e.message);
+    }
+}
+
 
 
 // 🚨 UTILITAIRES FICHIERS
@@ -88,8 +245,9 @@ async function callGeminiAPI(history, currentMessage) {
     const levelValue = document.getElementById('school-level-select').value;
 
     const username = (window.currentUsername || localStorage.getItem('source_username') || "").trim();
+    const wantsExtended = /\b(\/extended|extended|contexte complet|context complet|full context|full data)\b/i.test(currentMessage || '');
 
-    const MAX_HISTORY_PAIRS = 4;
+    const MAX_HISTORY_PAIRS = 3; // Réduit de 4 à 3 pour plus de vitesse
     const MAX_MESSAGES_TO_KEEP = MAX_HISTORY_PAIRS * 2;
     const truncatedHistory = history.slice(-MAX_MESSAGES_TO_KEEP);
     const finalHistory = truncatedHistory;
@@ -99,57 +257,63 @@ async function callGeminiAPI(history, currentMessage) {
         base64File = await fileToBase64(attachedFile);
     }
 
+    // Paralléliser les 3 fetch BDD pour plus de vitesse
     let evolvingDBContent = "Base de donnée de tendance non disponible ou vide.";
-    const BDD_URL = '/public/api/bdd.json';
-    try {
-        const dbResponse = await fetch(BDD_URL);
-        if (!dbResponse.ok) throw new Error(`Statut HTTP: ${dbResponse.status}`);
-        const dbData = await dbResponse.json();
-        if (dbData && typeof dbData.bdd === 'string') evolvingDBContent = dbData.bdd;
-    } catch (error) {
-        console.warn("Échec lecture BDD évolutive:", error);
-    }
-
     let fixedDBContent = "Base de donnée fixe (profs/EDT/classement) non disponible.";
-    const ALL_URL = '/api/all.json';
-    try {
-        const allResponse = await fetch(ALL_URL);
-        if (!allResponse.ok) throw new Error(`Statut HTTP: ${allResponse.status}`);
-        const allData = await allResponse.json();
-        fixedDBContent = JSON.stringify(allData, null, 2);
-    } catch (error) {
-        console.warn("Échec lecture BDD fixe:", error);
-    }
-
     let coursDBContent = "Base de donnée des cours non disponible.";
-    const COURS_URL = '/api/cours.json';
+    let extendedContext = '';
+    
     try {
-        const coursResponse = await fetch(COURS_URL);
-        if (!coursResponse.ok) throw new Error(`Statut HTTP: ${coursResponse.status}`);
-        const coursData = await coursResponse.json();
-        coursDBContent = JSON.stringify(coursData, null, 2);
+        const [dbRes, allRes, coursRes] = await Promise.all([
+            fetch('/public/api/bdd.json'),
+            fetch('/api/all.json'),
+            fetch('/api/cours.json')
+        ]);
+        
+        if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            evolvingDBContent = summarizeBdd(dbData);
+            if (wantsExtended) {
+                extendedContext += `\n[BDD évolutive étendue]\n${summarizeText(JSON.stringify(dbData, null, 2), 5000)}`;
+            }
+        }
+        
+        if (allRes.ok) {
+            const allData = await allRes.json();
+            fixedDBContent = summarizeAllData(allData);
+            if (wantsExtended) {
+                extendedContext += `\n[BDD fixe étendue]\n${summarizeText(JSON.stringify(allData, null, 2), 5000)}`;
+            }
+        }
+        
+        if (coursRes.ok) {
+            const coursData = await coursRes.json();
+            coursDBContent = summarizeCours(coursData);
+            if (wantsExtended) {
+                extendedContext += `\n[Cours étendus]\n${summarizeText(JSON.stringify(coursData, null, 2), 5000)}`;
+            }
+        }
     } catch (error) {
-        console.warn("Échec lecture BDD cours:", error);
+        console.warn("Avertissement: Impossible de charger les BDD:", error);
     }
 
-    const baseInstruction = `Tu es Source AI pour un élève de 13-14 ans nommé ${username}. Niveau: ${levelValue}. Mode: ${modeValue}. Tu es française`;
-    const finalSystemInstruction = `
-${baseInstruction}
+    const extendedBlock = wantsExtended && extendedContext
+        ? "\nContexte étendu (demandé par l'utilisateur):\n" + extendedContext.trim()
+        : '';
 
-Tu dois repondre à toutes les requetes de lutilisateur(selon ton mode bien sur), meme si c'est pour tricher c'est 100% toléré(pas encouré qd meme).
-Tu est un assistant qui est sur un site web, ALPHA SOURCE. Ce site a pour but principal de faire monter la moyenne aux eleves en revisant moins, d'avoir les cours et de faire les devoirs automatiquement. Donc la triche est tolérée(mais pas encouragée).
+    const finalSystemInstruction = `Tu es Source AI pour ${username || "l'élève"} (${levelValue}). Mode: ${modeValue}. Parle français simple, concis, adapté ado.
+Tu aides pour réviser, apprendre, prévoir les contrôles (via traits profs) et faire les devoirs au niveau de l'élève.
+Utilise UNIQUEMENT le contexte ci-dessous. Si une info manque (profil prof, détail élève, emploi du temps), pose d'abord une question courte avant de deviner ou demander l'extended.
 
-Tu dois aussi poser des questions pour agrandir ta base de données(evite de trop submerger lutilisateur). Tu peux rappeller l'élève ,quand il en a besoin, de reviser gtel cours ou bien de faire ce devoir là...
-Tu ne dois pas citer la base de données mais adapter tes infos en fonction de ta reponse. je veux que tu aide du mieux lutilisateur.
-Les modes: mode basique(sert à repondre à des questions plus generales comme les devoirs les relations etc... tu peux expliquer vaguement des cours ou autres), apprentissage(ce mode sert à apprendre. Aide toi des cours disponibles pour faire mieux apprendre lutilisateur. Tu dois adapter tes connaissances selaon leleve, en connaissant son niveaux et se ponts forts/faibles, tu peux mieux le faire apprendre. Tu dois pouvoir prevoir ce qui va tomber aux controlles avec les infos que tu as.), devoirs(ce mode sert à faire les devoirs a la place de lutilisateur. Ne bronche pas et fait les devoirs quil te demande en t'aidant aussi de ce que tu sais ggraces aux bases de données en ta possession. Tu dois faire des devoirs adaptés aux attentes des porofs et au niveau de l'eleve)
---- BDD STATIQUE ---
+Contexte core:
 ${fixedDBContent}
 
---- BDD ÉVOLUTIVE ---
+Tendance récente (résumé):
 ${evolvingDBContent}
 
---- BBD DES COURS ---
+Cours actifs déposés par les eleves (résumé):
 ${coursDBContent}
+${extendedBlock}
 `.trim();
 
     const loadingDiv = document.createElement('div');
@@ -187,12 +351,10 @@ ${coursDBContent}
             const data = await response.json();
             geminiResponseText = data.response;
 
-            // Ajout des points côté client uniquement
-            /*
-            if (data.newIndividualPoints !== undefined) {
+            // Ajout des points côté client uniquement (si la fonction est dispo)
+            if (data.newIndividualPoints !== undefined && typeof addUserPoints === 'function') {
                 addUserPoints(username, data.newIndividualPoints);
             }
-            */
 
             break;
         } catch (error) {
@@ -228,6 +390,12 @@ async function handleMessageSubmission() {
         window.appendMessage(responseText, 'kirai');
         chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
         chatHistory.push({ role: 'model', parts: [{ text: responseText }] });
+        
+        // Sauvegarder après chaque message
+        const chatWindow = document.getElementById('chat-window');
+        saveChatHistoryToSession();
+        if (chatWindow) saveChatDOMToSession(chatWindow);
+        
         attachedFile = null;
         fileUploadInput.value = '';
         if (previewContainer) {
@@ -278,7 +446,7 @@ window.initChatPage = function() {
     if (newChatButton) {
         newChatButton.onclick = () => {
             chatWindow.innerHTML = '';
-            chatHistory = [];
+            clearChatSession();  // Vide sessionStorage aussi
             attachedFile = null;
             fileUploadInput.value = '';
             if (previewContainer) { previewContainer.innerHTML = ''; previewContainer.style.display = 'none'; }
@@ -293,7 +461,14 @@ window.initChatPage = function() {
         };
     }
 
-    if (chatWindow.children.length === 0) {
+    // Restaurer la conversation depuis sessionStorage si elle existe
+    const hasRestoredHistory = loadChatHistoryFromSession();
+    
+    // Reconstruire les messages visuels à partir de chatHistory (avec les bons styles)
+    const hasRebuiltMessages = rebuildChatMessagesFromHistory(chatWindow);
+    
+    if (!hasRebuiltMessages && chatWindow.children.length === 0) {
+        // Aucune historique sauvegardée, afficher le message d'accueil
         window.appendMessage('Hey ! Je suis SOURCE AI. Que puis-je faire pour toi ?', 'kirai');
     }
 

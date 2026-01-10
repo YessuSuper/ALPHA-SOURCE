@@ -1,0 +1,26 @@
+{
+  "name": "ecoledirecte-api-client",
+  "version": "1.0.0",
+  "description": "Client Node.js pour l'API EcoleDirecte",
+  "main": "ecoledirecte-api.js",
+  "scripts": {
+    "start": "node exemple-basic.js",
+    "advanced": "node exemple-avance.js",
+    "qcm": "node gestion-qcm.js",
+    "server": "node api-web-server.js"
+  },
+  "keywords": [
+    "ecoledirecte",
+    "api",
+    "client",
+    "education"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {}
+}

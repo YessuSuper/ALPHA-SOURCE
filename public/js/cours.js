@@ -203,15 +203,64 @@ console.log('document.readyState =', document.readyState);
 		detailsTitle.textContent = course.title || 'Détails';
 		const fileUrl = course.filePath || course.filepath || course.file || '#';
 
+		// Formatage de la date
+		let dateStr = 'Date inconnue';
+		if (course.uploadedAt) {
+			try {
+				const date = new Date(course.uploadedAt);
+				dateStr = date.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+			} catch (e) { console.error(e); }
+		}
+
 		detailsContent.innerHTML = `
 			<div class="course-detail-item"><strong>Matière:</strong> <span>${escapeHtml(course.subject || '—')}</span></div>
 			<div class="course-detail-item"><strong>Description:</strong> <p>${escapeHtml(course.description || 'Aucune description')}</p></div>
-			<div class="course-detail-item"><strong>Fichier:</strong> <a href="${escapeHtmlAttr(fileUrl)}" target="_blank" rel="noopener">Ouvrir / Télécharger</a></div>
-			<div class="course-detail-item"><strong>ID:</strong> <span>${escapeHtml(String(course.id || '—'))}</span></div>
+			<div class="course-detail-item"><strong>Ajouté par:</strong> <span>${escapeHtml(course.uploaderName || 'Anonyme')}</span></div>
+			<div class="course-detail-item"><strong>Date d'ajout:</strong> <span>${escapeHtml(dateStr)}</span></div>
+			
+			<div class="course-detail-actions" style="margin-top: 20px; text-align: center;">
+				<a href="${escapeHtmlAttr(fileUrl)}" target="_blank" rel="noopener" class="modal-download-btn">
+					Ouvrir / Télécharger le fichier
+				</a>
+			</div>
+
+			<div class="course-id-highlight" style="margin-top: 25px; padding: 15px; background: #f5f5f5; border-left: 4px solid #007bff; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+				<div>
+					<strong style="font-size: 0.9em; color: #666;">Identifiant du cours</strong>
+					<div style="font-size: 1.3em; font-weight: bold; color: #000; margin-top: 4px; font-family: monospace;">${escapeHtml(String(course.id || '—'))}</div>
+				</div>
+				<button class="copy-id-btn" data-id="${escapeHtml(String(course.id || ''))}" style="padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap; margin-left: 10px;">📋 Copier</button>
+			</div>
 			<hr>
 			<div id="delete-btn-container" class="timer-container" style="display:flex; justify-content:center; align-items:center; min-height:40px;"></div>
 		`;
 		setupTemporaryDeleteButton(String(course.id), course.deleteTimer || 0);
+		
+		// Setup copy button listener
+		const copyBtn = detailsContent.querySelector('.copy-id-btn');
+		if (copyBtn) {
+			copyBtn.addEventListener('click', async (e) => {
+				e.preventDefault();
+				const courseId = copyBtn.getAttribute('data-id');
+				try {
+					await navigator.clipboard.writeText(courseId);
+					const originalText = copyBtn.textContent;
+					copyBtn.textContent = '✓ Copié!';
+					copyBtn.style.background = '#28a745';
+					setTimeout(() => {
+						copyBtn.textContent = originalText;
+						copyBtn.style.background = '#007bff';
+					}, 2000);
+				} catch (err) {
+					console.error('Erreur lors de la copie:', err);
+					copyBtn.textContent = '✗ Erreur';
+					setTimeout(() => {
+						copyBtn.textContent = '📋 Copier';
+					}, 2000);
+				}
+			}, { passive: false });
+		}
+		
 		detailsModal.classList.add('active');
 	}
 
@@ -252,6 +301,10 @@ console.log('document.readyState =', document.readyState);
 			const submitButton = document.getElementById('submit-deposit-btn');
 			if (submitButton) { submitButton.disabled = true; submitButton.textContent = 'Chargement…'; }
 			const formData = new FormData(depositForm);
+			
+			// Ajout du nom d'utilisateur
+			const username = localStorage.getItem('source_username') || 'Anonyme';
+			formData.append('uploaderName', username);
 
 			try {
 				const url = `/public/api/course/upload`; 
@@ -262,11 +315,11 @@ console.log('document.readyState =', document.readyState);
 					if (depositModalOverlay) depositModalOverlay.classList.remove('active');
 				} else {
 					const err = await safeJson(response);
-					alert(`Erreur lors du dépôt : ${err?.message || response.statusText}`);
+					await showModal(`Erreur lors du dépôt : ${err?.message || response.statusText}`);
 				}
 			} catch (e) {
 				console.error('Erreur lors du dépôt :', e);
-				alert('Erreur réseau lors du dépôt.');
+				await showModal('Erreur réseau lors du dépôt.');
 			} finally {
 				if (submitButton) { submitButton.disabled = false; submitButton.textContent = 'Déposer le cours'; }
 				depositForm.reset();
@@ -342,7 +395,7 @@ console.log('document.readyState =', document.readyState);
 
 		deleteButton.addEventListener('click', async () => {
 			if (!deleteButton.parentNode) return;
-			if (!confirm(`Êtes-vous sûr de vouloir supprimer le cours ${courseId} ?`)) return;
+			if (!await showModal(`Êtes-vous sûr de vouloir supprimer le cours ${courseId} ?`, { type: 'confirm' })) return;
 
 			cleanupDeleteButton();
 
@@ -352,13 +405,13 @@ console.log('document.readyState =', document.readyState);
 				if (response.ok) await safeJson(response);
 				else {
 					const err = await safeJson(response);
-					alert(`Erreur lors de la suppression : ${err?.message || response.statusText}`);
+					await showModal(`Erreur lors de la suppression : ${err?.message || response.statusText}`);
 				}
 				if (detailsModal) detailsModal.classList.remove('active');
 				await fetchCoursesAndDisplay();
 			} catch(e) {
 				console.error('Erreur lors de la suppression :', e);
-				alert('Erreur réseau lors de la suppression.');
+				await showModal('Erreur réseau lors de la suppression.');
 			}
 		}, { passive: true });
 	}
@@ -366,6 +419,14 @@ console.log('document.readyState =', document.readyState);
 	// ----- Initialisation -----
 	function initCoursePage() {
 		console.log('initCoursePage lancé');
+
+		const pendingCourseFilterId = (() => {
+			try {
+				return (localStorage.getItem('alpha_course_filter_id') || '').trim();
+			} catch (_) {
+				return '';
+			}
+		})();
 
 		fileGrid = document.getElementById('file-grid');
 		courseCounterBox = document.getElementById('course-counter-box');
@@ -402,6 +463,17 @@ console.log('document.readyState =', document.readyState);
 				return;
 			}
 			console.log('file-grid trouvé, fetch des cours');
+
+			// Si on arrive depuis un clic "ID de cours" (messagerie), on pré-remplit les filtres
+			if (pendingCourseFilterId) {
+				const searchTitleInput = document.getElementById('search-title-input');
+				const searchIdInput = document.getElementById('search-id-input');
+				const subjectFilterSelect = document.getElementById('filter-subject-select');
+				if (searchTitleInput) searchTitleInput.value = '';
+				if (subjectFilterSelect) subjectFilterSelect.value = '';
+				if (searchIdInput) searchIdInput.value = pendingCourseFilterId;
+			}
+
 			fetchCoursesAndDisplay().then(() => {
 				// Une fois que le DOM de la page cours est injecté, on setup le formulaire et preview
 				setupFormSubmission();
@@ -424,6 +496,20 @@ console.log('document.readyState =', document.readyState);
 					if (subjectFilterSelect) subjectFilterSelect.value = '';
 					applyFilters();
 				});
+
+				// Scroll + highlight du cours ciblé
+				if (pendingCourseFilterId) {
+					setTimeout(() => {
+						const selector = `.course-file-card[data-id="${String(pendingCourseFilterId)}"]`;
+						const card = document.querySelector(selector);
+						if (card) {
+							card.classList.add('course-target');
+							try { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
+							setTimeout(() => card.classList.remove('course-target'), 4500);
+						}
+						try { localStorage.removeItem('alpha_course_filter_id'); } catch (_) {}
+					}, 60);
+				}
 
 			});
 		};

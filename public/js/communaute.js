@@ -1,9 +1,86 @@
 // public/js/communaute.js
 let activeChannelId = null;
+let activeChannelType = null;
 let avatarsCache = {}; // Cache pour les avatars 
+
+let usersColorsCache = {}; // Cache couleurs utilisateurs (anneau)
+let lastGlobalData = null;
+const topicOpenState = new Map(); // topicId -> boolean (par défaut fermé)
+const conversationMeta = new Map(); // key => { lastTs }
+let resortTimer = null;
+
+// Système de réponse aux messages
+let replyingToMessage = null; // Message auquel on répond
+let currentMessages = []; // Tous les messages de la discussion actuelle
+
+// Tooltip pour badges (système copié de moncompte.js)
+let communauteTooltipTimeout;
+
+// Arrêter l'auto-refresh quand on quitte la page
+window.addEventListener('beforeunload', () => {
+    if (typeof stopAutoRefresh === 'function') {
+        stopAutoRefresh();
+    }
+});
+
+// Fonction globale pour afficher le tooltip de badge
+window.showBadgeTooltipCommunaute = function(event, badgeInfo, isObtained) {
+    const tooltip = document.getElementById('badge-tooltip');
+    if (!tooltip) return;
+
+    if (communauteTooltipTimeout) clearTimeout(communauteTooltipTimeout);
+
+    document.getElementById('badge-tooltip-name').textContent = badgeInfo.name;
+    document.getElementById('badge-tooltip-description').textContent = badgeInfo.description;
+
+    // Réinitialiser
+    tooltip.classList.remove('show', 'unobtained');
+    if (!isObtained) {
+        tooltip.classList.add('unobtained');
+    }
+
+    tooltip.style.opacity = '0';
+    tooltip.style.display = 'block';
+    tooltip.style.visibility = 'visible';
+
+    const x = event.clientX || event.pageX;
+    const y = event.clientY || event.pageY;
+
+    const padding = 12;
+    const tooltipWidth = tooltip.offsetWidth || 250;
+    const tooltipHeight = tooltip.offsetHeight || 80;
+    const left = Math.max(padding, Math.min(x + padding, window.innerWidth - tooltipWidth - padding));
+    const top = Math.max(padding, Math.min(y + padding, window.innerHeight - tooltipHeight - padding));
+
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+
+    requestAnimationFrame(() => {
+        tooltip.classList.add('show');
+        tooltip.style.opacity = isObtained ? '1' : '0.7';
+    });
+
+    communauteTooltipTimeout = setTimeout(() => {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+            tooltip.style.display = 'none';
+        }, 300);
+    }, 3000);
+};
 
 function initCommunityChat() {
     console.log("INIT communaute.js : Mode Navigation Active 🗿");
+
+    function notify(message, options) {
+        try {
+            if (typeof window.showModal === 'function') {
+                window.showModal(message, Object.assign({ type: 'alert', title: 'Notification' }, options || {}));
+                return;
+            }
+        } catch (e) {}
+        // fallback
+        try { alert(message); } catch (e) {}
+    }
 
     // Ouvrir automatiquement le sidebar sur mobile
     if (window.innerWidth <= 768) {
@@ -37,8 +114,15 @@ function initCommunityChat() {
         userDisplayNameElement.textContent = currentUsername || "Sigma_User";
     }
 
+    // Précharger caches (PP + couleurs) pour le menu
+    try { preloadAvatarsCache(); } catch (e) {}
+    try { preloadUsersColors(); } catch (e) {}
+
     // Charger l'avatar de l'utilisateur actuel
     loadCurrentUserAvatar();
+
+    // Charger la liste des utilisateurs pour les suggestions @
+    try { loadAvailableUsers(); } catch (e) {}
 
     const channelListContainer = document.getElementById('channel-list');
     const chatTitleElement = document.getElementById('chat-title');
@@ -50,9 +134,266 @@ function initCommunityChat() {
         fetch('/public/api/community/global.json')
             .then(response => response.json())
             .then(data => {
+                lastGlobalData = data;
                 renderDiscussions(data);
+                try { updateChannelAvatarsFromCache(); } catch (e) {}
             })
             .catch(err => console.error('Erreur chargement discussions:', err));
+    }
+
+    function escapeHtml(str) {
+        if (str == null) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Handler global (delegation) pour les pills dans le chat
+    const messagesContainerForLinks = document.getElementById('messages-container');
+    if (messagesContainerForLinks && messagesContainerForLinks.dataset.linkDelegation !== 'true') {
+        messagesContainerForLinks.dataset.linkDelegation = 'true';
+        messagesContainerForLinks.addEventListener('click', (e) => {
+            // Cours ID pill
+            const pill = e.target.closest('.course-id-pill');
+            if (pill) {
+                const courseId = pill.getAttribute('data-course-id');
+                if (courseId) {
+                    e.preventDefault(); e.stopPropagation();
+                    navigateToCourseById(courseId);
+                    return;
+                }
+            }
+            // @mention
+            const mention = e.target.closest('.user-mention');
+            if (mention) {
+                const uname = mention.getAttribute('data-username');
+                if (uname) { e.preventDefault(); e.stopPropagation(); openUserProfile(uname); return; }
+            }
+            // Plain name
+            const nameToken = e.target.closest('.user-name-token');
+            if (nameToken) {
+                const uname = nameToken.getAttribute('data-username');
+                if (uname) { e.preventDefault(); e.stopPropagation(); openUserProfile(uname); return; }
+            }
+        });
+    }
+
+    function normalizeUsername(u) {
+        return String(u || '').trim().toLowerCase();
+    }
+
+    function truncatePreview(text, maxLen) {
+        const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+        if (!normalized) return '';
+        if (normalized.length <= maxLen) return normalized;
+        return normalized.slice(0, maxLen) + '....';
+    }
+
+    // ------------------------------------------------------------------
+    // Mentions & profils
+    // ------------------------------------------------------------------
+    const COURSE_ID_TOKEN_REGEX = /\b(\d{10,16})\b/g; // ex: 1767369259987
+    const COURSE_FILTER_STORAGE_KEY = 'alpha_course_filter_id';
+    let ppDataCache = null;
+
+    function escapeRegex(str) {
+        return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function getAllUsernames() {
+        // Reutilise la liste construite pour les formulaires (groupes/fills)
+        const unique = new Set();
+        if (Array.isArray(allUsers)) {
+            allUsers.forEach(u => { if (u) unique.add(String(u)); });
+        }
+        const cu = (localStorage.getItem('source_username') || '').trim();
+        if (cu) unique.add(cu);
+        return Array.from(unique);
+    }
+
+    function navigateToCourseById(courseId) {
+        const id = String(courseId || '').trim();
+        if (!id) return;
+        try { localStorage.setItem(COURSE_FILTER_STORAGE_KEY, id); } catch (e) {}
+        if (typeof window.renderPage === 'function') { window.renderPage('cours'); return; }
+        const anyLink = document.querySelector('[data-page="cours"]');
+        if (anyLink) { try { anyLink.click(); } catch (e) {} return; }
+        console.warn('Navigation vers cours impossible');
+    }
+
+    function formatMessageContentWithLinks(content) {
+        // 1) Sécurité
+        let safe = escapeHtml(typeof content === 'string' ? content : '');
+        // 2) IDs de cours (pills)
+        safe = safe.replace(COURSE_ID_TOKEN_REGEX, (_m, id) => {
+            const courseId = String(id);
+            return `<button type="button" class="course-id-pill" data-course-id="${courseId}" aria-label="Ouvrir le cours ${courseId}">${courseId}</button>`;
+        });
+
+        const usernames = getAllUsernames();
+        const lowerMap = new Map(usernames.map(n => [String(n).toLowerCase(), String(n)]));
+
+        // 3) Mentions génériques @token (même sans connaître l'utilisateur)
+        const genericAt = /(^|[\s.,;!?:()\[\]{}\"'])@([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ'_-]{0,30})(?=($|[\s.,;!?:()\[\]{}\"']))/g;
+        safe = safe.replace(genericAt, (m, p1, token) => {
+            const canonical = lowerMap.get(String(token).toLowerCase()) || token;
+            return `${p1}<span class="user-mention" data-username="${escapeHtml(canonical)}">@${escapeHtml(canonical)}</span>`;
+        });
+
+        // 4) Noms simples (sans @) → cliquables; case-insensitive mapping à la liste connue
+        usernames.forEach(name => {
+            const rx = new RegExp(`(^|[\\s.,;!?:()\[\]{}\"'])(${escapeRegex(name)})(?=($|[\\s.,;!?:()\[\]{}\"']))`, 'gi');
+            safe = safe.replace(rx, (match, p1, p2) => `${p1}<span class="user-name-token" data-username="${escapeHtml(name)}">${p2}</span>`);
+        });
+        return safe.replace(/\n/g, '<br>');
+    }
+
+    function formatLastMessagePreview(msg) {
+        if (!msg || typeof msg !== 'object') return '';
+        const senderRaw = String(msg.sender || msg.username || msg.from || '').trim() || '???';
+        const sender = normalizeUsername(senderRaw) === normalizeUsername(currentUsername) ? 'Vous' : senderRaw;
+        const type = String(msg.type || '').toLowerCase();
+        const content = typeof msg.content === 'string' ? msg.content : '';
+        const hasText = content.replace(/\s+/g, ' ').trim().length > 0;
+        const hasFile = !!msg.file;
+
+        if (type === 'image') {
+            if (hasText) return sender + ': ' + truncatePreview(content, 34);
+            return sender + ': [image]';
+        }
+        if (type === 'text') {
+            return sender + ': ' + truncatePreview(content, 34);
+        }
+        if (hasText) {
+            return sender + ': ' + truncatePreview(content, 34);
+        }
+        if (hasFile) {
+            return sender + ': [fichier]';
+        }
+        return '';
+    }
+
+    function pickLastMessage(messages) {
+        if (!Array.isArray(messages) || messages.length === 0) return null;
+        let last = messages[messages.length - 1];
+        let lastTs = Date.parse(last && last.timestamp ? last.timestamp : '');
+        if (!Number.isFinite(lastTs)) lastTs = -Infinity;
+        for (const m of messages) {
+            const ts = Date.parse(m && m.timestamp ? m.timestamp : '');
+            if (Number.isFinite(ts) && ts >= lastTs) {
+                lastTs = ts;
+                last = m;
+            }
+        }
+        return last;
+    }
+
+    function scheduleResortConversationList() {
+        if (resortTimer) clearTimeout(resortTimer);
+        resortTimer = setTimeout(() => {
+            try { resortConversationList(); } catch (e) {}
+        }, 60);
+    }
+
+    function applyTopicVisibility(topicId) {
+        const isOpen = topicOpenState.get(topicId) === true;
+
+        const topicItem = document.querySelector(`.discussion-item.topic-item[data-id="${CSS.escape(topicId)}"]`);
+        if (topicItem) {
+            const btn = topicItem.querySelector('.topic-toggle');
+            if (btn) btn.textContent = isOpen ? '▾' : '▸';
+        }
+
+        document.querySelectorAll(`.discussion-item.fill-item[data-topic-id="${CSS.escape(topicId)}"]`).forEach(li => {
+            const isMember = li.getAttribute('data-is-member') === '1';
+            // fermé: afficher seulement les fills où on est membre
+            li.style.display = (!isOpen && !isMember) ? 'none' : '';
+        });
+    }
+
+    function resortConversationList() {
+        const channelList = document.getElementById('channel-list');
+        if (!channelList) return;
+
+        const nodes = Array.from(channelList.children).filter(n => n && n.classList && n.classList.contains('discussion-item'));
+        const blocks = new Map();
+
+        for (const node of nodes) {
+            const blockId = node.getAttribute('data-block-id') || ('misc:' + (node.getAttribute('data-id') || ''));
+            if (!blocks.has(blockId)) {
+                blocks.set(blockId, {
+                    id: blockId,
+                    nodes: [],
+                    maxTs: 0,
+                    orig: Number(node.getAttribute('data-orig-order') || '0') || 0,
+                    pinnedRank: blockId === 'group:classe3c' ? 0 : 1
+                });
+            }
+            const block = blocks.get(blockId);
+            block.nodes.push(node);
+
+            const type = node.getAttribute('data-type') || '';
+            const id = node.getAttribute('data-id') || '';
+            const key = type + ':' + id;
+            const meta = conversationMeta.get(key);
+            const ts = meta && Number.isFinite(meta.lastTs) ? meta.lastTs : 0;
+            if (ts > block.maxTs) block.maxTs = ts;
+        }
+
+        const sortedBlocks = Array.from(blocks.values()).sort((a, b) => {
+            if (a.pinnedRank !== b.pinnedRank) return a.pinnedRank - b.pinnedRank;
+            if (a.maxTs !== b.maxTs) return b.maxTs - a.maxTs;
+            return a.orig - b.orig;
+        });
+
+        const frag = document.createDocumentFragment();
+        for (const b of sortedBlocks) {
+            for (const n of b.nodes) frag.appendChild(n);
+        }
+        channelList.appendChild(frag);
+    }
+
+    function applyLastMessageToItem(li, discussionId, discussionType, opts) {
+        if (!li || !discussionId || !discussionType) return;
+        const previewEl = li.querySelector('.discussion-preview');
+        if (!previewEl) return;
+        const options = opts || {};
+        if (options.skipFetch) {
+            previewEl.textContent = '';
+            return;
+        }
+
+        fetch(`/public/api/community/messages/${encodeURIComponent(discussionId)}/${encodeURIComponent(discussionType)}?username=${encodeURIComponent(currentUsername)}`)
+            .then(r => r.json())
+            .then(payload => {
+                if (!payload || !payload.success) return;
+                const messages = Array.isArray(payload.messages) ? payload.messages : [];
+                const lastMsg = pickLastMessage(messages);
+                if (!lastMsg) {
+                    previewEl.textContent = '';
+                    conversationMeta.set(discussionType + ':' + discussionId, { lastTs: 0 });
+                    scheduleResortConversationList();
+                    return;
+                }
+
+                previewEl.textContent = formatLastMessagePreview(lastMsg);
+                const ts = Date.parse(lastMsg.timestamp || '');
+                const tsVal = Number.isFinite(ts) ? ts : Date.now();
+                conversationMeta.set(discussionType + ':' + discussionId, { lastTs: tsVal });
+
+                // Exception fills: si fill membre rattaché à un sujet, remonter le sujet+fills pour toi
+                if (options.bumpBlockId) {
+                    const prev = conversationMeta.get(options.bumpBlockId);
+                    const prevTs = prev && Number.isFinite(prev.lastTs) ? prev.lastTs : 0;
+                    if (tsVal > prevTs) conversationMeta.set(options.bumpBlockId, { lastTs: tsVal });
+                }
+
+                scheduleResortConversationList();
+            })
+            .catch(() => {});
     }
 
     // Fonction pour rendre les discussions dans la liste
@@ -63,84 +404,283 @@ function initCommunityChat() {
         // Vider la liste actuelle
         channelList.innerHTML = '';
 
-        // Ajouter les groupes
-        data.groups.forEach(group => {
+        const groups = Array.isArray(data.groups) ? data.groups : [];
+        const topics = Array.isArray(data.topics) ? data.topics : [];
+        const fills = Array.isArray(data.fills) ? data.fills : [];
+        const mps = Array.isArray(data.mps) ? data.mps : [];
+
+        const fillsByParent = new Map();
+        for (const fill of fills) {
+            const parentType = fill.parentType || '';
+            const parentId = fill.parentId || '';
+            const key = parentType + ':' + parentId;
+            if (!fillsByParent.has(key)) fillsByParent.set(key, []);
+            fillsByParent.get(key).push(fill);
+        }
+
+        let origOrder = 0;
+
+        function makeAvatarForMp(username) {
+            const wrap = document.createElement('span');
+            wrap.className = 'channel-avatar-wrap';
+            wrap.style.background = usersColorsCache[username] || 'rgba(255,255,255,0.4)';
+            wrap.style.padding = '2px';
+
+            const img = document.createElement('img');
+            img.className = 'channel-avatar-img';
+            img.setAttribute('data-username', username);
+            img.alt = 'PP';
+            img.src = avatarsCache[username] || '/ressources/user-icon.png';
+            wrap.appendChild(img);
+            return wrap;
+        }
+
+        function makeAvatarForGroup(group) {
+            const wrap = document.createElement('span');
+            wrap.className = 'channel-group-wrap' + (group && group.id === 'classe3c' ? ' class-group' : '');
+            const img = document.createElement('img');
+            img.className = 'channel-group-img';
+            img.alt = 'Groupe';
+            const photoUrl = group && typeof group.photoUrl === 'string' ? group.photoUrl : '';
+            img.src = photoUrl ? (photoUrl + (photoUrl.includes('?') ? '&' : '?') + 'v=' + Date.now()) : '/ressources/communaute/grpicon.png';
+            wrap.appendChild(img);
+            return wrap;
+        }
+
+        function makeAvatarForTopic() {
+            const img = document.createElement('img');
+            img.className = 'channel-icon';
+            img.alt = 'Topic Icon';
+            img.src = '/ressources/communaute/sujeticon.png';
+            return img;
+        }
+
+        function makeAvatarForFill() {
+            const img = document.createElement('img');
+            img.className = 'discussion-icon';
+            img.alt = 'Fill Icon';
+            img.src = '/ressources/communaute/fillicon.png';
+            return img;
+        }
+
+        function makeTextBlock(titleText) {
+            const wrap = document.createElement('div');
+            wrap.className = 'discussion-text';
+
+            const title = document.createElement('div');
+            title.className = 'discussion-title';
+            title.textContent = titleText;
+
+            const preview = document.createElement('div');
+            preview.className = 'discussion-preview';
+            preview.textContent = '';
+
+            wrap.appendChild(title);
+            wrap.appendChild(preview);
+            return wrap;
+        }
+
+        // Ajouter les groupes + leurs fills (block WhatsApp)
+        groups.forEach(group => {
+            const isGroupVisible = (group && group.id === 'classe3c') || (group && Array.isArray(group.members) && group.members.includes(currentUsername));
+            if (!isGroupVisible) return;
+
             const li = document.createElement('li');
             li.className = 'discussion-item group-item parent-channel';
             li.setAttribute('data-id', group.id);
             li.setAttribute('data-type', 'group');
-            li.innerHTML = `
-                <img class="channel-icon" src="ressources/communaute/grpicon.png" alt="Groupe Icon"> ${group.name}
-            `;
+            li.setAttribute('data-block-id', 'group:' + group.id);
+            li.setAttribute('data-orig-order', String(origOrder++));
+            li.setAttribute('data-display-name', group.name);
+            li.appendChild(makeAvatarForGroup(group));
+            li.appendChild(makeTextBlock(group.name));
             channelList.appendChild(li);
+
+            applyLastMessageToItem(li, group.id, 'group');
+
+            const groupFills = fillsByParent.get('group:' + group.id) || [];
+            for (const fill of groupFills) {
+                const fillLi = document.createElement('li');
+                fillLi.className = 'discussion-item fill-item child-channel';
+                fillLi.setAttribute('data-id', fill.id);
+                fillLi.setAttribute('data-type', 'fill');
+                fillLi.setAttribute('data-parent-type', fill.parentType);
+                fillLi.setAttribute('data-parent-id', fill.parentId);
+                fillLi.setAttribute('data-block-id', 'group:' + group.id);
+                fillLi.setAttribute('data-orig-order', String(origOrder++));
+
+                const isMember = fill.members && fill.members.includes(currentUsername);
+                fillLi.classList.add(isMember ? 'member' : 'non-member');
+                fillLi.setAttribute('data-display-name', '# ' + fill.name);
+
+                fillLi.appendChild(makeAvatarForFill());
+                fillLi.appendChild(makeTextBlock('# ' + fill.name));
+
+                // Indicateur de membre
+                const memberBadge = document.createElement('span');
+                if (isMember) {
+                    memberBadge.className = 'member-indicator';
+                    memberBadge.textContent = '✓';
+                    memberBadge.title = 'Vous êtes membre';
+                } else {
+                    memberBadge.className = 'non-member-indicator';
+                    memberBadge.textContent = '✗';
+                    memberBadge.title = 'Vous n\'êtes pas membre';
+                }
+                fillLi.appendChild(memberBadge);
+
+                // Pas de bouton "Demander à rejoindre" dans le menu conversations.
+
+                channelList.appendChild(fillLi);
+
+                applyLastMessageToItem(fillLi, fill.id, 'fill', { skipFetch: !isMember });
+            }
         });
 
-        // Ajouter les sujets
-        data.topics.forEach(topic => {
+        // Ajouter les sujets + leurs fills (avec collapse/expand)
+        topics.forEach(topic => {
             const li = document.createElement('li');
             li.className = 'discussion-item topic-item parent-channel';
             li.setAttribute('data-id', topic.id);
             li.setAttribute('data-type', 'topic');
-            li.innerHTML = `
-                <img class="channel-icon" src="/ressources/communaute/sujeticon.png" alt="Topic Icon"> ${topic.name}
-            `;
+            li.setAttribute('data-block-id', 'topic:' + topic.id);
+            li.setAttribute('data-orig-order', String(origOrder++));
+            li.setAttribute('data-display-name', topic.name);
+
+            const isOpen = topicOpenState.get(topic.id) === true;
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'topic-toggle';
+            toggleBtn.type = 'button';
+            toggleBtn.textContent = isOpen ? '▾' : '▸';
+            toggleBtn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                topicOpenState.set(topic.id, !(topicOpenState.get(topic.id) === true));
+                applyTopicVisibility(topic.id);
+            });
+            li.appendChild(toggleBtn);
+            li.appendChild(makeAvatarForTopic());
+            li.appendChild(makeTextBlock(topic.name));
             channelList.appendChild(li);
+
+            // Topic: pas de chat direct, mais on veut pouvoir remonter le block via fills membres
+            const topicFills = fillsByParent.get('topic:' + topic.id) || [];
+            for (const fill of topicFills) {
+                const isMember = fill.members && fill.members.includes(currentUsername);
+
+                const fillLi = document.createElement('li');
+                fillLi.className = 'discussion-item fill-item child-channel';
+                fillLi.setAttribute('data-id', fill.id);
+                fillLi.setAttribute('data-type', 'fill');
+                fillLi.setAttribute('data-parent-type', fill.parentType);
+                fillLi.setAttribute('data-parent-id', fill.parentId);
+                fillLi.setAttribute('data-block-id', 'topic:' + topic.id);
+                fillLi.setAttribute('data-topic-id', topic.id);
+                fillLi.setAttribute('data-is-member', isMember ? '1' : '0');
+                fillLi.setAttribute('data-orig-order', String(origOrder++));
+                fillLi.classList.add(isMember ? 'member' : 'non-member');
+                fillLi.setAttribute('data-display-name', '# ' + fill.name);
+
+                fillLi.appendChild(makeAvatarForFill());
+                fillLi.appendChild(makeTextBlock('# ' + fill.name));
+
+                // Indicateur de membre
+                const memberBadge = document.createElement('span');
+                if (isMember) {
+                    memberBadge.className = 'member-indicator';
+                    memberBadge.textContent = '✓';
+                    memberBadge.title = 'Vous êtes membre';
+                } else {
+                    memberBadge.className = 'non-member-indicator';
+                    memberBadge.textContent = '✗';
+                    memberBadge.title = 'Vous n\'êtes pas membre';
+                }
+                fillLi.appendChild(memberBadge);
+
+                // Pas de bouton "Demander à rejoindre" dans le menu conversations.
+
+                channelList.appendChild(fillLi);
+
+                applyLastMessageToItem(fillLi, fill.id, 'fill', {
+                    skipFetch: !isMember,
+                    bumpBlockId: isMember ? ('topic:' + topic.id) : null
+                });
+            }
+
+            // Appliquer l'état ouvert/fermé sans re-render
+            applyTopicVisibility(topic.id);
         });
 
-        // Ajouter les fills
-        data.fills.forEach(fill => {
+        // Ajouter les fills sans parent (fallback)
+        const orphanFills = fills.filter(f => !(f && f.parentType && f.parentId) || !fillsByParent.has((f.parentType || '') + ':' + (f.parentId || '')));
+        orphanFills.forEach(fill => {
             const li = document.createElement('li');
             li.className = 'discussion-item fill-item child-channel';
             li.setAttribute('data-id', fill.id);
             li.setAttribute('data-type', 'fill');
             li.setAttribute('data-parent-type', fill.parentType);
             li.setAttribute('data-parent-id', fill.parentId);
+            li.setAttribute('data-block-id', 'misc:' + fill.id);
+            li.setAttribute('data-orig-order', String(origOrder++));
 
-            // Vérifier si l'utilisateur est membre du fill
             const isMember = fill.members && fill.members.includes(currentUsername);
-            const memberClass = isMember ? 'member' : 'non-member';
+            li.classList.add(isMember ? 'member' : 'non-member');
+            li.setAttribute('data-display-name', '# ' + fill.name);
 
-            li.innerHTML = `
-                <img class="discussion-icon" src="/ressources/communaute/fillicon.png" alt="Fill Icon"> # ${fill.name}
-                <span class="duration">12h</span>
-                ${!isMember ? '<button class="join-fill-btn" data-fill-id="' + fill.id + '">Rejoindre</button>' : ''}
-            `;
-            li.classList.add(memberClass);
+            li.appendChild(makeAvatarForFill());
+            li.appendChild(makeTextBlock('# ' + fill.name));
+
+            // Indicateur de membre
+            const memberBadge = document.createElement('span');
+            if (isMember) {
+                memberBadge.className = 'member-indicator';
+                memberBadge.textContent = '✓';
+                memberBadge.title = 'Vous êtes membre';
+            } else {
+                memberBadge.className = 'non-member-indicator';
+                memberBadge.textContent = '✗';
+                memberBadge.title = 'Vous n\'êtes pas membre';
+            }
+            li.appendChild(memberBadge);
+
+            // Pas de bouton "Demander à rejoindre" dans le menu conversations.
+
             channelList.appendChild(li);
+            applyLastMessageToItem(li, fill.id, 'fill', { skipFetch: !isMember });
         });
 
         // Ajouter les MP (seulement ceux où l'utilisateur est participant)
-        if (data.mps) {
-            data.mps.forEach(mp => {
-                // Vérifier si l'utilisateur actuel est participant à ce MP
-                if (mp.participants && mp.participants.includes(currentUsername)) {
-                    const li = document.createElement('li');
-                    li.className = 'discussion-item mp-item';
-                    li.setAttribute('data-id', mp.id);
-                    li.setAttribute('data-type', 'mp');
+        mps.forEach(mp => {
+            if (!(mp.participants && mp.participants.includes(currentUsername))) return;
+            const li = document.createElement('li');
+            li.className = 'discussion-item mp-item';
+            li.setAttribute('data-id', mp.id);
+            li.setAttribute('data-type', 'mp');
+            li.setAttribute('data-block-id', 'mp:' + mp.id);
+            li.setAttribute('data-orig-order', String(origOrder++));
 
-                    // Afficher le nom de l'autre participant
-                    const otherParticipant = mp.participants.find(p => p !== currentUsername);
-                    li.innerHTML = `
-                        <img class="discussion-icon" src="/ressources/communaute/mpicon.png" alt="MP Icon"> ${otherParticipant || 'Message privé'}
-                    `;
-                    channelList.appendChild(li);
-                }
-            });
-        }
+            const otherParticipant = mp.participants.find(p => p !== currentUsername);
+            const displayName = otherParticipant || 'Message privé';
+            li.setAttribute('data-display-name', displayName);
 
-        // Activer le premier élément par défaut
-        const first = channelList.querySelector('.discussion-item');
+            li.appendChild(makeAvatarForMp(otherParticipant || ''));
+            li.appendChild(makeTextBlock(displayName));
+            channelList.appendChild(li);
+
+            applyLastMessageToItem(li, mp.id, 'mp');
+        });
+
+        // Ordonner une première fois (classe en haut), puis resort avec les previews
+        try { resortConversationList(); } catch (e) {}
+
+        // Activer le premier élément par défaut (en évitant les topics)
+        const first = channelList.querySelector('.discussion-item[data-type="group"], .discussion-item.fill-item.member, .discussion-item[data-type="mp"]');
         if (first) {
             first.classList.add('active');
             activeChannelId = first.getAttribute('data-id') || null;
             const firstType = first.getAttribute('data-type');
-            if (chatTitleElement) {
-                const durationEl = first.querySelector('.duration');
-                const durText = durationEl ? durationEl.textContent : '';
-                const name = first.innerText.replace(durText, '').trim();
-                chatTitleElement.textContent = name;
-            }
+            const titleEl = document.getElementById('chat-title');
+            if (titleEl) titleEl.textContent = first.getAttribute('data-display-name') || first.innerText.trim();
             // Charger les messages et configurer l'input
             loadMessages(activeChannelId, firstType);
             toggleMessageInput(firstType);
@@ -171,31 +711,7 @@ function initCommunityChat() {
         document.body.classList.add('community-sidebar-open');
     }
 
-    // Attacher délégation d'événement pour ouvrir conversation au clic (mobile)
-    if (channelListElem) {
-        channelListElem.addEventListener('click', (e) => {
-            const li = e.target.closest('.discussion-item');
-            if (!li) return;
-            const id = li.getAttribute('data-id');
-            const type = li.getAttribute('data-type') || '';
-            // Nom lisible
-            const durationEl = li.querySelector('.duration');
-            const durText = durationEl ? durationEl.textContent : '';
-            const name = li.innerText.replace(durText, '').trim();
-
-            // Sur petits écrans on ouvre en plein écran
-            if (window.innerWidth <= 768) {
-                openMobileConversation(id, name, type);
-            } else {
-                // Desktop: comportement existant - selectionner l'item
-                const prev = channelListElem.querySelector('.discussion-item.active');
-                if (prev) prev.classList.remove('active');
-                li.classList.add('active');
-                activeChannelId = id;
-                try { loadMessages(id, type); } catch (e) { console.warn('loadMessages non dispo', e); }
-            }
-        });
-    }
+    // (click handler géré plus bas sur channelListContainer)
 
     // Créer un bouton croix mobile dans le header (si absent) et lier la fermeture
     (function ensureMobileCloseButton() {
@@ -302,6 +818,8 @@ function initCommunityChat() {
             case 'newFill':
                 modalTitle.textContent = 'Créer un nouveau fill';
                 document.getElementById('fill-form').style.display = 'flex';
+                try { resetFillMembersSelection(); } catch (e) {}
+                try { loadAvailableUsers(); } catch (e) {}
                 loadParentOptions();
                 break;
             case 'newMp':
@@ -314,6 +832,9 @@ function initCommunityChat() {
         modalOverlay.style.display = 'flex';
     }
 
+    // Utilisé par la bulle "Créer un fill" (sélection après chargement async des options)
+    let pendingFillParentTopicId = null;
+
     // Fonction pour fermer le modal
     function closeCreateModal() {
         const modalOverlay = document.getElementById('create-modal-overlay');
@@ -324,17 +845,22 @@ function initCommunityChat() {
 
         // Réinitialiser les formulaires
         forms.forEach(form => form.reset());
+
+        try { resetFillMembersSelection(); } catch (e) {}
     }
 
     // Fonction pour charger les options de parent pour les fills
     function loadParentOptions() {
         const parentTypeSelect = document.getElementById('fill-parent-type');
         const parentIdSelect = document.getElementById('fill-parent-id');
+        const parentTopicSelect = document.getElementById('fill-parent-topic');
 
-        // Vider les options existantes
-        parentIdSelect.innerHTML = '<option value="">Sélectionnez un parent</option>';
+        const parentType = parentTypeSelect ? parentTypeSelect.value : 'topic';
 
-        const parentType = parentTypeSelect.value;
+        // Vider les options existantes (selon le markup)
+        const targetSelect = parentTopicSelect || parentIdSelect;
+        if (!targetSelect) return;
+        targetSelect.innerHTML = '<option value="">Choisir un sujet...</option>';
 
         if (parentType === 'group') {
             // Charger les groupes
@@ -346,8 +872,13 @@ function initCommunityChat() {
                             const option = document.createElement('option');
                             option.value = group.id;
                             option.textContent = group.name;
-                            parentIdSelect.appendChild(option);
+                            targetSelect.appendChild(option);
                         });
+                    }
+
+                    if (pendingFillParentTopicId) {
+                        targetSelect.value = pendingFillParentTopicId;
+                        pendingFillParentTopicId = null;
                     }
                 })
                 .catch(err => console.error('Erreur chargement groupes:', err));
@@ -361,8 +892,13 @@ function initCommunityChat() {
                             const option = document.createElement('option');
                             option.value = topic.id;
                             option.textContent = topic.name;
-                            parentIdSelect.appendChild(option);
+                            targetSelect.appendChild(option);
                         });
+                    }
+
+                    if (pendingFillParentTopicId) {
+                        targetSelect.value = pendingFillParentTopicId;
+                        pendingFillParentTopicId = null;
                     }
                 })
                 .catch(err => console.error('Erreur chargement sujets:', err));
@@ -461,14 +997,16 @@ function initCommunityChat() {
             const name = document.getElementById('fill-name').value.trim();
             const description = document.getElementById('fill-description').value.trim();
             const parentType = document.getElementById('fill-parent-type').value;
-            const parentId = document.getElementById('fill-parent-id').value;
+            const parentId = (document.getElementById('fill-parent-topic')?.value) || (document.getElementById('fill-parent-id')?.value) || '';
 
             if (!name || !parentId) return;
+
+            const members = Array.from(new Set([currentUsername, ...(selectedFillMembers || [])]));
 
             fetch('/public/api/community/create-fill', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, description, parentType, parentId, username: currentUsername })
+                body: JSON.stringify({ name, description, parentType, parentId, username: currentUsername, members })
             })
             .then(response => response.json())
             .then(data => {
@@ -519,6 +1057,7 @@ function initCommunityChat() {
 
     // Variables pour l'autocomplétion
     let allUsers = [];
+    let selectedFillMembers = [];
 
     // Fonction pour charger la liste des utilisateurs disponibles
     function loadAvailableUsers() {
@@ -546,6 +1085,98 @@ function initCommunityChat() {
                 allUsers = [...new Set(allUsers)].filter(user => user !== currentUsername);
             })
             .catch(err => console.error('Erreur chargement utilisateurs:', err));
+    }
+
+    function resetFillMembersSelection() {
+        selectedFillMembers = [];
+        const list = document.getElementById('fill-members-list');
+        if (list) list.innerHTML = '';
+        const suggestions = document.getElementById('fill-members-suggestions');
+        if (suggestions) {
+            suggestions.innerHTML = '';
+            suggestions.style.display = 'none';
+        }
+        const input = document.getElementById('fill-members-search');
+        if (input) input.value = '';
+    }
+
+    function renderFillMembersSelection() {
+        const list = document.getElementById('fill-members-list');
+        if (!list) return;
+        list.innerHTML = '';
+
+        selectedFillMembers.forEach(username => {
+            const row = document.createElement('div');
+            row.className = 'group-member-row';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.addEventListener('change', () => {
+                if (!checkbox.checked) {
+                    selectedFillMembers = selectedFillMembers.filter(u => u !== username);
+                    renderFillMembersSelection();
+                }
+            });
+
+            const label = document.createElement('span');
+            label.textContent = username;
+
+            row.appendChild(checkbox);
+            row.appendChild(label);
+            list.appendChild(row);
+        });
+    }
+
+    function addFillMember(username) {
+        const u = String(username || '').trim();
+        if (!u) return;
+        if (u === currentUsername) return;
+        if (selectedFillMembers.includes(u)) return;
+        selectedFillMembers.push(u);
+        renderFillMembersSelection();
+    }
+
+    // Autocomplete membres (fill)
+    const fillMembersInput = document.getElementById('fill-members-search');
+    const fillMembersSuggestions = document.getElementById('fill-members-suggestions');
+    if (fillMembersInput && fillMembersSuggestions) {
+        fillMembersInput.addEventListener('input', (e) => {
+            const query = String(e.target.value || '').toLowerCase().trim();
+            if (query.length < 1) {
+                fillMembersSuggestions.style.display = 'none';
+                return;
+            }
+
+            const filtered = allUsers
+                .filter(u => !selectedFillMembers.includes(u))
+                .filter(u => u.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                fillMembersSuggestions.style.display = 'none';
+                return;
+            }
+
+            fillMembersSuggestions.innerHTML = '';
+            filtered.slice(0, 6).forEach(u => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = u;
+                div.addEventListener('click', () => {
+                    addFillMember(u);
+                    fillMembersInput.value = '';
+                    fillMembersSuggestions.style.display = 'none';
+                });
+                fillMembersSuggestions.appendChild(div);
+            });
+            fillMembersSuggestions.style.display = 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!fillMembersInput.contains(e.target) && !fillMembersSuggestions.contains(e.target)) {
+                fillMembersSuggestions.style.display = 'none';
+            }
+        });
     }
 
     // Gestionnaire pour les suggestions de destinataire
@@ -598,9 +1229,9 @@ function initCommunityChat() {
         parentTypeSelect.addEventListener('change', loadParentOptions);
     }
 
-    // Fonction pour rejoindre un fill
+    // Fonction pour demander à rejoindre un fill (validation admin)
     function joinFill(fillId) {
-        fetch('/public/api/community/join-fill', {
+        fetch('/public/api/community/fill-join-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fillId, username: currentUsername })
@@ -608,16 +1239,201 @@ function initCommunityChat() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                console.log(`Rejoint le fill : ${fillId}`);
-                loadDiscussions(); // Recharger la liste pour mettre à jour l'affichage
+                notify(data.message || 'Demande envoyée.', { title: 'Communauté' });
+                try { loadDiscussions(); } catch (e) {}
             } else {
-                alert('Erreur rejoindre fill: ' + data.message);
+                notify('Erreur demander à rejoindre: ' + data.message, { title: 'Communauté' });
             }
         })
         .catch(err => {
             console.error('Erreur rejoindre fill:', err);
-            alert('Erreur serveur');
+            notify('Erreur serveur', { title: 'Communauté' });
         });
+    }
+
+    // Vue infos fill pour non-membre
+    function openFillInfoOverlay(fillId) {
+        // Éviter d'avoir le panneau groupe ouvert en même temps
+        const groupOverlay = document.getElementById('group-details-overlay');
+        if (groupOverlay) groupOverlay.style.display = 'none';
+
+        const data = lastGlobalData;
+        const fills = Array.isArray(data && data.fills) ? data.fills : [];
+        const fill = fills.find(f => f && f.id === fillId);
+        if (!fill) return;
+
+        const overlay = document.getElementById('fill-details-overlay');
+        const closeBtn = document.getElementById('close-fill-details-btn');
+        const nameEl = document.getElementById('fill-details-name');
+        const descEl = document.getElementById('fill-details-description');
+        const createdByEl = document.getElementById('fill-details-created-by');
+        const parentEl = document.getElementById('fill-details-parent');
+        const expiresEl = document.getElementById('fill-details-expires');
+        const membersCountEl = document.getElementById('fill-details-members-count');
+        const membersEl = document.getElementById('fill-details-members');
+        const requestBtn = document.getElementById('fill-details-request-btn');
+        const leaveBtn = document.getElementById('fill-details-leave-btn');
+        const delBtn = document.getElementById('fill-details-delete-btn');
+
+        if (nameEl) {
+            nameEl.value = fill.name || '';
+            nameEl.disabled = true;
+        }
+        if (descEl) {
+            descEl.value = fill.description || '';
+            descEl.disabled = true;
+        }
+        if (createdByEl) createdByEl.textContent = 'Créé par : ' + (fill.createdBy || fill.admin || '-');
+
+        // Parent label
+        let parentLabel = '-';
+        if (fill.parentType === 'topic') {
+            const topic = (Array.isArray(data && data.topics) ? data.topics : []).find(t => t && t.id === fill.parentId);
+            parentLabel = 'Sujet : ' + (topic ? topic.name : fill.parentId);
+        } else if (fill.parentType === 'group') {
+            const group = (Array.isArray(data && data.groups) ? data.groups : []).find(g => g && g.id === fill.parentId);
+            parentLabel = 'Groupe : ' + (group ? group.name : fill.parentId);
+        }
+        if (parentEl) parentEl.textContent = 'Parent : ' + parentLabel;
+
+        if (expiresEl) {
+            const exp = fill.expiresAt ? new Date(fill.expiresAt) : null;
+            expiresEl.textContent = 'Expire : ' + (exp && !isNaN(exp.getTime()) ? exp.toLocaleString('fr-FR') : '-');
+        }
+
+        const members = Array.isArray(fill.members) ? fill.members : [];
+        if (membersCountEl) membersCountEl.textContent = members.length + (members.length > 1 ? ' membres' : ' membre');
+        if (membersEl) {
+            membersEl.innerHTML = '';
+            members.forEach(u => {
+                const div = document.createElement('div');
+                div.className = 'group-member-row';
+                div.textContent = u;
+                membersEl.appendChild(div);
+            });
+        }
+
+        if (leaveBtn) leaveBtn.style.display = 'none';
+        if (delBtn) delBtn.style.display = 'none';
+
+        if (requestBtn) {
+            requestBtn.style.display = 'block';
+            requestBtn.textContent = 'Demander à rejoindre';
+            requestBtn.onclick = () => {
+                joinFill(fill.id);
+                if (overlay) overlay.style.display = 'none';
+            };
+        }
+
+        if (overlay) {
+            overlay.style.display = 'flex';
+            overlay.onclick = (e) => {
+                if (e.target === overlay) overlay.style.display = 'none';
+            };
+        }
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                if (overlay) overlay.style.display = 'none';
+            };
+        }
+    }
+
+    function renderFillDetailsInMessages(fillId) {
+        const data = lastGlobalData;
+        const fills = Array.isArray(data && data.fills) ? data.fills : [];
+        const fill = fills.find(f => f && f.id === fillId);
+        if (!fill) return;
+
+        // Fermer les overlays si ouverts
+        const fillOverlay = document.getElementById('fill-details-overlay');
+        if (fillOverlay) fillOverlay.style.display = 'none';
+        const groupOverlay = document.getElementById('group-details-overlay');
+        if (groupOverlay) groupOverlay.style.display = 'none';
+
+        // Parent label
+        let parentLabel = '-';
+        if (fill.parentType === 'topic') {
+            const topic = (Array.isArray(data && data.topics) ? data.topics : []).find(t => t && t.id === fill.parentId);
+            parentLabel = 'Sujet : ' + (topic ? topic.name : fill.parentId);
+        } else if (fill.parentType === 'group') {
+            const group = (Array.isArray(data && data.groups) ? data.groups : []).find(g => g && g.id === fill.parentId);
+            parentLabel = 'Groupe : ' + (group ? group.name : fill.parentId);
+        }
+
+        const createdBy = fill.createdBy || fill.admin || '-';
+        const exp = fill.expiresAt ? new Date(fill.expiresAt) : null;
+        const expLabel = exp && !isNaN(exp.getTime()) ? exp.toLocaleString('fr-FR') : '-';
+        const members = Array.isArray(fill.members) ? fill.members : [];
+
+        const messagesContainer = document.getElementById('messages-container');
+        if (!messagesContainer) return;
+
+        messagesContainer.innerHTML = '';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'topic-details';
+
+        const card = document.createElement('div');
+        card.className = 'topic-details-card';
+
+        const title = document.createElement('h3');
+        title.className = 'topic-details-title';
+        title.textContent = '# ' + (fill.name || 'Fill');
+
+        const meta = document.createElement('div');
+        meta.className = 'topic-details-meta';
+        meta.textContent = `Créé par : ${createdBy} • ${parentLabel} • Expire : ${expLabel}`;
+
+        const desc = document.createElement('div');
+        desc.style.color = 'rgba(255, 255, 255, 0.85)';
+        desc.style.whiteSpace = 'pre-wrap';
+        desc.textContent = (fill.description || '').trim() ? fill.description : 'Aucune description.';
+
+        const note = document.createElement('div');
+        note.className = 'topic-details-meta';
+        note.textContent = "Vous n'êtes pas membre de ce fill.";
+
+        const joinBtn = document.createElement('button');
+        joinBtn.type = 'button';
+        joinBtn.className = 'modal-submit-btn';
+        joinBtn.textContent = 'Demander à rejoindre';
+        joinBtn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            joinFill(fill.id);
+        });
+
+        const membersTitle = document.createElement('div');
+        membersTitle.className = 'topic-details-meta';
+        membersTitle.textContent = `Membres : ${members.length}`;
+
+        const membersList = document.createElement('div');
+        membersList.className = 'topic-details-list';
+        if (members.length === 0) {
+            const row = document.createElement('div');
+            row.className = 'topic-details-row';
+            row.textContent = 'Aucun membre.';
+            membersList.appendChild(row);
+        } else {
+            members.forEach(u => {
+                const row = document.createElement('div');
+                row.className = 'topic-details-row';
+                row.textContent = u;
+                membersList.appendChild(row);
+            });
+        }
+
+        card.appendChild(title);
+        card.appendChild(meta);
+        card.appendChild(desc);
+        card.appendChild(note);
+        card.appendChild(joinBtn);
+
+        wrap.appendChild(card);
+        wrap.appendChild(membersTitle);
+        wrap.appendChild(membersList);
+
+        messagesContainer.appendChild(wrap);
     }
 
     channelListContainer.addEventListener('click', (e) => {
@@ -629,12 +1445,43 @@ function initCommunityChat() {
             return;
         }
 
+        // Toggle sujet: ne pas ouvrir de chat
+        if (e.target.closest('.topic-toggle')) return;
+
         // On cherche l'élément li le plus proche
         const item = e.target.closest('.discussion-item');
         
         if (item) {
             const id = item.getAttribute('data-id');
             const type = item.getAttribute('data-type');
+
+            if (type === 'topic') return; // pas de chat dans un sujet
+
+            // Fill non-membre: afficher infos + bouton rejoindre, pas la discussion
+            if (type === 'fill' && item.classList.contains('non-member')) {
+                // Sélection visuelle du fill, sans ouvrir une discussion existante
+                document.querySelectorAll('#channel-list .discussion-item').forEach(el => {
+                    el.classList.remove('active');
+                    el.classList.remove('active-fill');
+                });
+                item.classList.add('active');
+                item.classList.add('active-fill');
+
+                const titleEl = document.getElementById('chat-title');
+                if (titleEl) titleEl.textContent = item.getAttribute('data-display-name') || item.innerText.trim();
+
+                // Ne pas laisser l'ancien canal (souvent le groupe de classe) actif
+                activeChannelId = null;
+                activeChannelType = null;
+
+                const messagesContainer = document.getElementById('messages-container');
+                if (messagesContainer) messagesContainer.innerHTML = '';
+                toggleMessageInput(null);
+
+                // Afficher les détails à la place de la conversation
+                renderFillDetailsInMessages(id);
+                return;
+            }
 
             // 1. Reset de TOUS les items dans la liste
             document.querySelectorAll('#channel-list .discussion-item').forEach(el => {
@@ -647,17 +1494,22 @@ function initCommunityChat() {
             if (type === 'fill') item.classList.add('active-fill');
 
             // 3. Maj Titre
-            if (chatTitleElement) {
-                const durationEl = item.querySelector('.duration');
-                const durText = durationEl ? durationEl.textContent : '';
-                const cleanName = item.innerText.replace(durText, '').trim();
-                chatTitleElement.textContent = cleanName;
+            {
+                const titleEl = document.getElementById('chat-title');
+                if (titleEl) titleEl.textContent = item.getAttribute('data-display-name') || item.innerText.trim();
             }
 
             activeChannelId = id;
             console.log(`Sélection : ${id} en VERT 🗿`);
 
-            // Charger les messages de la discussion sélectionnée
+            // Mobile: ouvrir plein écran
+            if (window.innerWidth <= 768) {
+                openMobileConversation(id, item.getAttribute('data-display-name') || item.innerText.trim(), type);
+                toggleMessageInput(type);
+                return;
+            }
+
+            // Charger les messages de la discussion sélectionnée (desktop)
             loadMessages(id, type);
 
             // Gérer l'affichage de l'input de message
@@ -665,13 +1517,80 @@ function initCommunityChat() {
         }
     });
 
+    // --- BULLE ACTION RAPIDE (sur sujet) ---
+    const quickBubble = document.getElementById('quick-create-bubble');
+    const quickCreateFillBtn = document.getElementById('quick-create-fill-btn');
+
+    function closeQuickBubble() {
+        if (!quickBubble) return;
+        quickBubble.style.display = 'none';
+        quickBubble.dataset.topicId = '';
+    }
+
+    function openQuickBubbleAt(x, y, topicId) {
+        if (!quickBubble) return;
+        const pad = 8;
+        const vw = window.innerWidth || 0;
+        const vh = window.innerHeight || 0;
+
+        quickBubble.style.display = 'block';
+        quickBubble.dataset.topicId = topicId;
+
+        // position clamp
+        const rect = quickBubble.getBoundingClientRect();
+        const left = Math.max(pad, Math.min(x, vw - rect.width - pad));
+        const top = Math.max(pad, Math.min(y, vh - rect.height - pad));
+        quickBubble.style.left = left + 'px';
+        quickBubble.style.top = top + 'px';
+    }
+
+    // Intercepter clic droit / appui prolongé (évite le menu Google)
+    channelListContainer.addEventListener('contextmenu', (e) => {
+        const topicItem = e.target.closest('.discussion-item.topic-item');
+        if (!topicItem) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const topicId = topicItem.getAttribute('data-id');
+        openQuickBubbleAt(e.clientX, e.clientY, topicId);
+    });
+
+    // fermer la bulle si clic ailleurs / scroll / escape
+    document.addEventListener('click', (e) => {
+        if (!quickBubble || quickBubble.style.display !== 'block') return;
+        if (quickBubble.contains(e.target)) return;
+        closeQuickBubble();
+    });
+    window.addEventListener('scroll', closeQuickBubble, true);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeQuickBubble();
+    });
+
+    if (quickCreateFillBtn) {
+        quickCreateFillBtn.addEventListener('click', () => {
+            const topicId = quickBubble?.dataset?.topicId;
+            closeQuickBubble();
+            if (!topicId) return;
+
+            // Ouvre le modal "newFill" et pré-sélectionne le topic
+            openCreateModal('newFill');
+            const typeEl = document.getElementById('fill-parent-type');
+            if (typeEl) typeEl.value = 'topic';
+
+            // Set après chargement async des options
+            pendingFillParentTopicId = topicId;
+            try { loadParentOptions(); } catch (e) {}
+        });
+    }
+
     // Fonction pour activer/désactiver l'input de message selon le type de discussion
     function toggleMessageInput(discussionType) {
         const messageInput = document.getElementById('community-message-input');
         const sendButton = document.getElementById('send-community-message-btn');
         const inputArea = document.getElementById('message-input-area');
 
-        if (discussionType === 'topic') {
+        if (!discussionType || discussionType === 'topic') {
             // Les sujets ne servent pas à discuter
             if (messageInput) messageInput.disabled = true;
             if (sendButton) sendButton.disabled = true;
@@ -688,22 +1607,291 @@ function initCommunityChat() {
     function loadMessages(discussionId, discussionType) {
         if (!discussionId || !discussionType) return;
 
-        fetch(`/public/api/community/messages/${discussionId}/${discussionType}`)
-            .then(response => response.json())
+        const messagesContainer = document.getElementById('messages-container');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = '<p class="placeholder-message">Chargement...</p>';
+        }
+
+        // Arrêter l'auto-refresh de l'ancienne discussion
+        stopAutoRefresh();
+        lastMessageId = null;
+
+        fetch(`/public/api/community/messages/${encodeURIComponent(discussionId)}/${encodeURIComponent(discussionType)}?username=${encodeURIComponent(currentUsername)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     displayMessages(data.messages);
+                    
+                    // Initialiser lastMessageId et démarrer l'auto-refresh
+                    if (data.messages && data.messages.length > 0) {
+                        lastMessageId = data.messages[data.messages.length - 1].id;
+                    }
+                    startAutoRefresh();
                 } else {
                     console.error('Erreur chargement messages:', data.message);
+                    if (messagesContainer) {
+                        messagesContainer.innerHTML = '<p class="placeholder-message">Impossible de charger les messages.</p>';
+                    }
                 }
             })
-            .catch(err => console.error('Erreur chargement messages:', err));
+            .catch(err => {
+                console.error('Erreur chargement messages:', err);
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '<p class="placeholder-message">Erreur serveur lors du chargement.</p>';
+                }
+            });
+    }
+
+    // Initialiser le menu contextuel sur les messages
+    function initializeMessageContextMenu() {
+        console.log('🔧 initializeMessageContextMenu appelé');
+        const messagesContainer = document.getElementById('messages-container');
+        const contextMenu = document.getElementById('message-context-menu');
+        console.log('messagesContainer:', messagesContainer);
+        console.log('contextMenu:', contextMenu);
+        if (!messagesContainer || !contextMenu) {
+            console.error('❌ Éléments manquants pour le menu contextuel');
+            return;
+        }
+
+        let currentMessageElement = null;
+        let longPressTimer = null;
+
+        // Gérer le clic droit (PC)
+        messagesContainer.addEventListener('contextmenu', (e) => {
+            console.log('🖱️ CONTEXTMENU EVENT!', e.target);
+            const messageEl = e.target.closest('.message-item');
+            console.log('messageEl trouvé:', messageEl);
+            if (!messageEl) return;
+            
+            e.preventDefault();
+            showContextMenu(messageEl, e.clientX, e.clientY);
+        });
+
+        // Gérer le clic prolongé (mobile)
+        messagesContainer.addEventListener('touchstart', (e) => {
+            const messageEl = e.target.closest('.message-item');
+            if (!messageEl) return;
+
+            currentMessageElement = messageEl;
+            longPressTimer = setTimeout(() => {
+                const touch = e.touches[0];
+                showContextMenu(messageEl, touch.clientX, touch.clientY);
+            }, 500); // 500ms pour le clic prolongé
+        });
+
+        messagesContainer.addEventListener('touchend', () => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+
+        messagesContainer.addEventListener('touchmove', () => {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        });
+
+        // Fonction pour afficher le menu
+        function showContextMenu(messageEl, x, y) {
+            const messageId = messageEl.getAttribute('data-message-id');
+            if (!messageId) return;
+
+            const message = currentMessages.find(m => m.id === messageId);
+            if (!message) return;
+
+            // Positionner le menu
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+            contextMenu.style.display = 'block';
+            contextMenu.setAttribute('data-message-id', messageId);
+
+            // Ajuster si le menu sort de l'écran
+            setTimeout(() => {
+                const rect = contextMenu.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    contextMenu.style.left = (x - rect.width) + 'px';
+                }
+                if (rect.bottom > window.innerHeight) {
+                    contextMenu.style.top = (y - rect.height) + 'px';
+                }
+            }, 10);
+        }
+
+        // Gérer les clics sur les options du menu
+        contextMenu.addEventListener('click', async (e) => {
+            const item = e.target.closest('.context-menu-item');
+            if (!item) return;
+
+            const action = item.getAttribute('data-action');
+            const messageId = contextMenu.getAttribute('data-message-id');
+            const message = currentMessages.find(m => m.id === messageId);
+            
+            contextMenu.style.display = 'none';
+
+            if (!message) return;
+
+            switch(action) {
+                case 'reply':
+                    setReplyingTo(message);
+                    break;
+                
+                case 'copy':
+                    if (message.content) {
+                        try {
+                            await navigator.clipboard.writeText(message.content);
+                            if (typeof window.showModal === 'function') {
+                                window.showModal('Message copié !', { type: 'alert', title: 'Succès' });
+                            }
+                        } catch (err) {
+                            console.error('Erreur copie:', err);
+                        }
+                    }
+                    break;
+                
+                case 'report':
+                    reportMessage(messageId, message);
+                    break;
+            }
+        });
+
+        // Fermer le menu si on clique ailleurs
+        document.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.style.display = 'none';
+            }
+        });
+    }
+
+    // Fonction pour signaler un message
+    async function reportMessage(messageId, message) {
+        const result = await window.showModal(
+            `Voulez-vous signaler ce message de ${message.sender} ?\n\n"${(message.content || '').substring(0, 100)}..."`,
+            { type: 'confirm', title: 'Signaler un message' }
+        );
+
+        if (!result) return;
+
+        const currentUsername = localStorage.getItem('source_username');
+        if (!currentUsername) {
+            window.showModal('Vous devez être connecté pour signaler.', { 
+                type: 'alert', 
+                title: 'Erreur' 
+            });
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/report-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    messageId, 
+                    reportedUser: message.sender,
+                    reportingUser: currentUsername
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                window.showModal(data.message || 'Message signalé avec succès.', { 
+                    type: 'alert', 
+                    title: 'Signalement envoyé' 
+                });
+            } else {
+                window.showModal(data.message || 'Erreur lors du signalement.', { 
+                    type: 'alert', 
+                    title: 'Erreur' 
+                });
+            }
+        } catch (err) {
+            console.error('Erreur signalement:', err);
+            window.showModal('Erreur réseau lors du signalement.', { 
+                type: 'alert', 
+                title: 'Erreur' 
+            });
+        }
+    }
+
+    // Fonction pour détecter le swipe sur un message
+    function initializeMessageSwipe() {
+        const messagesContainer = document.getElementById('messages-container');
+        if (!messagesContainer) return;
+
+        let startX = 0;
+        let startY = 0;
+        let messageElement = null;
+
+        messagesContainer.addEventListener('touchstart', (e) => {
+            const msg = e.target.closest('.message-item');
+            if (!msg) return;
+            messageElement = msg;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, false);
+
+        messagesContainer.addEventListener('touchend', (e) => {
+            if (!messageElement) return;
+
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            // Vérifier que c'est un swipe horizontal (pas vertical)
+            if (Math.abs(deltaX) < Math.abs(deltaY)) {
+                messageElement = null;
+                return;
+            }
+
+            // Vérifier si c'est un swipe suffisant (>50px)
+            if (Math.abs(deltaX) < 50) {
+                messageElement = null;
+                return;
+            }
+
+            // Récupérer l'ID du message
+            const messageId = messageElement.getAttribute('data-message-id');
+            if (!messageId) {
+                messageElement = null;
+                return;
+            }
+
+            // Trouver le message dans le tableau
+            const message = currentMessages.find(m => m.id === messageId);
+            if (!message) {
+                messageElement = null;
+                return;
+            }
+
+            const isOwnMessage = messageElement.classList.contains('own-message');
+
+            // Swipe right si message d'un autre
+            if (deltaX > 0 && !isOwnMessage) {
+                setReplyingTo(message);
+            }
+            // Swipe left si mon propre message
+            else if (deltaX < 0 && isOwnMessage) {
+                setReplyingTo(message);
+            }
+
+            messageElement = null;
+        }, false);
     }
 
     // Fonction pour afficher les messages
     function displayMessages(messages) {
         const messagesContainer = document.getElementById('messages-container');
         if (!messagesContainer) return;
+
+        // Sauvegarder les messages
+        currentMessages = messages;
 
         // Vider le conteneur
         messagesContainer.innerHTML = '';
@@ -714,10 +1902,15 @@ function initCommunityChat() {
         }
 
         // Afficher chaque message
-        messages.forEach(message => {
+        messages.forEach((message, index) => {
+            // Générer un ID unique si pas présent
+            if (!message.id) {
+                message.id = `msg_${activeChannelId}_${index}_${message.timestamp}`;
+            }
             const messageElement = document.createElement('div');
             const isOwnMessage = message.sender === currentUsername;
             messageElement.className = `message-item ${isOwnMessage ? 'own-message' : 'other-message'}`;
+            messageElement.setAttribute('data-message-id', message.id);
 
             // Formater l'heure
             const timestamp = new Date(message.timestamp);
@@ -734,13 +1927,29 @@ function initCommunityChat() {
                 }
                 let contentHtml = '';
                 if (message.content && message.content.trim()) {
-                    contentHtml = `<div class="message-content">${message.content}</div>`;
+                    contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
+                
+                // Afficher le message auquel on répond
+                let replyHtml = '';
+                if (message.replies_to) {
+                    const replyTo = currentMessages.find(m => m.id === message.replies_to);
+                    if (replyTo) {
+                        replyHtml = `
+                            <div class="message-reply-to" onclick="scrollToMessage('${message.replies_to}')" style="cursor: pointer;">
+                                <span class="reply-to-sender">${replyTo.sender}</span>: ${(replyTo.content || '').substring(0, 40)}${(replyTo.content || '').length > 40 ? '...' : ''}
+                            </div>
+                        `;
+                    }
+                }
+                
                 messageElement.innerHTML = `
+                    ${replyHtml}
                     ${fileHtml}
                     ${contentHtml}
                     <div class="message-time">${timeString}</div>
                 `;
+
             } else {
                 // Message des autres (à gauche)
                 let fileHtml = '';
@@ -749,12 +1958,50 @@ function initCommunityChat() {
                 }
                 let contentHtml = '';
                 if (message.content && message.content.trim()) {
-                    contentHtml = `<div class="message-content">${message.content}</div>`;
+                    contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
+                
+                // Construire les badges HTML
+                let badgesHtml = '';
+                if (Array.isArray(message.badges) && message.badges.length > 0) {
+                    badgesHtml = '<div class="message-sender-badges">';
+                    message.badges.forEach(badgeId => {
+                        if (typeof BADGE_ICONS !== 'undefined' && BADGE_ICONS[badgeId]) {
+                            const badge = BADGE_ICONS[badgeId];
+                            const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                            const title = `${desc.name}: ${desc.description}`;
+                            
+                            if (badge.type === 'image') {
+                                // Afficher comme image
+                                badgesHtml += `<img src="${badge.src}" alt="${desc.name}" class="message-badge-image" title="${title}">`;
+                            } else {
+                                // Afficher comme emoji
+                                badgesHtml += `<span class="message-badge" title="${title}">${badge.emoji}</span>`;
+                            }
+                        }
+                    });
+                    badgesHtml += '</div>';
+                }
+                
+                // Afficher le message auquel on répond
+                let replyHtml = '';
+                if (message.replies_to) {
+                    const replyTo = currentMessages.find(m => m.id === message.replies_to);
+                    if (replyTo) {
+                        replyHtml = `
+                            <div class="message-reply-to" onclick="scrollToMessage('${message.replies_to}')" style="cursor: pointer;">
+                                <span class="reply-to-sender">${replyTo.sender}</span>: ${(replyTo.content || '').substring(0, 40)}${(replyTo.content || '').length > 40 ? '...' : ''}
+                            </div>
+                        `;
+                    }
+                }
+                
                 messageElement.innerHTML = `
+                    ${replyHtml}
                     <div class="message-sender">
-                        <img src="/ressources/user-icon.png" alt="Avatar" class="message-avatar" data-username="${message.sender}">
-                        ${message.sender}
+                        <img src="/ressources/user-icon.png" alt="Avatar" class="message-avatar" data-username="${message.sender}" onclick="openUserProfile('${message.sender}')">
+                        <span class="message-sender-name" onclick="openUserProfile('${message.sender}')" style="cursor: pointer;">${message.sender}</span>
+                        ${badgesHtml}
                     </div>
                     ${fileHtml}
                     ${contentHtml}
@@ -765,6 +2012,12 @@ function initCommunityChat() {
             messagesContainer.appendChild(messageElement);
         });
 
+        // Initialiser la détection de swipe
+        initializeMessageSwipe();
+        
+        // Initialiser le menu contextuel
+        initializeMessageContextMenu();
+
         // Scroll vers le bas après l'ajout de tous les messages
         setTimeout(() => {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -772,6 +2025,198 @@ function initCommunityChat() {
 
         // Charger les avatars après l'affichage des messages
         loadMessageAvatars();
+    }
+
+    // === SYSTÈME DE RAFRAÎCHISSEMENT AUTOMATIQUE DES MESSAGES ===
+    let autoRefreshInterval = null;
+    let lastMessageId = null;
+
+    function startAutoRefresh() {
+        // Arrêter l'ancien interval si existant
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+
+        // Vérifier les nouveaux messages toutes les 2 secondes
+        autoRefreshInterval = setInterval(() => {
+            checkForNewMessages();
+        }, 2000);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+        }
+    }
+
+    function checkForNewMessages() {
+        if (!activeChannelId || !activeChannelType) return;
+
+        fetch(`/public/api/community/messages/${encodeURIComponent(activeChannelId)}/${encodeURIComponent(activeChannelType)}?username=${encodeURIComponent(currentUsername)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.messages)) {
+                    const newMessages = data.messages;
+                    
+                    // Si c'est le premier chargement, on initialise juste
+                    if (!lastMessageId) {
+                        if (newMessages.length > 0) {
+                            lastMessageId = newMessages[newMessages.length - 1].id;
+                        }
+                        return;
+                    }
+
+                    // Trouver l'index du dernier message connu
+                    const lastIndex = newMessages.findIndex(m => m.id === lastMessageId);
+                    
+                    if (lastIndex === -1) {
+                        // Le dernier message connu n'existe plus, recharger tout
+                        currentMessages = newMessages;
+                        displayMessages(newMessages);
+                        if (newMessages.length > 0) {
+                            lastMessageId = newMessages[newMessages.length - 1].id;
+                        }
+                    } else if (lastIndex < newMessages.length - 1) {
+                        // Il y a de nouveaux messages après le dernier connu
+                        const messagesToAdd = newMessages.slice(lastIndex + 1);
+                        
+                        // Ajouter les nouveaux messages à currentMessages
+                        currentMessages.push(...messagesToAdd);
+                        
+                        // Afficher seulement les nouveaux messages
+                        appendNewMessages(messagesToAdd);
+                        
+                        // Mettre à jour le dernier ID
+                        lastMessageId = newMessages[newMessages.length - 1].id;
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Erreur rafraîchissement messages:', err);
+            });
+    }
+
+    function appendNewMessages(newMessages) {
+        const messagesContainer = document.getElementById('messages-container');
+        if (!messagesContainer) return;
+
+        // Vérifier si on était scrollé tout en bas avant d'ajouter les messages
+        const wasAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 100;
+
+        newMessages.forEach(message => {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message-item';
+            messageElement.setAttribute('data-message-id', message.id);
+
+            const isOwnMessage = message.sender === currentUsername;
+            if (isOwnMessage) {
+                messageElement.classList.add('own-message');
+            } else {
+                messageElement.classList.add('other-message');
+            }
+
+            const timestamp = new Date(message.timestamp);
+            const timeString = timestamp.toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            if (isOwnMessage) {
+                // Message de l'utilisateur actuel (à droite)
+                let fileHtml = '';
+                if (message.file) {
+                    fileHtml = generateFileHtml(message.file);
+                }
+                let contentHtml = '';
+                if (message.content && message.content.trim()) {
+                    contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
+                }
+                
+                let replyHtml = '';
+                if (message.replies_to) {
+                    const replyTo = currentMessages.find(m => m.id === message.replies_to);
+                    if (replyTo) {
+                        replyHtml = `
+                            <div class="message-reply-to" onclick="scrollToMessage('${message.replies_to}')" style="cursor: pointer;">
+                                <span class="reply-to-sender">${replyTo.sender}</span>: ${(replyTo.content || '').substring(0, 40)}${(replyTo.content || '').length > 40 ? '...' : ''}
+                            </div>
+                        `;
+                    }
+                }
+                
+                messageElement.innerHTML = `
+                    ${replyHtml}
+                    ${fileHtml}
+                    ${contentHtml}
+                    <div class="message-time">${timeString}</div>
+                `;
+
+            } else {
+                // Message des autres (à gauche)
+                let fileHtml = '';
+                if (message.file) {
+                    fileHtml = generateFileHtml(message.file);
+                }
+                let contentHtml = '';
+                if (message.content && message.content.trim()) {
+                    contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
+                }
+                
+                let badgesHtml = '';
+                if (Array.isArray(message.badges) && message.badges.length > 0) {
+                    badgesHtml = '<div class="message-sender-badges">';
+                    message.badges.forEach(badgeId => {
+                        if (typeof BADGE_ICONS !== 'undefined' && BADGE_ICONS[badgeId]) {
+                            const badge = BADGE_ICONS[badgeId];
+                            const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                            const title = `${desc.name}: ${desc.description}`;
+                            
+                            if (badge.type === 'image') {
+                                badgesHtml += `<img src="${badge.src}" alt="${desc.name}" class="message-badge-image" title="${title}">`;
+                            } else {
+                                badgesHtml += `<span class="message-badge" title="${title}">${badge.emoji}</span>`;
+                            }
+                        }
+                    });
+                    badgesHtml += '</div>';
+                }
+                
+                let replyHtml = '';
+                if (message.replies_to) {
+                    const replyTo = currentMessages.find(m => m.id === message.replies_to);
+                    if (replyTo) {
+                        replyHtml = `
+                            <div class="message-reply-to" onclick="scrollToMessage('${message.replies_to}')" style="cursor: pointer;">
+                                <span class="reply-to-sender">${replyTo.sender}</span>: ${(replyTo.content || '').substring(0, 40)}${(replyTo.content || '').length > 40 ? '...' : ''}
+                            </div>
+                        `;
+                    }
+                }
+                
+                messageElement.innerHTML = `
+                    ${replyHtml}
+                    <div class="message-sender">
+                        <img src="/ressources/user-icon.png" alt="Avatar" class="message-avatar" data-username="${message.sender}" onclick="openUserProfile('${message.sender}')">
+                        <span class="message-sender-name" onclick="openUserProfile('${message.sender}')" style="cursor: pointer;">${message.sender}</span>
+                        ${badgesHtml}
+                    </div>
+                    ${fileHtml}
+                    ${contentHtml}
+                    <div class="message-time">${timeString}</div>
+                `;
+            }
+
+            messagesContainer.appendChild(messageElement);
+        });
+
+        // Charger les avatars pour les nouveaux messages
+        loadMessageAvatars();
+
+        // Auto-scroll si on était en bas
+        if (wasAtBottom) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }
 
     // Fonction pour générer le HTML d'un fichier
@@ -803,6 +2248,71 @@ function initCommunityChat() {
 
     // Variables pour la gestion des fichiers
     let selectedFile = null;
+
+    // --- Suggestions de mentions (@) ---
+    (function setupMentionSuggestions() {
+        const inputWrapper = document.getElementById('input-controls-wrapper');
+        if (!inputWrapper) return;
+        let suggest = document.getElementById('mention-suggestions');
+        if (!suggest) {
+            suggest = document.createElement('div');
+            suggest.id = 'mention-suggestions';
+            suggest.className = 'suggestions-list';
+            suggest.style.display = 'none';
+            inputWrapper.insertBefore(suggest, inputWrapper.firstChild); // au-dessus de la barre
+        }
+
+        function hideSuggest() { suggest.style.display = 'none'; suggest.innerHTML = ''; }
+
+        function renderSuggest(items) {
+            if (!Array.isArray(items) || items.length === 0) { hideSuggest(); return; }
+            const frag = document.createDocumentFragment();
+            items.slice(0, 8).forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = '@' + name;
+                div.setAttribute('data-username', name);
+                frag.appendChild(div);
+            });
+            suggest.innerHTML = '';
+            suggest.appendChild(frag);
+            suggest.style.display = 'block';
+        }
+
+        function currentMentionPrefix(value, caret) {
+            const upto = String(value || '').slice(0, caret);
+            const m = upto.match(/@([^\s@]{0,30})$/);
+            return m ? m[1] : null;
+        }
+
+        messageInput && messageInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const caret = e.target.selectionStart || val.length;
+            const prefix = currentMentionPrefix(val, caret);
+            if (!prefix && prefix !== '') { hideSuggest(); return; } // pas de @ → rien
+            const q = String(prefix || '').toLowerCase();
+            const list = getAllUsernames().filter(n => n && n.toLowerCase().startsWith(q));
+            renderSuggest(list);
+        });
+
+        suggest.addEventListener('click', (e) => {
+            const item = e.target.closest('.suggestion-item');
+            if (!item || !messageInput) return;
+            const name = item.getAttribute('data-username');
+            const val = messageInput.value;
+            const caret = messageInput.selectionStart || val.length;
+            const upto = val.slice(0, caret);
+            const after = val.slice(caret);
+            const replaced = upto.replace(/@([^\s@]{0,30})$/, '@' + name + ' ');
+            messageInput.value = replaced + after;
+            hideSuggest();
+            messageInput.focus();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!suggest.contains(e.target) && e.target !== messageInput) hideSuggest();
+        });
+    })();
 
     // Gestionnaire pour le bouton trombone
     const fileButton = document.getElementById('community-file-button');
@@ -897,6 +2407,11 @@ function initCommunityChat() {
         formData.append('message', message);
         formData.append('username', currentUsername);
 
+        // Ajouter la réponse si elle existe
+        if (replyingToMessage) {
+            formData.append('repliesTo', replyingToMessage.id);
+        }
+
         if (selectedFile) {
             formData.append('file', selectedFile);
         }
@@ -911,6 +2426,7 @@ function initCommunityChat() {
                 messageInput.value = '';
                 selectedFile = null;
                 hideFilePreview();
+                clearReply(); // Nettoyer la réponse
                 // Recharger les messages
                 loadMessages(activeChannelId, discussionType);
             } else {
@@ -922,6 +2438,55 @@ function initCommunityChat() {
             alert('Erreur serveur');
         });
     }
+}
+
+// Précharger cache PP (pour le menu)
+function preloadAvatarsCache() {
+    if (avatarsCache && Object.keys(avatarsCache).length > 0) return;
+    fetch('/api/community/ressources/pp/pp.json')
+        .then(r => (r && r.ok) ? r.json() : {})
+        .then(ppData => {
+            avatarsCache = ppData || {};
+            try { updateChannelAvatarsFromCache(); } catch (e) {}
+        })
+        .catch(() => {});
+}
+
+// Précharger cache couleurs utilisateurs (anneau)
+function preloadUsersColors() {
+    if (usersColorsCache && Object.keys(usersColorsCache).length > 0) return;
+    fetch('/api/users.json')
+        .then(r => (r && r.ok) ? r.json() : [])
+        .then(users => {
+            const map = {};
+            if (Array.isArray(users)) {
+                for (const u of users) {
+                    if (u && u.username) map[u.username] = u.color || map[u.username];
+                }
+            }
+            usersColorsCache = map;
+            try { updateChannelAvatarsFromCache(); } catch (e) {}
+        })
+        .catch(() => {});
+}
+
+function updateChannelAvatarsFromCache() {
+    // MP avatars
+    document.querySelectorAll('.channel-avatar-img').forEach(img => {
+        const username = img.getAttribute('data-username') || '';
+        if (username && avatarsCache[username]) {
+            img.src = avatarsCache[username];
+        }
+    });
+
+    // MP rings
+    document.querySelectorAll('.channel-avatar-wrap').forEach(wrap => {
+        const img = wrap.querySelector('.channel-avatar-img');
+        const username = img ? (img.getAttribute('data-username') || '') : '';
+        if (username && usersColorsCache[username]) {
+            wrap.style.background = usersColorsCache[username];
+        }
+    });
 }
 
 // Fonction pour charger les avatars des messages
@@ -1004,3 +2569,223 @@ window.updateAvatarsCache = function(newPpData) {
             .catch(err => console.warn('Erreur rechargement avatars:', err));
     }
 };
+
+// Fonctions globales pour la gestion des réponses aux messages
+function scrollToMessage(messageId) {
+    const messageElement = document.querySelector(`.message-item[data-message-id="${CSS.escape(messageId)}"]`);
+    if (messageElement) {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        messageElement.classList.add('highlight-message');
+        setTimeout(() => {
+            messageElement.classList.remove('highlight-message');
+        }, 2000);
+    }
+}
+
+function clearReply() {
+    replyingToMessage = null;
+    updateReplyPreview();
+}
+
+function updateReplyPreview() {
+    const replyPreviewArea = document.getElementById('reply-preview-area');
+    if (!replyPreviewArea) return;
+
+    if (replyingToMessage) {
+        const preview = document.createElement('div');
+        preview.className = 'reply-preview';
+        preview.innerHTML = `
+            <div class="reply-preview-content">
+                <span class="reply-preview-to">Réponse à: <strong>${replyingToMessage.sender}</strong></span>
+                <span class="reply-preview-text">${(replyingToMessage.content || '').substring(0, 50)}${(replyingToMessage.content || '').length > 50 ? '...' : ''}</span>
+            </div>
+            <button type="button" class="reply-preview-close" onclick="clearReply()">×</button>
+        `;
+        replyPreviewArea.innerHTML = '';
+        replyPreviewArea.appendChild(preview);
+        replyPreviewArea.style.display = 'block';
+    } else {
+        replyPreviewArea.style.display = 'none';
+        replyPreviewArea.innerHTML = '';
+    }
+}
+
+function setReplyingTo(message) {
+    replyingToMessage = message;
+    updateReplyPreview();
+}
+
+// Cache global pour les photos de profil
+let globalPpDataCache = {};
+
+// Fonction globale pour ouvrir le profil utilisateur
+async function openUserProfile(username) {
+    const name = String(username || '').trim();
+    if (!name) return;
+    const modal = document.getElementById('user-profile-modal');
+    if (!modal) return;
+    const avatarEl = document.getElementById('profile-modal-avatar');
+    const usernameEl = document.getElementById('profile-modal-username');
+    const birthdateEl = document.getElementById('profile-modal-birthdate');
+    usernameEl && (usernameEl.textContent = name);
+
+    try {
+        if (Object.keys(globalPpDataCache).length === 0) {
+            const resp = await fetch('/api/community/ressources/pp/pp.json');
+            if (resp.ok) {
+                globalPpDataCache = await resp.json();
+            }
+        }
+    } catch (e) {
+        console.warn('Erreur chargement photos profil:', e);
+    }
+
+    const ppPath = globalPpDataCache && globalPpDataCache[name] ? globalPpDataCache[name] : null;
+    if (avatarEl) {
+        avatarEl.src = ppPath ? ppPath : '/ressources/user-icon.png';
+    }
+
+    // Charger et afficher les badges actuels
+    try {
+        const resp = await fetch(`/api/user-info/${encodeURIComponent(name)}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data.success && data.user) {
+                // Afficher la date de naissance (birth_date avec underscore!)
+                if (birthdateEl && data.user.birth_date) {
+                    birthdateEl.textContent = `Date de naissance : ${data.user.birth_date}`;
+                } else if (birthdateEl) {
+                    birthdateEl.textContent = 'Date de naissance : Non disponible';
+                }
+                
+                console.log('Données utilisateur reçues:', data.user);
+                
+                // Nettoyer l'ancien affichage de signalements
+                const oldReportsInfo = document.querySelector('.profile-reports-info');
+                if (oldReportsInfo) {
+                    oldReportsInfo.remove();
+                }
+                
+                // Afficher les signalements si présents
+                const reportsCount = data.user.reports_count || 0;
+                console.log('📊 reports_count:', reportsCount);
+                if (reportsCount > 0) {
+                    const reportsInfo = document.createElement('p');
+                    reportsInfo.className = 'profile-reports-info';
+                    reportsInfo.style.fontSize = '0.85em';
+                    reportsInfo.style.color = '#ff6b6b';
+                    reportsInfo.style.marginTop = '5px';
+                    reportsInfo.textContent = `${reportsCount} signalement${reportsCount > 1 ? 's' : ''}`;
+                    if (birthdateEl && birthdateEl.parentElement) {
+                        birthdateEl.parentElement.insertBefore(reportsInfo, birthdateEl.nextSibling);
+                    }
+                }
+                
+                // Appliquer la couleur de l'utilisateur au nom et au cercle
+                if (data.user.color && usernameEl) {
+                    usernameEl.style.color = data.user.color;
+                }
+                if (data.user.color && avatarEl) {
+                    avatarEl.style.borderColor = data.user.color;
+                    avatarEl.style.boxShadow = `0 0 0 3px ${data.user.color}`;
+                }
+                
+                // Afficher les badges actuels
+                const badgesCurrentEl = document.getElementById('profile-current-badges');
+                const badgesObtainedEl = document.getElementById('profile-obtained-badges');
+                
+                if (badgesCurrentEl) {
+                    badgesCurrentEl.innerHTML = '';
+                    const badgesCurrent = data.user.badges_current || [];
+                    if (badgesCurrent.length > 0) {
+                        badgesCurrent.forEach(badgeId => {
+                            if (typeof BADGE_ICONS !== 'undefined' && BADGE_ICONS[badgeId]) {
+                                const badge = BADGE_ICONS[badgeId];
+                                const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                                const badgeContainer = document.createElement('div');
+                                badgeContainer.className = 'badge-with-tooltip';
+                                badgeContainer.style.position = 'relative';
+                                badgeContainer.style.display = 'inline-block';
+                                badgeContainer.style.cursor = 'pointer';
+                                
+                                const span = document.createElement('span');
+                                span.className = 'badge-item badge-clickable';
+                                span.title = `${desc.name}: ${desc.description}`;
+                                
+                                if (badge.type === 'image') {
+                                    span.innerHTML = `<img src="${badge.src}" alt="${desc.name}" class="badge-icon-large">`;
+                                } else {
+                                    span.innerHTML = `<span class="badge-emoji-large">${badge.emoji}</span>`;
+                                }
+                                
+                                // Utiliser le même système de tooltip que mon compte
+                                badgeContainer.addEventListener('click', (e) => { 
+                                    e.stopPropagation();
+                                    e.stopImmediatePropagation();
+                                    e.preventDefault();
+                                    window.showBadgeTooltipCommunaute(e, {
+                                        name: desc.name,
+                                        description: desc.description
+                                    }, true);
+                                });
+                                
+                                badgeContainer.appendChild(span);
+                                badgesCurrentEl.appendChild(badgeContainer);
+                            }
+                        });
+                    } else {
+                        badgesCurrentEl.innerHTML = '<p class="no-badges">Aucun badge</p>';
+                    }
+                }
+                
+                if (badgesObtainedEl) {
+                    badgesObtainedEl.innerHTML = '';
+                    const badgesObtained = data.user.badges_obtained || [];
+                    if (badgesObtained.length > 0) {
+                        badgesObtained.forEach(badgeId => {
+                            if (typeof BADGE_ICONS !== 'undefined' && BADGE_ICONS[badgeId]) {
+                                const badge = BADGE_ICONS[badgeId];
+                                const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                                const badgeContainer = document.createElement('div');
+                                badgeContainer.className = 'badge-with-tooltip';
+                                badgeContainer.style.position = 'relative';
+                                badgeContainer.style.display = 'inline-block';
+                                badgeContainer.style.cursor = 'pointer';
+                                
+                                const span = document.createElement('span');
+                                span.className = 'badge-item badge-clickable';
+                                span.title = `${desc.name}: ${desc.description}`;
+                                
+                                if (badge.type === 'image') {
+                                    span.innerHTML = `<img src="${badge.src}" alt="${desc.name}" class="badge-icon-large">`;
+                                } else {
+                                    span.innerHTML = `<span class="badge-emoji-large">${badge.emoji}</span>`;
+                                }
+                                
+                                // Utiliser le même système de tooltip que mon compte
+                                badgeContainer.addEventListener('click', (e) => { 
+                                    e.stopPropagation();
+                                    window.showBadgeTooltipCommunaute(e, {
+                                        name: desc.name,
+                                        description: desc.description
+                                    }, true); // true car badge obtenu
+                                });
+                                
+                                badgeContainer.appendChild(span);
+                                badgesObtainedEl.appendChild(badgeContainer);
+                            }
+                        });
+                    } else {
+                        badgesObtainedEl.innerHTML = '<p class="no-badges">Aucun badge</p>';
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Erreur chargement badges profil:', e);
+    }
+
+    modal.style.display = 'flex';
+    const closeBtn = document.getElementById('close-user-profile-btn');
+    closeBtn && closeBtn.addEventListener('click', () => { modal.style.display = 'none'; }, { once: true });
+}
