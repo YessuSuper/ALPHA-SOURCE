@@ -725,7 +725,6 @@ function recalculateBadges() {
         });
 
         // PUNI : si tu as un ou plusieurs avertissements actifs
-        const now = Date.now();
         users.forEach(u => {
             const activeWarnings = (u.warnings || []).filter(w => w.expiresAt > now);
             if (activeWarnings.length > 0) {

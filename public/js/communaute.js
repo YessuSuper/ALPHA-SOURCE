@@ -13,6 +13,10 @@ let resortTimer = null;
 let replyingToMessage = null; // Message auquel on répond
 let currentMessages = []; // Tous les messages de la discussion actuelle
 
+// Auto-refresh pour messages en temps réel
+let autoRefreshInterval = null;
+let lastMessageId = null;
+
 // Tooltip pour badges (système copié de moncompte.js)
 let communauteTooltipTimeout;
 
@@ -679,6 +683,7 @@ function initCommunityChat() {
             first.classList.add('active');
             activeChannelId = first.getAttribute('data-id') || null;
             const firstType = first.getAttribute('data-type');
+            activeChannelType = firstType;
             const titleEl = document.getElementById('chat-title');
             if (titleEl) titleEl.textContent = first.getAttribute('data-display-name') || first.innerText.trim();
             // Charger les messages et configurer l'input
@@ -1500,7 +1505,8 @@ function initCommunityChat() {
             }
 
             activeChannelId = id;
-            console.log(`Sélection : ${id} en VERT 🗿`);
+            activeChannelType = type;
+            console.log(`Sélection : ${id} (${type}) en VERT 🗿`);
 
             // Mobile: ouvrir plein écran
             if (window.innerWidth <= 768) {
@@ -2028,8 +2034,6 @@ function initCommunityChat() {
     }
 
     // === SYSTÈME DE RAFRAÎCHISSEMENT AUTOMATIQUE DES MESSAGES ===
-    let autoRefreshInterval = null;
-    let lastMessageId = null;
 
     function startAutoRefresh() {
         // Arrêter l'ancien interval si existant
@@ -2037,10 +2041,10 @@ function initCommunityChat() {
             clearInterval(autoRefreshInterval);
         }
 
-        // Vérifier les nouveaux messages toutes les 2 secondes
+        // Vérifier les nouveaux messages toutes les 500ms (ultra rapide)
         autoRefreshInterval = setInterval(() => {
             checkForNewMessages();
-        }, 2000);
+        }, 500);
     }
 
     function stopAutoRefresh() {
@@ -2051,7 +2055,9 @@ function initCommunityChat() {
     }
 
     function checkForNewMessages() {
-        if (!activeChannelId || !activeChannelType) return;
+        if (!activeChannelId || !activeChannelType) {
+            return;
+        }
 
         fetch(`/public/api/community/messages/${encodeURIComponent(activeChannelId)}/${encodeURIComponent(activeChannelType)}?username=${encodeURIComponent(currentUsername)}`)
             .then(response => response.json())
@@ -2789,3 +2795,6 @@ async function openUserProfile(username) {
     const closeBtn = document.getElementById('close-user-profile-btn');
     closeBtn && closeBtn.addEventListener('click', () => { modal.style.display = 'none'; }, { once: true });
 }
+
+// Appel de la fonction d'initialisation
+initCommunityChat();

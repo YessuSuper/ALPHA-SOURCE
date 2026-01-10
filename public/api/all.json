@@ -611,8 +611,8 @@
     "autres": "Le collège se situe à Tarbes (65)."
   },
   "collective_data": {
-    "collective_points_pc": 1638,
-    "last_updated": "2026-01-10T23:29:53.146Z"
+    "collective_points_pc": 1640,
+    "last_updated": "2026-01-10T23:47:25.543Z"
   },
   "weekly_schedule": {
     "week_A": {
@@ -791,7 +791,7 @@
   "user_ranking": [
     {
       "username": "Even",
-      "points": 651,
+      "points": 653,
       "connexions": 52,
       "last_connexion": 1768087065075,
       "active": true

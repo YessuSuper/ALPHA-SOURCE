@@ -1035,6 +1035,96 @@
       "content": "hey",
       "timestamp": "2026-01-10T23:29:53.142Z",
       "type": "text"
+    },
+    {
+      "id": "msg_1768088194193",
+      "sender": "Even",
+      "content": "ftg",
+      "timestamp": "2026-01-10T23:36:34.193Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088332383",
+      "sender": "Even",
+      "content": "ok",
+      "timestamp": "2026-01-10T23:38:52.383Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088445222",
+      "sender": "Calixte",
+      "content": "gesf",
+      "timestamp": "2026-01-10T23:40:45.222Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088602464",
+      "sender": "Even",
+      "content": "lol",
+      "timestamp": "2026-01-10T23:43:22.464Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088685366",
+      "sender": "Calixte",
+      "content": "l",
+      "timestamp": "2026-01-10T23:44:45.366Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088686667",
+      "sender": "Calixte",
+      "content": "l",
+      "timestamp": "2026-01-10T23:44:46.667Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088687539",
+      "sender": "Calixte",
+      "content": "l",
+      "timestamp": "2026-01-10T23:44:47.539Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088764779",
+      "sender": "Even",
+      "content": "ftg",
+      "timestamp": "2026-01-10T23:46:04.779Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088772816",
+      "sender": "Even",
+      "content": "",
+      "timestamp": "2026-01-10T23:46:12.816Z",
+      "type": "image",
+      "file": {
+        "filename": "community-1768088772814-610256527.png",
+        "originalName": "tÃ©lÃ©chargement.png",
+        "type": "image/png",
+        "size": 28769
+      }
+    },
+    {
+      "id": "msg_1768088795590",
+      "sender": "Calixte",
+      "content": "INIT communaute.js : Mode Navigation Active 🗿\r\nmoncompte.js:2 moncompte.js est chargé!\r\ncours.js:3 Script chargé !\r\ncours.js:4 document.readyState = interactive\r\nscript.js:383 DOM chargé → démarrage de l'app.\r\nscript.js:109 PUTAIN LOG : Titre mis à jour pour l'utilisateur Calixte.\r\ncours.js:421 initCoursePage lancé\r\ncours.js:461 file-grid introuvable, retry dans 50ms\r\ncommunaute.js:1091 Erreur chargement utilisateurs: ReferenceError: Cannot access 'allUsers' before initialization\r\n    at communaute.js:1071:26\r\n(anonymous) @ communaute.js:1091Understand this error\r\n10cours.js:461 file-grid introuvable, retry dans 50ms\r\nhome.js:985 PUTAIN LOG : EDT Data reçue: Array(0)\r\nhome.js:905 PUTAIN LOG : Bouton de déconnexion introuvable (#logout-button).\r\nwindow.initLogoutButton @ home.js:905Understand this error\r\n2cours.js:461 file-grid introuvable, retry dans 50ms\r\nscript.js:431 [Script] Notes cache is fresh.\r\nscript.js:441 [Script] Refreshing Devoirs cache...\r\n34cours.js:461 file-grid introuvable, retry dans 50ms\r\ncommunaute.js:76 INIT communaute.js : Mode Navigation Active 🗿\r\ncommunaute.js:1654 🔧 initializeMessageContextMenu appelé\r\ncommunaute.js:1657 messagesContainer: <div id=​\"messages-container\" class=​\"message-box-style\" data-link-delegation=​\"true\">​…​</div>​flexscroll\r\ncommunaute.js:1658 contextMenu: <div id=​\"message-context-menu\" class=​\"message-context-menu\" style=​\"display:​ none;​\">​…​</div>​\r\ncommunaute.js:2037 🔄 Auto-refresh démarré\r\n36cours.js:461 file-grid introuvable, retry dans 50ms\r\ncommunaute.js:2058 ⚠️ Auto-refresh: pas de canal actif {activeChannelId: 'classe3c', activeChannelType: null}\r\n37cours.js:461 file-grid introuvable, retry dans 50ms\r\ncommunaute.js:2058 ⚠️ Auto-refresh: pas de canal actif {activeChannelId: 'classe3c', activeChannelType: null}\r\n36cours.js:461 file-grid introuvable, retry dans 50ms",
+      "timestamp": "2026-01-10T23:46:35.590Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088819100",
+      "sender": "Calixte",
+      "content": "<p>ftg</p>",
+      "timestamp": "2026-01-10T23:46:59.100Z",
+      "type": "text"
+    },
+    {
+      "id": "msg_1768088845540",
+      "sender": "Calixte",
+      "content": "<button type=\"button\" id=\"group-details-delete-btn\" class=\"modal-submit-btn\" style=\"display: none;\">Supprimer</button>",
+      "timestamp": "2026-01-10T23:47:25.540Z",
+      "type": "text"
     }
   ],
   "photoUrl": "/pictures_documents/community-1767624819336-637989026.jpg"
