@@ -1,0 +1,291 @@
+/* ── Workflow Page ── */
+
+#workflow-page {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.workflow-header {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.workflow-header h2 {
+    font-size: 1.8rem;
+    margin: 0 0 6px;
+    color: var(--text-primary, #fff);
+}
+
+.workflow-subtitle {
+    color: var(--text-secondary, #aaa);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* ── Grid ── */
+
+.workflow-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* ── Card base ── */
+
+.workflow-card {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    min-height: 200px;
+    cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.workflow-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* ── SVG background layer ── */
+
+.wf-card-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.wf-card-bg svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ── Content overlay ── */
+
+.wf-card-content {
+    position: relative;
+    z-index: 1;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 200px;
+}
+
+.wf-card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+.wf-card-content h3 {
+    margin: 0 0 4px;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 700;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+}
+
+.wf-card-content p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ════════════════════════════════════════════════════════
+   1. FICHES — Blue / Indigo — Lines rising from bottom
+   ════════════════════════════════════════════════════════ */
+
+.wf-fiches {
+    background: linear-gradient(135deg, #1a1a4e, #2b3a8e, #1a2266);
+}
+
+.wf-fiches .wf-line {
+    fill: rgba(130, 160, 255, 0.25);
+}
+
+.wf-fiches:hover .wf-line {
+    fill: rgba(130, 160, 255, 0.4);
+}
+
+/* Each line rises to a different Y with staggered delays */
+.wf-line {
+    transition: fill 0.3s ease;
+}
+
+.wf-l1 { animation: wf-rise1 2.8s ease-in-out infinite; }
+.wf-l2 { animation: wf-rise2 3.2s ease-in-out 0.2s infinite; }
+.wf-l3 { animation: wf-rise3 2.5s ease-in-out 0.5s infinite; }
+.wf-l4 { animation: wf-rise4 3.5s ease-in-out 0.3s infinite; }
+.wf-l5 { animation: wf-rise5 2.9s ease-in-out 0.7s infinite; }
+.wf-l6 { animation: wf-rise6 3.1s ease-in-out 0.1s infinite; }
+.wf-l7 { animation: wf-rise7 3.4s ease-in-out 0.6s infinite; }
+.wf-l8 { animation: wf-rise8 2.7s ease-in-out 0.4s infinite; }
+
+@keyframes wf-rise1 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 30;  opacity: 0.8; } 85% { opacity: 0; } }
+@keyframes wf-rise2 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 55;  opacity: 0.7; } 85% { opacity: 0; } }
+@keyframes wf-rise3 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 80;  opacity: 0.9; } 85% { opacity: 0; } }
+@keyframes wf-rise4 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 105; opacity: 0.6; } 85% { opacity: 0; } }
+@keyframes wf-rise5 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 130; opacity: 0.8; } 85% { opacity: 0; } }
+@keyframes wf-rise6 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 155; opacity: 0.7; } 85% { opacity: 0; } }
+@keyframes wf-rise7 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 60;  opacity: 0.9; } 85% { opacity: 0; } }
+@keyframes wf-rise8 { 0%,100% { y: 220; opacity: 0; } 15% { opacity: 1; } 50% { y: 180; opacity: 0.6; } 85% { opacity: 0; } }
+
+/* ════════════════════════════════════════════════════════
+   2. CARTES MENTALES — Green / Teal — Pulsing nodes
+   ════════════════════════════════════════════════════════ */
+
+.wf-mind {
+    background: linear-gradient(135deg, #0d3b2e, #1a6b52, #0f4a3a);
+}
+
+.wf-mind .wf-branch {
+    stroke: rgba(100, 230, 180, 0.2);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+}
+
+.wf-mind .wf-node {
+    fill: rgba(100, 230, 180, 0.25);
+    transition: fill 0.3s ease;
+}
+
+.wf-mind:hover .wf-node {
+    fill: rgba(100, 230, 180, 0.5);
+}
+
+.wf-mind:hover .wf-branch {
+    stroke: rgba(100, 230, 180, 0.35);
+}
+
+.wf-b1 { animation: wf-draw 2.5s ease-in-out 0.0s infinite; }
+.wf-b2 { animation: wf-draw 2.5s ease-in-out 0.3s infinite; }
+.wf-b3 { animation: wf-draw 2.5s ease-in-out 0.6s infinite; }
+.wf-b4 { animation: wf-draw 2.5s ease-in-out 0.9s infinite; }
+.wf-b5 { animation: wf-draw 2.5s ease-in-out 1.2s infinite; }
+
+@keyframes wf-draw {
+    0%   { stroke-dashoffset: 200; opacity: 0; }
+    30%  { stroke-dashoffset: 0;   opacity: 1; }
+    70%  { stroke-dashoffset: 0;   opacity: 1; }
+    100% { stroke-dashoffset: 200; opacity: 0; }
+}
+
+.wf-n0 { animation: wf-pulse 3s ease-in-out infinite; }
+.wf-n1 { animation: wf-pulse 3s ease-in-out 0.4s infinite; }
+.wf-n2 { animation: wf-pulse 3s ease-in-out 0.8s infinite; }
+.wf-n3 { animation: wf-pulse 3s ease-in-out 1.2s infinite; }
+.wf-n4 { animation: wf-pulse 3s ease-in-out 1.6s infinite; }
+.wf-n5 { animation: wf-pulse 3s ease-in-out 2.0s infinite; }
+
+@keyframes wf-pulse {
+    0%,100% { opacity: 0.3; transform-origin: center; r: attr(r); }
+    50%     { opacity: 0.9; }
+}
+
+/* ════════════════════════════════════════════════════════
+   3. PRESENTATIONS — Orange / Amber — Floating slides
+   ════════════════════════════════════════════════════════ */
+
+.wf-slides {
+    background: linear-gradient(135deg, #4a2800, #8b5a00, #5c3400);
+}
+
+.wf-slides .wf-slide {
+    fill: rgba(255, 190, 80, 0.15);
+    stroke: rgba(255, 190, 80, 0.25);
+    stroke-width: 1.5;
+    transition: fill 0.3s ease;
+}
+
+.wf-slides:hover .wf-slide {
+    fill: rgba(255, 190, 80, 0.3);
+    stroke: rgba(255, 190, 80, 0.45);
+}
+
+.wf-s1 { animation: wf-float1 4.0s ease-in-out infinite; }
+.wf-s2 { animation: wf-float2 3.5s ease-in-out 0.3s infinite; }
+.wf-s3 { animation: wf-float3 4.2s ease-in-out 0.6s infinite; }
+.wf-s4 { animation: wf-float4 3.8s ease-in-out 0.9s infinite; }
+.wf-s5 { animation: wf-float5 3.6s ease-in-out 1.2s infinite; }
+
+@keyframes wf-float1 { 0%,100% { transform: translate(0, 0)   rotate(0deg);   opacity: 0.4; } 50% { transform: translate(8px, -12px)  rotate(2deg);  opacity: 0.9; } }
+@keyframes wf-float2 { 0%,100% { transform: translate(0, 0)   rotate(0deg);   opacity: 0.3; } 50% { transform: translate(-6px, -10px) rotate(-3deg); opacity: 0.85; } }
+@keyframes wf-float3 { 0%,100% { transform: translate(0, 0)   rotate(0deg);   opacity: 0.5; } 50% { transform: translate(10px, -8px)  rotate(1deg);  opacity: 0.8; } }
+@keyframes wf-float4 { 0%,100% { transform: translate(0, 0)   rotate(0deg);   opacity: 0.35;} 50% { transform: translate(-5px, -14px) rotate(-2deg); opacity: 0.9; } }
+@keyframes wf-float5 { 0%,100% { transform: translate(0, 0)   rotate(0deg);   opacity: 0.45;} 50% { transform: translate(7px, -6px)   rotate(3deg);  opacity: 0.75; } }
+
+/* ════════════════════════════════════════════════════════
+   4. ORAL — Purple / Violet — Sound wave bars
+   ════════════════════════════════════════════════════════ */
+
+.wf-oral {
+    background: linear-gradient(135deg, #2d1450, #5b2d8e, #3a1a60);
+}
+
+.wf-oral .wf-wave {
+    fill: rgba(190, 140, 255, 0.25);
+    transition: fill 0.3s ease;
+}
+
+.wf-oral:hover .wf-wave {
+    fill: rgba(190, 140, 255, 0.45);
+}
+
+.wf-w1  { animation: wf-eq1  1.2s ease-in-out infinite; }
+.wf-w2  { animation: wf-eq2  1.0s ease-in-out 0.1s infinite; }
+.wf-w3  { animation: wf-eq3  1.4s ease-in-out 0.15s infinite; }
+.wf-w4  { animation: wf-eq2  0.9s ease-in-out 0.2s infinite; }
+.wf-w5  { animation: wf-eq1  1.3s ease-in-out 0.05s infinite; }
+.wf-w6  { animation: wf-eq3  1.1s ease-in-out 0.25s infinite; }
+.wf-w7  { animation: wf-eq2  1.0s ease-in-out 0.3s infinite; }
+.wf-w8  { animation: wf-eq1  0.8s ease-in-out 0.12s infinite; }
+.wf-w9  { animation: wf-eq3  1.2s ease-in-out 0.18s infinite; }
+.wf-w10 { animation: wf-eq2  1.1s ease-in-out 0.22s infinite; }
+.wf-w11 { animation: wf-eq1  1.3s ease-in-out 0.08s infinite; }
+.wf-w12 { animation: wf-eq3  0.9s ease-in-out 0.28s infinite; }
+.wf-w13 { animation: wf-eq2  1.0s ease-in-out 0.35s infinite; }
+
+@keyframes wf-eq1 {
+    0%,100% { transform: scaleY(0.4); opacity: 0.4; }
+    50%     { transform: scaleY(1.6); opacity: 0.9; }
+}
+@keyframes wf-eq2 {
+    0%,100% { transform: scaleY(0.5); opacity: 0.5; }
+    50%     { transform: scaleY(1.8); opacity: 1; }
+}
+@keyframes wf-eq3 {
+    0%,100% { transform: scaleY(0.6); opacity: 0.3; }
+    50%     { transform: scaleY(1.4); opacity: 0.85; }
+}
+
+.wf-wave {
+    transform-origin: center center;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+    #workflow-page {
+        padding: 16px;
+    }
+
+    .workflow-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .workflow-tools-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .wf-card-content {
+        padding: 22px 18px;
+        min-height: 170px;
+    }
+}
