@@ -1,73 +1,66 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion à Alpha Source</title> 
-    <link rel="stylesheet" href="/style.css"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion a Alpha Source</title> 
+    <link rel="stylesheet" href="/style.css"> 
     <link rel="stylesheet" href="/css/login.css"> 
 </head>
 <body>
-    <div id="login-container">
-        <h1>Connexion à Alpha Source</h1> 
-        <form id="login-form" novalidate>
-            <div class="form-group">
-                <label for="username">Identifiant</label>
+    <div id="login-container">
+        <h1>Connexion a Alpha Source</h1> 
+        <form id="login-form" novalidate>
+            <div class="form-group">
+                <label for="username">Identifiant</label>
                 <input type="text" id="username" name="username" required autocapitalize="none" autocorrect="off" autocomplete="username">
-            </div>
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" id="login-submit-btn">Se Connecter</button>
-            <p id="error-message" style="color: red; margin-top: 10px; display: none;">Identifiants incorrects.</p>
-        </form>
-    </div>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" id="login-submit-btn">Se Connecter</button>
+            <p id="error-message" style="color: red; margin-top: 10px; display: none;">Identifiants incorrects.</p>
+        </form>
+    </div>
 
-    <!-- Onboarding Modal -->
-    <div id="onboarding-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <button id="close-modal-btn" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">X</button>
-            <div id="step-1" class="step">
-                <h2>Salut <span id="user-name"></span>! Bienvenue sur Alpha Source!</h2>
-                <p>Choisis ta photo de profil (elle sera modifiable à tout instant)</p>
-                <div class="profile-pic-section">
-                    <img id="profile-preview" src="" alt="Aperçu" style="max-width: 100px; max-height: 100px; display: none;">
-                    <input type="file" id="profile-pic-input" accept="image/*">
-                    <button id="choose-pic-btn">Choisir</button>
-                    <button id="validate-pic-btn" disabled>Valider</button>
-                </div>
-            </div>
-            <div id="step-2" class="step" style="display: none;">
-                <h2>Choisis ta date d'anniversaire</h2>
-                <input type="date" id="birth-date-input">
-                <button id="validate-birth-btn" disabled>Valider</button>
-            </div>
-            <div id="step-3" class="step" style="display: none;">
-                <h2>Choisis ton mot de passe</h2>
-                <div class="form-group">
-                    <label for="new-password">Nouveau mot de passe</label>
-                    <input type="password" id="new-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirm-password">Confirmer le mot de passe</label>
-                    <input type="password" id="confirm-password" required>
-                </div>
-                <button id="validate-password-btn" disabled>Valider</button>
-            </div>
-            <div id="step-4" class="step" style="display: none;">
-                <h2>Guide d'accueil</h2>
-                <div id="guide-content"></div>
-                <div class="guide-nav">
-                    <button id="prev-guide-btn">Précédent</button>
-                    <span id="guide-indicator">1/2</span>
-                    <button id="next-guide-btn">Suivant</button>
-                </div>
-                <button id="finish-onboarding-btn" style="display: none;">Terminer</button>
-            </div>
-        </div>
-    </div>
-    
-    <script src="/js/login.js"></script>
+    <!-- Onboarding -->
+    <div id="onboarding-container" style="display: none;">
+        <div id="step-1" class="step">
+            <h1>Salut <span id="user-name"></span> !</h1>
+            <p class="onboarding-subtitle">Choisis ta photo de profil</p>
+            <p class="onboarding-hint">(optionnel, modifiable plus tard)</p>
+            <div class="profile-pic-section">
+                <img id="profile-preview" src="" alt="Apercu" style="display: none;">
+                <input type="file" id="profile-pic-input" accept="image/*">
+                <button type="button" id="choose-pic-btn" class="onboarding-btn">Choisir une photo</button>
+                <button type="button" id="validate-pic-btn" class="onboarding-btn">Valider</button>
+            </div>
+            <button type="button" id="skip-pic-btn" class="onboarding-btn-secondary">Passer cette étape</button>
+        </div>
+        <div id="step-2" class="step" style="display: none;">
+            <h1>Date d'anniversaire</h1>
+            <div class="birth-selects">
+                <select id="birth-day"><option value="" disabled selected>Jour</option></select>
+                <select id="birth-month"><option value="" disabled selected>Mois</option></select>
+                <select id="birth-year"><option value="" disabled selected>Année</option></select>
+            </div>
+            <button type="button" id="validate-birth-btn" disabled class="onboarding-btn">Valider</button>
+        </div>
+        <div id="step-3" class="step" style="display: none;">
+            <h1>Choisis ton mot de passe</h1>
+            <div class="form-group">
+                <label for="new-password">Nouveau mot de passe</label>
+                <input type="password" id="new-password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirmer le mot de passe</label>
+                <input type="password" id="confirm-password" required>
+            </div>
+            <button type="button" id="validate-password-btn" disabled class="onboarding-btn">Valider</button>
+        </div>
+    </div>
+
+    <script src="/js/login.js"></script>
 </body>
 </html>

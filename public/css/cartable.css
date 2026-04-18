@@ -1,3 +1,11 @@
+.graph-btn > * {
+    pointer-events: none;
+}
+/* Garantit que le contenu cartable passe devant le fond pixel-art */
+#cartable-layout, .cartable-header, .cartable-sections, .cartable-section, #notes-container, #devoirs-container, .devoir-item, .devoir-content, .devoir-topline, .devoir-title {
+    position: relative;
+    z-index: 1;
+}
 /* public/css/cartable.css */
 #cartable-layout {
     padding: 16px;
@@ -174,6 +182,9 @@
 .devoir-title {
     font-weight: 800;
     color: #000;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Badge "CONTRÔLE" (interrogation/évaluation) */
@@ -184,6 +195,25 @@
     letter-spacing: 0.4px;
     color: #c0392b; /* réutilise la couleur d'erreur déjà présente dans ce fichier */
     white-space: nowrap;
+}
+
+/* Badge coloré pour les noms de matières */
+.matiere-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.92em;
+    line-height: 1.4;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.matiere-header .matiere-badge {
+    font-size: 1em;
+    padding: 3px 10px;
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
 .devoir-meta {
@@ -281,6 +311,34 @@
     overflow: hidden;
 }
 
+/* Bouton EDT détaché au-dessus de la box */
+.cartable-edt-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(0,150,255,0.12) 0%, rgba(0,255,136,0.08) 100%);
+    color: var(--accent, #00ff88);
+    font-weight: 700;
+    font-size: 1.05em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.cartable-edt-btn:hover {
+    background: linear-gradient(135deg, rgba(0,150,255,0.22) 0%, rgba(0,255,136,0.16) 100%);
+    color: #fff;
+}
+.cartable-edt-btn:active {
+    transform: scale(0.98);
+}
+
 .cartable-tabs {
     display: flex;
     border-bottom: 1px solid var(--border, rgba(255,255,255,0.1));
@@ -303,6 +361,11 @@
 .cartable-tab:hover {
     color: var(--text, #fff);
     background: rgba(255,255,255,0.05);
+}
+
+.cartable-tab:focus-visible {
+    outline: 2px solid var(--accent, #00ff88);
+    outline-offset: -2px;
 }
 
 .cartable-tab.active {
@@ -699,7 +762,7 @@
     background: rgba(0,0,0,0.05);
     border: none;
     font-size: 20px;
-    color: var(--text, #000); /* Adaptive color */
+    color: var(--text, #000);
     cursor: pointer;
     width: 36px;
     height: 36px;
@@ -708,6 +771,8 @@
     justify-content: center;
     border-radius: 50%;
     transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
 }
 
 .modal-close:hover {
@@ -717,8 +782,9 @@
 
 /* Actions (boutons) dans le header du modal graphe */
 .graph-modal-actions {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 }
 
@@ -932,6 +998,8 @@
     font-size: 1.2em;
     cursor: pointer;
     transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
 }
 
 .graph-btn:hover {
@@ -1097,9 +1165,9 @@
 
 /* Adaptive Icon (Mask) */
 .adaptive-icon {
-    width: 24px;
-    height: 24px;
-    background-color: currentColor; /* Takes the text color */
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
     -webkit-mask-image: url('/ressources/details/graphicon.png');
     mask-image: url('/ressources/details/graphicon.png');
     -webkit-mask-size: contain;
@@ -1108,6 +1176,7 @@
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
     mask-position: center;
+    flex-shrink: 0;
 }
 
 /* Bouton simulation (même style que Graphique) */
@@ -1118,8 +1187,9 @@
 .sim-btn .sim-text {
     font-weight: 900;
     line-height: 1;
-    transform: translateY(-1px);
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 640px) {

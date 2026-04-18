@@ -15,17 +15,26 @@ const BADGE_ICONS = {
     depenseur: { type: 'image', src: '/ressources/badges/dépenseur.png', emoji: '💸', large: false },
     fantome: { type: 'image', src: '/ressources/badges/fantome.png', emoji: '👻', large: false },
     
-    // Nouveaux badges - emojis (pas d'images)
-    ecolo: { type: 'emoji', emoji: '🌱', large: false },
-    lent: { type: 'emoji', emoji: '🐢', large: false },
+    // Nouveaux badges
+    ecolo: { type: 'image', src: '/ressources/badges/ecolo.png', emoji: '🌱', large: false },
+    lent: { type: 'image', src: '/ressources/badges/lent.png', emoji: '🐢', large: false },
     sauveur: { type: 'emoji', emoji: '🦸', large: false },
     leveTot: { type: 'emoji', emoji: '🌅', large: false },
     nocturne: { type: 'emoji', emoji: '🌙', large: false },
-    ami: { type: 'emoji', emoji: '💕', large: false },
-    puni: { type: 'emoji', emoji: '⚠️', large: false },
-    banni: { type: 'emoji', emoji: '🚫', large: false },
-    police: { type: 'emoji', emoji: '👮', large: false }
+    ami: { type: 'image', src: '/ressources/badges/ami.png', emoji: '💕', large: false },
+    puni: { type: 'image', src: '/ressources/badges/puni.png', emoji: '⚠️', large: false },
+    banni: { type: 'image', src: '/ressources/details/banned.png', emoji: '🚫', large: false },
+    police: { type: 'image', src: '/ressources/badges/police.png', emoji: '👮', large: false },
+    chefEtoile: { type: 'emoji', emoji: '⭐', large: false },
+    juge: { type: 'image', src: '/ressources/badges/juge.png', emoji: '⚖️', large: false }
 };
+
+// Additional badges used by server-side logic but missing from the config
+BADGE_ICONS.marathonien = { type: 'image', src: '/ressources/badges/Marathonien.png', emoji: '🏅', large: false };
+BADGE_ICONS.collectionneur = { type: 'image', src: '/ressources/badges/collectionneur.png', emoji: '🎯', large: false };
+BADGE_ICONS.pilier = { type: 'emoji', emoji: '🪨', large: false };
+BADGE_ICONS.explorateur = { type: 'emoji', emoji: '🧭', large: false };
+BADGE_ICONS.vestimentaire = { type: 'emoji', emoji: '👗', large: false };
 
 // Descriptions détaillées des badges
 const BADGE_DESCRIPTIONS = {
@@ -111,7 +120,37 @@ const BADGE_DESCRIPTIONS = {
     police: {
         name: 'Police',
         description: 'Tu signales le plus de messages. Merci de veiller sur la communauté!'
+    },
+    chefEtoile: {
+        name: 'Chef étoilé',
+        description: 'Tu as la meilleure note moyenne sur tes cours postés.'
+    },
+    juge: {
+        name: 'Juge',
+        description: 'Tu notes le plus de cours. Merci pour les avis!'
     }
+};
+
+// Descriptions manquantes pour les nouveaux badges ajoutés dynamiquement
+BADGE_DESCRIPTIONS.marathonien = {
+    name: 'Marathonien',
+    description: 'Présent sur une longue période : tu te connectes et participes régulièrement.'
+};
+BADGE_DESCRIPTIONS.collectionneur = {
+    name: 'Collectionneur',
+    description: 'Tu as rassemblé de nombreux objets et thèmes. Ta collection est impressionnante !'
+};
+BADGE_DESCRIPTIONS.pilier = {
+    name: 'Pilier',
+    description: 'Pilier de la communauté : fiable, aidant et présent pour les autres.'
+};
+BADGE_DESCRIPTIONS.explorateur = {
+    name: 'Explorateur',
+    description: 'Tu découvres et testes souvent de nouvelles fonctionnalités du site.'
+};
+BADGE_DESCRIPTIONS.vestimentaire = {
+    name: 'Vestimentaire',
+    description: 'Tu as débloqué plusieurs skins/thèmes : tu as du style !'
 };
 
 // Fonction pour obtenir l'emoji d'un badge

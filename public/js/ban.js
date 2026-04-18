@@ -54,4 +54,5 @@ function updateBanInfo() {
 updateBanInfo();
 
 // Mettre à jour chaque seconde pour le compte à rebours
-setInterval(updateBanInfo, 1000);
+const _banInterval = setInterval(updateBanInfo, 1000);
+window.addEventListener('beforeunload', () => clearInterval(_banInterval));

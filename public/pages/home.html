@@ -13,7 +13,7 @@
             </p>
 
             <div id="top-three-ranking">
-                <h5>🥈------🥉</h5>
+                <h5>🥈 Podium 🥉</h5>
                 <p>#2: <span id="second-username">...</span> (<span id="second-points">...</span>)</p>
                 <p>#3: <span id="third-username">...</span> (<span id="third-points">...</span>)</p>
             </div>
@@ -24,29 +24,40 @@
             </div>
         </div>
         
-        <div id="backpack-display" class="widget-box">
-            <div class="backpack-tabs">
-                <button id="tab-backpack" class="active">🎒 Sac à Dos</button>
-                <button id="tab-edt">📅 Emploi du Temps</button>
+        <div id="edt-widget" class="widget-box">
+            <h3>📅 Emploi du Temps</h3>
+            <div id="edt-nav">
+                <button id="edt-prev" class="edt-nav-btn" title="Jour précédent">&#8249;</button>
+                <span id="edt-nav-date">Emploi du temps</span>
+                <button id="edt-next" class="edt-nav-btn" title="Jour suivant">&#8250;</button>
             </div>
-            
-            <div id="view-backpack">
-                <h5 id="backpack-title-today">Aujourd'hui (...)</h5> 
-                <ul id="backpack-today-subjects">
-                    <li>Chargement...</li>
-                </ul>
+            <ul id="edt-today-list" class="edt-list">
+                <li>Chargement...</li>
+            </ul>
+            <button id="edt-voir-plus" class="edt-voir-plus-btn">Voir plus</button>
+        </div>
 
-                <h5 id="backpack-title-tomorrow">Demain (...)</h5>
-                <ul id="backpack-tomorrow-subjects">
-                    <li>Chargement...</li>
-                </ul>
-            </div>
-
-            <div id="view-edt" style="display: none;">
-                <h5 id="edt-title-today">Emploi du temps</h5>
-                <ul id="edt-today-list" class="edt-list">
-                    <li>Chargement...</li>
-                </ul>
+        <!-- Panneau EDT étendu (overlay) -->
+        <div id="edt-panel-overlay" style="display:none;">
+            <div id="edt-panel">
+                <div id="edt-panel-header">
+                    <div id="edt-panel-top-row">
+                        <select id="edt-panel-mode">
+                            <option value="day" selected>Jour</option>
+                            <option value="week">Semaine</option>
+                        </select>
+                        <button id="edt-panel-close" title="Fermer">&times;</button>
+                    </div>
+                    <div id="edt-panel-nav">
+                        <button id="edt-panel-prev" class="edt-nav-btn" title="Précédent">&#8249;</button>
+                        <span id="edt-panel-date"></span>
+                        <button id="edt-panel-next" class="edt-nav-btn" title="Suivant">&#8250;</button>
+                    </div>
+                </div>
+                <div id="edt-panel-body">
+                    <div id="edt-panel-day-view"></div>
+                    <div id="edt-panel-week-view" style="display:none;"></div>
+                </div>
             </div>
         </div>
 
@@ -89,11 +100,62 @@
         </div>
         
     </div>
-    
-    <div id="action-buttons-container">
-        
-        <a id="notice-button" href="/api/NOTICE.txt" download="NOTICE.txt">
-            NOTICE
-        </a>
+
+    <div id="top-widgets-row">
+    <!-- Streak Flame Display -->
+    <div id="streak-display" style="display: none;">
+        <div id="streak-flame-container">
+            <svg id="streak-flame-svg" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="flame-grad-outer" x1="0.5" y1="1" x2="0.5" y2="0">
+                        <stop offset="0%" stop-color="#ff4500"/>
+                        <stop offset="40%" stop-color="#ff6a00"/>
+                        <stop offset="100%" stop-color="#ffd700"/>
+                    </linearGradient>
+                    <linearGradient id="flame-grad-mid" x1="0.5" y1="1" x2="0.5" y2="0">
+                        <stop offset="0%" stop-color="#ff6a00"/>
+                        <stop offset="60%" stop-color="#ffaa00"/>
+                        <stop offset="100%" stop-color="#ffe066"/>
+                    </linearGradient>
+                    <linearGradient id="flame-grad-inner" x1="0.5" y1="1" x2="0.5" y2="0">
+                        <stop offset="0%" stop-color="#ffcc00"/>
+                        <stop offset="100%" stop-color="#fff5cc"/>
+                    </linearGradient>
+                    <filter id="flame-glow">
+                        <feGaussianBlur stdDeviation="6" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- Outer flame -->
+                <path class="flame-layer flame-outer" d="M60 10 C60 10, 20 70, 25 110 C28 135, 45 155, 60 155 C75 155, 92 135, 95 110 C100 70, 60 10, 60 10Z" fill="url(#flame-grad-outer)" filter="url(#flame-glow)"/>
+                <!-- Middle flame -->
+                <path class="flame-layer flame-mid" d="M60 35 C60 35, 32 80, 35 115 C37 135, 48 148, 60 148 C72 148, 83 135, 85 115 C88 80, 60 35, 60 35Z" fill="url(#flame-grad-mid)"/>
+                <!-- Inner flame -->
+                <path class="flame-layer flame-inner" d="M60 60 C60 60, 42 95, 44 120 C45 132, 52 142, 60 142 C68 142, 75 132, 76 120 C78 95, 60 60, 60 60Z" fill="url(#flame-grad-inner)"/>
+                <!-- Embers -->
+                <circle class="ember ember-1" cx="45" cy="100" r="2.5" fill="#ffd700"/>
+                <circle class="ember ember-2" cx="72" cy="90" r="2" fill="#ffaa00"/>
+                <circle class="ember ember-3" cx="55" cy="75" r="1.8" fill="#ffe066"/>
+                <circle class="ember ember-4" cx="65" cy="85" r="2.2" fill="#ffd700"/>
+            </svg>
+            <div id="streak-count"></div>
+        </div>
+        <div id="streak-label"></div>
     </div>
+
+    <div id="challenge-widget" style="display:none;">
+        <h3 id="challenge-title">⚡ Défi de la semaine</h3>
+        <p id="challenge-desc"></p>
+        <div id="challenge-bar-wrapper">
+            <div id="challenge-bar-fill"></div>
+        </div>
+        <p id="challenge-numbers"></p>
+        <p id="challenge-reward"></p>
+        <p id="challenge-countdown"></p>
+    </div>
+    </div>
+
 </div>

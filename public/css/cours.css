@@ -1,3 +1,12 @@
+#cours-layout, .cours-header, .cours-section, #cours-container, .cours-item, .cours-content, .cours-topline, .cours-title {
+	position: relative;
+	z-index: 2;
+}
+/* Garantit que le contenu cours passe devant le fond pixel-art */
+#cours-layout, .cours-header, .cours-section, #cours-container, .cours-item, .cours-content, .cours-topline, .cours-title {
+	position: relative;
+	z-index: 1;
+}
 /* public/css/cours.css - Styles Spécifiques à l'onglet Cours */
 
 /* --- Conteneur général --- */
@@ -122,6 +131,158 @@
 	transition: transform 0.2s ease;
 }
 
+.course-star-badge {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: rgba(0,0,0,0.65);
+	border: 1px solid rgba(255,255,255,0.15);
+	border-radius: 10px;
+	padding: 6px 8px;
+	color: #fff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+	transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+	z-index: 4;
+    pointer-events: auto;
+}
+
+.course-star-badge:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 20px rgba(0,0,0,0.45);
+	border-color: rgba(255,215,0,0.4);
+}
+
+.star-badge-stars {
+	display: flex;
+	align-items: center;
+}
+
+.stars-container {
+	display: flex;
+	align-items: center;
+}
+
+/* --- Étoiles (SVG) remplies par quarts ---
+   Ordre de remplissage: TL=0.25, BL=0.50, BR=0.75, TR=1.0 */
+.sstars {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.sstars--badge .sstar-svg {
+	width: 20px;
+	height: 20px;
+}
+
+.sstars--modal .sstar-svg {
+	width: 30px;
+	height: 30px;
+}
+
+.sstar {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.sstar-bg {
+	fill: rgba(255,255,255,0.20);
+}
+
+.sstar-q {
+	fill: transparent;
+}
+
+.sstar-q.filled {
+	fill: #ffc107;
+}
+
+.sstar-outline {
+	fill: none;
+	stroke: rgba(255,255,255,0.35);
+	stroke-width: 1;
+}
+
+.sstar-q.filled {
+	filter: drop-shadow(0 0 6px rgba(255,193,7,0.25));
+}
+
+/* --- Étoiles en carrés (quartiles) ---
+   Ordre de remplissage: TL=0.25, BL=0.50, BR=0.75, TR=1.0 */
+.qstars {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.qstars--badge .qstar {
+	width: 18px;
+	height: 18px;
+}
+
+.qstars--modal .qstar {
+	width: 26px;
+	height: 26px;
+}
+
+.qstar {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	grid-template-rows: repeat(2, 1fr);
+	gap: 1px;
+	padding: 1px;
+	border-radius: 5px;
+	background: rgba(255,255,255,0.14);
+	border: 1px solid rgba(255,255,255,0.18);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+	overflow: hidden;
+}
+
+.qstar .q {
+	background: rgba(0,0,0,0.25);
+}
+
+.qstar .q.filled {
+	background: #ffc107;
+	box-shadow: 0 0 10px rgba(255,193,7,0.22);
+}
+
+.q--tl { grid-column: 1; grid-row: 1; }
+.q--tr { grid-column: 2; grid-row: 1; }
+.q--bl { grid-column: 1; grid-row: 2; }
+.q--br { grid-column: 2; grid-row: 2; }
+
+.stars-outer {
+	position: relative;
+	display: inline-block;
+	color: rgba(255,255,255,0.32);
+	text-shadow: 0 1px 0 rgba(0,0,0,0.85);
+}
+
+.stars-inner {
+	position: absolute;
+	left: 0;
+	top: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 100%;
+	display: inline-block;
+	color: #ffc107;
+	text-shadow: 0 0 10px rgba(255,193,7,0.28), 0 1px 0 rgba(0,0,0,0.75);
+}
+
+.star-badge-value {
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
 .course-file-card:hover {
 	transform: translateY(-5px);
 	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
@@ -175,9 +336,8 @@
 	justify-content: space-between;
 	height: 75px;
 	
-	transform: translateY(100%); 
-	opacity: 0;
-	transition: transform 0.3s ease, opacity 0.3s ease;
+	transform: translateY(0); 
+	opacity: 1;
 }
 
 /* Overlay de la modale */
@@ -202,6 +362,105 @@
 	visibility: visible;
 }
 
+/* --- Modal vote étoiles --- */
+#star-vote-modal {
+	background: rgba(0,0,0,0.65);
+}
+
+.star-vote-content {
+	max-width: 400px;
+	width: 90%;
+	background: rgba(20, 20, 20, 0.78);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	color: #fff;
+	border-radius: 14px;
+	border: 1px solid rgba(255,255,255,0.10);
+	box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+}
+
+.star-vote-content .modal-header {
+	background: transparent;
+	color: #fff;
+	border-bottom: 1px solid rgba(255,255,255,0.10);
+	border-top-left-radius: 14px;
+	border-top-right-radius: 14px;
+}
+
+.star-vote-content .modal-header h2 {
+	color: inherit;
+}
+
+.star-vote-content #close-star-vote-btn.close-modal-btn {
+	color: #fff;
+	background: rgba(0,0,0,0.25);
+	border-radius: 10px;
+	width: 36px;
+	height: 36px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.star-vote-content #close-star-vote-btn.close-modal-btn:hover {
+	background: rgba(0,0,0,0.45);
+}
+
+.star-vote-display {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 14px;
+}
+
+.current-stars-display {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 18px;
+}
+
+.vote-buttons-container {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0,1fr));
+	gap: 10px;
+}
+
+.vote-btn {
+	padding: 12px 10px;
+	border: none;
+	border-radius: 10px;
+	color: #111;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.vote-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.35); }
+.vote-btn:active { transform: translateY(0); }
+
+/* Force les couleurs des votes (évite overrides du thème) */
+.star-vote-content .vote-btn.vote-good {
+	background: linear-gradient(135deg, #7bd88f, #46c96b) !important;
+	color: #0b2412 !important;
+}
+
+.star-vote-content .vote-btn.vote-medium {
+	background: linear-gradient(135deg, #ffe066, #ffca3a) !important;
+	color: #2b2300 !important;
+}
+
+.star-vote-content .vote-btn.vote-bad {
+	background: linear-gradient(135deg, #ff8a80, #ff5c5c) !important;
+	color: #2b0606 !important;
+}
+
+.star-vote-content .vote-btn.vote-good:hover,
+.star-vote-content .vote-btn.vote-medium:hover,
+.star-vote-content .vote-btn.vote-bad:hover {
+	filter: brightness(1.04);
+}
+
 /* Taille correcte de la modale */
 #deposit-modal .modal-content {
 	background-color: #2a2a2a !important;
@@ -215,10 +474,7 @@
 }
 
 
-.course-file-card:hover .file-info-overlay {
-	transform: translateY(0);
-	opacity: 1;
-}
+/* overlay toujours visible, pas besoin de hover */
 
 .file-subject, .file-title {
 	font-size: 0.9em;

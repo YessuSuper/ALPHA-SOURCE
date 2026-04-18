@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Data / Database
+data/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Uploaded files & user-generated images
+uploads/
+public/uploads/
+images/
+pictures_documents/
+public/api/community/ressources/pictures_documents/
+public/api/community/ressources/pp/
+
+# Runtime data / logs
+*.log
+logs/
+*.pid
+*.seed
+
+# JSON data files (generated at runtime, not source code)
+aiResponses.json
+chat_history.json
+messages.json
+public/api/all.json
+public/api/bdd.json
+public/api/challenge.json
+public/api/cours.json
+public/api/cours.txt
+public/api/mdped.json
+public/api/points.json
+public/api/users.json
+public/api/users_detailed_data.json
+public/api/community/global.json
+public/api/community/fill_join_requests.json
+public/api/community/read_timestamps.json
+public/api/community/fills/
+public/api/community/groupes/
+public/api/community/mp/
+public/api/community/sujets/
+public/api/messagerie/messages.json
+public/api/messagerie/rescues.json
+public/api/messagerie/docs/
+
+# VS Code
+.vscode/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+python admin/logs.json
+
+# Misc
+*.tmp
+*.bak
+guide.json

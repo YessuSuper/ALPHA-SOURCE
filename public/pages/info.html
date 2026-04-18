@@ -30,10 +30,64 @@
             <canvas id="points-chart"></canvas>
         </div>
         <div id="info-side-slot">
-            <p>Espace libre pour ajouter un module ou un widget à droite.</p>
+            <!-- Widget Guide des Points -->
+            <div id="points-guide-widget" class="widget-box">
+                <h3>💰 Comment gagner & perdre des points</h3>
+                <div class="points-guide-section">
+                    <h4 class="points-guide-earn">▲ Gagner</h4>
+                    <ul class="points-guide-list">
+                        <li><span class="pg-action">Connexion quotidienne</span><span class="pg-value pg-positive">+3</span></li>
+                        <li><span class="pg-action">Sauvetage résolu</span><span class="pg-value pg-positive">+15</span></li>
+                        <li><span class="pg-action">1er au classement (par jour)</span><span class="pg-value pg-positive">+10</span></li>
+                        <li><span class="pg-action">2e au classement</span><span class="pg-value pg-positive">+5</span></li>
+                        <li><span class="pg-action">3e au classement</span><span class="pg-value pg-positive">+2</span></li>
+                        <li><span class="pg-action">Cours posté (selon note ⭐)</span><span class="pg-value pg-positive">+5 à +15</span></li>
+                        <li><span class="pg-action">Voter un cours (premiers votes)</span><span class="pg-value pg-positive">+5</span></li>
+                        <li><span class="pg-action">Voter avec la majorité</span><span class="pg-value pg-positive">+2 à +3</span></li>
+                        <li><span class="pg-action">20 messages dans les fils</span><span class="pg-value pg-positive">+2</span></li>
+                        <li><span class="pg-action">15 messages à l'IA</span><span class="pg-value pg-positive">+3</span></li>
+                        <li><span class="pg-action">Nouveau badge obtenu</span><span class="pg-value pg-positive">+5</span></li>
+                    </ul>
+                </div>
+                <div class="points-guide-section">
+                    <h4 class="points-guide-spend">▼ Dépenser / Perdre</h4>
+                    <ul class="points-guide-list">
+                        <li><span class="pg-action">Créer un groupe</span><span class="pg-value pg-negative">−30</span></li>
+                        <li><span class="pg-action">Lancer un sauvetage</span><span class="pg-value pg-negative">−5</span></li>
+                        <li><span class="pg-action">Message anonyme</span><span class="pg-value pg-negative">−3</span></li>
+                        <li><span class="pg-action">Question à l'IA (devoirs)</span><span class="pg-value pg-negative">−3</span></li>
+                        <li><span class="pg-action">Acheter un skin/fond</span><span class="pg-value pg-negative">−22 à −45</span></li>
+                        <li><span class="pg-action">Inactivité (7 jours)</span><span class="pg-value pg-negative">−15</span></li>
+                        <li><span class="pg-action">Fil peu actif (&lt;5 msg/24h)</span><span class="pg-value pg-negative">−5</span></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Widget classement (version infos, IDs uniques) -->
+            <div id="leaderboard-display-infos" class="widget-box" style="margin-top:24px;">
+                <h3>🏆 Classement général</h3>
+                <p>
+                    <span id="leader-username-infos" class="leader-name">Chargement...</span> 
+                    avec 
+                    <span id="leader-points-infos" class="leader-score">N/A</span>
+                </p>
+                <div id="top-three-ranking-infos">
+                    <h5>🥈 Podium 🥉</h5>
+                    <p>#2: <span id="second-username-infos">...</span> (<span id="second-points-infos">...</span>)</p>
+                    <p>#3: <span id="third-username-infos">...</span> (<span id="third-points-infos">...</span>)</p>
+                </div>
+                <div id="user-rank-display-infos">
+                    <h5>Ton rang actuel : <span id="user-rank-infos">...</span></h5>
+                    <p>Ton score : <span id="user-score-infos">...</span></p>
+                </div>
+            </div>
         </div>
     </div>
     
     <div id="info-content">
     </div>
+<!-- Chart.js CDN pour le camembert -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</div>
+<!-- Force le chargement du JS infos -->
+<script src="/js/info.js"></script>
 </div>

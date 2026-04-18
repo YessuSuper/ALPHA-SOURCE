@@ -139,81 +139,168 @@ body {
     /* La couleur rouge est déjà dans ton HTML (style="color: red;") */
 }
 
-/* ===========================================
-   ONBOARDING MODAL
-   =========================================== */
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: #2a2a2a;
+/* --- ONBOARDING --- */
+#onboarding-container {
+    background-color: #1e1e1e;
     padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9);
-    border: 2px solid var(--color-primary);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.9), 0 0 0 3px var(--color-primary);
     width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: 400px;
     text-align: center;
-    color: var(--color-text);
+    animation: fadeInSlide 0.8s ease-out;
 }
 
-.step h2 {
+#onboarding-container h1 {
+    font-size: 2em;
     color: var(--color-primary);
-    margin-bottom: 20px;
-}
-
-.step p {
-    margin-bottom: 20px;
-}
-
-.profile-pic-section {
-    margin: 20px 0;
-}
-
-#profile-preview {
-    border: 2px solid #3a3a3a;
-    border-radius: 8px;
     margin-bottom: 10px;
+    position: relative;
 }
 
-button {
-    padding: 10px 20px;
-    margin: 5px;
+#onboarding-container h1::after {
+    content: '';
+    display: block;
+    width: 250px;
+    height: 3px;
+    background-color: var(--color-secondary);
+    margin: 10px auto 0;
+    border-radius: 5px;
+}
+
+.onboarding-subtitle {
+    color: var(--color-text);
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.onboarding-hint {
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
+
+.onboarding-btn {
+    width: 100%;
+    padding: 15px;
     background-color: var(--color-primary);
     color: #121212;
     border: none;
     border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 700;
     cursor: pointer;
-    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(77, 124, 255, 0.4);
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.3s;
+    margin-top: 10px;
 }
 
-button:hover {
+.onboarding-btn:hover {
     background-color: #6a96ff;
+    box-shadow: 0 6px 20px rgba(77, 124, 255, 0.6);
 }
 
-button:disabled {
-    background-color: #555;
+.onboarding-btn:active {
+    transform: scale(0.98);
+}
+
+.onboarding-btn:disabled {
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
-.guide-nav {
-    margin-top: 20px;
+.onboarding-btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: #888;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: color 0.2s, border-color 0.2s;
 }
 
-#guide-indicator {
-    margin: 0 10px;
-    font-weight: bold;
+.onboarding-btn-secondary:hover {
+    color: var(--color-text);
+    border-color: #666;
+}
+
+.profile-pic-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.profile-pic-section img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--color-primary);
+    object-fit: cover;
+}
+
+#onboarding-container input[type="file"] {
+    display: none;
+}
+
+#onboarding-container input[type="date"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: var(--color-text);
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#onboarding-container input[type="date"]:focus {
+    border-color: var(--accent-2);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent);
+    outline: none;
+    background-color: #333;
+}
+
+.birth-selects {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.birth-selects select {
+    flex: 1;
+    padding: 12px 10px;
+    border: 2px solid #3a3a3a;
+    border-radius: 8px;
+    background-color: #2a2a2a;
+    color: var(--color-text);
+    font-size: 1em;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    max-height: 45px;
+    overflow-y: auto;
+}
+
+.birth-selects select option {
+    background-color: #2a2a2a;
+    color: var(--color-text);
+}
+
+.birth-selects select:focus {
+    border-color: var(--accent-2);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent);
+    outline: none;
+    background-color: #333;
 }

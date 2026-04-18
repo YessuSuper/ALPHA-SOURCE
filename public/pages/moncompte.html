@@ -1,8 +1,8 @@
 <div id="moncompte-page">
     <!-- 1. HAUT: Profile Header -->
-    <div id="user-profile-header">
+    <div id="user-profile-header" aria-live="polite">
         <div id="user-avatar-section">
-            <div id="user-avatar-wrapper">
+            <div id="user-avatar-wrapper" role="button" tabindex="0" aria-label="Modifier la photo de profil">
                 <img src="/ressources/user-icon.png" alt="Photo de profil" id="user-avatar">
                 <div class="avatar-overlay">
                     <img src="/ressources/details/ppicon.png" alt="Modifier" class="edit-icon">
@@ -14,39 +14,92 @@
                 <h2 id="user-name">Nom d'utilisateur</h2>
                 <div id="user-current-badges" aria-label="Badges actuels"></div>
             </div>
+            <div id="user-course-stars-row" class="user-course-stars-row" aria-label="Note moyenne de tes cours">
+                <div id="user-course-stars" class="user-course-stars"></div>
+                <span id="user-course-stars-value" class="user-course-stars-value">—</span>
+            </div>
             <p id="user-age">14 ans</p>
         </div>
+    </div>
+
+    <div id="profile-quick-actions" aria-label="Actions profil">
+        <button id="open-profile-editor-btn" class="account-action-btn" type="button" aria-label="Modifier le profil social">Modifier profil</button>
     </div>
 
     <!-- Container principal avec gauche et droite -->
     <div id="account-main-container">
         <!-- 3. GAUCHE: Boutique et Thèmes -->
         <div id="account-left-section">
-            <button id="shop-btn" class="account-action-btn">Boutique</button>
-            <button id="inventory-btn" class="account-action-btn">Inventaire Thèmes</button>
-            <button id="badges-btn" class="account-action-btn">Badges</button>
+            <button id="shop-btn" class="account-action-btn" aria-label="Ouvrir la boutique">Boutique</button>
+            <button id="inventory-btn" class="account-action-btn" aria-label="Ouvrir l'inventaire">Inventaire</button>
+            <button id="badges-btn" class="account-action-btn" aria-label="Ouvrir les badges">Badges</button>
         </div>
 
         <!-- 2. DROITE: Actions Importantes -->
         <div id="account-right-section">
-            <button id="change-password-btn" class="account-action-btn">Changer de mot de passe</button>
-            <button id="account-info-btn" class="account-action-btn">Informations du compte</button>
+            <button id="change-password-btn" class="account-action-btn" aria-label="Changer le mot de passe">Changer de mot de passe</button>
+            <button id="account-info-btn" class="account-action-btn" aria-label="Voir les informations du compte">Informations du compte</button>
         </div>
     </div>
 
     <!-- 4. BAS: Déconnexion Buttons -->
     <div id="account-footer-section">
         <button id="logout-button" class="logout-btn logout-btn-left">Déconnexion</button>
-        <button id="logout-ed-btn" class="logout-btn logout-ed-btn">Déconnexion ED</button>
+        <button id="logout-ed-btn" class="logout-btn logout-ed-btn">Déconnexion Ecole Directe</button>
+    </div>
+</div>
+
+<div id="profile-editor-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="profile-editor-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
+        <div class="modal-header">
+            <h2 class="modal-title" id="profile-editor-modal-title">Modifier profil</h2>
+            <button type="button" class="close-modal-btn" id="close-profile-editor-btn" aria-label="Fermer le modal profil">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="social-profile-panel" aria-label="Profil social">
+                <div id="social-banner-preview" class="social-banner-oceanic" aria-hidden="true"></div>
+                <div id="social-profile-grid" class="profile-editor-grid">
+                    <div class="social-card">
+                        <h3>Banniere</h3>
+                        <div class="social-input-row">
+                            <select id="social-banner-select" class="form-input" aria-label="Choisir une banniere">
+                                <option value="">Chargement des themes...</option>
+                            </select>
+                            <button id="save-social-banner-btn" class="modal-action-btn primary" type="button">Appliquer</button>
+                        </div>
+                    </div>
+
+                    <div class="social-card">
+                        <h3>Vitrine de badges</h3>
+                        <div id="social-badge-showcase" class="social-badge-showcase" aria-label="Vitrine de badges"></div>
+                        <div class="social-input-row">
+                            <select id="social-badge-slot-1" class="form-input" aria-label="Badge vitrine emplacement 1"></select>
+                            <select id="social-badge-slot-2" class="form-input" aria-label="Badge vitrine emplacement 2"></select>
+                            <select id="social-badge-slot-3" class="form-input" aria-label="Badge vitrine emplacement 3"></select>
+                            <button id="save-social-showcase-btn" class="modal-action-btn primary" type="button">Sauver</button>
+                        </div>
+                    </div>
+
+                    <div class="social-card">
+                        <h3>Contributions</h3>
+                        <div id="social-stats" class="social-stats" aria-live="polite">
+                            <span><strong id="stat-contributions">0</strong> contributions</span>
+                            <span><strong id="stat-likes-received">0</strong> likes recus</span>
+                            <span><strong id="stat-likes-given">0</strong> likes donnes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal pour changer la photo de profil -->
-<div id="avatar-modal" class="modal-overlay">
-    <div class="modal-content">
+<div id="avatar-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="avatar-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">Changer la photo de profil</h2>
-            <button type="button" class="close-modal-btn">&times;</button>
+            <h2 class="modal-title" id="avatar-modal-title">Changer la photo de profil</h2>
+            <button type="button" class="close-modal-btn" aria-label="Fermer le modal photo de profil">&times;</button>
         </div>
         <div class="modal-body">
             <!-- Aperçu de la photo actuelle -->
@@ -66,11 +119,11 @@
 </div>
 
 <!-- Modal pour changer le mot de passe -->
-<div id="password-modal" class="modal-overlay">
-    <div class="modal-content">
+<div id="password-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="password-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">CHANGER LE MOT DE PASSE</h2>
-            <button type="button" class="close-modal-btn">&times;</button>
+            <h2 class="modal-title" id="password-modal-title">CHANGER LE MOT DE PASSE</h2>
+            <button type="button" class="close-modal-btn" aria-label="Fermer le modal mot de passe">&times;</button>
         </div>
         <div class="modal-body">
             <div id="password-change-form">
@@ -89,11 +142,11 @@
 </div>
 
 <!-- Modal pour les informations du compte -->
-<div id="account-info-modal" class="modal-overlay">
-    <div class="modal-content">
+<div id="account-info-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="account-info-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">Informations du compte</h2>
-            <button type="button" class="close-modal-btn">&times;</button>
+            <h2 class="modal-title" id="account-info-modal-title">Informations du compte</h2>
+            <button type="button" class="close-modal-btn" aria-label="Fermer le modal informations du compte">&times;</button>
         </div>
         <div class="modal-body">
             <div id="account-info-content">
@@ -123,11 +176,11 @@
 </div>
 
 <!-- Modal Badges -->
-<div id="badges-modal" class="modal-overlay">
-    <div class="modal-content badges-modal-content">
+<div id="badges-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="badges-modal-title" tabindex="-1">
+    <div class="modal-content badges-modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">Mes Badges</h2>
-            <button type="button" class="close-modal-btn" id="close-badges-modal">&times;</button>
+            <h2 class="modal-title" id="badges-modal-title">Mes Badges</h2>
+            <button type="button" class="close-modal-btn" id="close-badges-modal" aria-label="Fermer le modal badges">&times;</button>
         </div>
         <div class="modal-body">
             <!-- Badges actuels -->
@@ -152,14 +205,21 @@
 </div>
 
 <!-- Modal Inventaire Thèmes -->
-<div id="inventory-modal" class="modal-overlay">
-    <div class="modal-content">
+<div id="inventory-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">Mes Thèmes</h2>
-            <button type="button" class="close-modal-btn" id="close-inventory-modal">&times;</button>
+            <h2 class="modal-title" id="inventory-modal-title">Inventaire</h2>
+            <button type="button" class="close-modal-btn" id="close-inventory-modal" aria-label="Fermer le modal inventaire">&times;</button>
         </div>
         <div class="modal-body">
             <div id="inventory-content">
+                <!-- Onglets Inventaire -->
+                <div class="inventory-tabs" role="tablist" aria-label="Inventaire">
+                    <button type="button" class="inventory-tab-btn active" data-inventory-tab="themes" aria-selected="true">Thèmes</button>
+                    <button type="button" class="inventory-tab-btn" data-inventory-tab="fonds" aria-selected="false">Fonds</button>
+                </div>
+
+                <div class="inventory-tab-panel active" data-inventory-tab-panel="themes">
                 <!-- Thème actuellement équipé -->
                 <div id="current-skin-display">
                     <h3>Thème équipé</h3>
@@ -179,17 +239,40 @@
                         <!-- Les thèmes achetés apparaîtront ici -->
                     </div>
                 </div>
+                </div>
+
+                <div class="inventory-tab-panel" data-inventory-tab-panel="fonds">
+                    <!-- Fond actuellement équipé -->
+                    <div id="current-fond-display">
+                        <h3>Fond équipé</h3>
+                        <div id="current-fond-card" class="inventory-item">
+                            <div class="inventory-item-icon">🖼️</div>
+                            <div class="inventory-item-info">
+                                <p class="inventory-item-name">Vagues</p>
+                                <p class="inventory-item-status">Actuellement équipé</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fonds possédés -->
+                    <div id="inventory-fonds-display">
+                        <h3>Mes fonds</h3>
+                        <div id="inventory-fonds-grid" class="inventory-items-grid">
+                            <!-- Les fonds achetés apparaîtront ici -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Boutique -->
-<div id="shop-modal" class="modal-overlay">
-    <div class="modal-content">
+<div id="shop-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="shop-modal-title" tabindex="-1">
+    <div class="modal-content" role="document">
         <div class="modal-header">
-            <h2 class="modal-title">Boutique</h2>
-            <button type="button" class="close-modal-btn" id="close-shop-modal">&times;</button>
+            <h2 class="modal-title" id="shop-modal-title">Boutique</h2>
+            <button type="button" class="close-modal-btn" id="close-shop-modal" aria-label="Fermer le modal boutique">&times;</button>
         </div>
         <div class="modal-body">
             <div id="shop-content">
@@ -198,23 +281,153 @@
                     <h3>Mes points: <span id="shop-user-points">0</span> pts</h3>
                 </div>
 
-                <!-- Zone Thèmes de page -->
-                <div class="shop-section">
-                    <h3 class="shop-section-title">Thèmes de page</h3>
-                    <div class="shop-items-grid" id="skins-grid">
-                        <!-- Verdure - Basique -->
-                        <div class="shop-item" data-item-id="skin-verdure" data-item-price="28" data-item-type="skin">
-                            <span class="shop-item-tag tag-basique">Basique</span>
-                            <div class="shop-item-icon">🎨</div>
-                            <div class="shop-item-info">
-                                <p class="shop-item-name">Verdure</p>
-                                <p class="shop-item-description">Un thème naturel et apaisant</p>
-                                <div class="shop-item-footer">
-                                    <span class="shop-item-price">28 pts</span>
-                                    <button class="shop-buy-btn">Acheter</button>
+                <!-- Onglets Boutique -->
+                <div class="shop-tabs" role="tablist" aria-label="Boutique">
+                    <button type="button" class="shop-tab-btn active" data-shop-tab="themes" aria-selected="true">Thèmes</button>
+                    <button type="button" class="shop-tab-btn" data-shop-tab="fonds" aria-selected="false">Fonds</button>
+                </div>
+
+                <!-- Onglet: Thèmes -->
+                <div class="shop-tab-panel active" data-shop-tab-panel="themes">
+                    <!-- Zone Thèmes de page -->
+                    <div class="shop-section">
+                        <h3 class="shop-section-title">Thèmes de page</h3>
+                        <div class="shop-items-grid" id="skins-grid">
+                            <!-- Verdure - Basique -->
+                            <div class="shop-item" data-item-id="skin-verdure" data-item-price="28" data-item-type="skin">
+                                <span class="shop-item-tag tag-basique">Basique</span>
+                                <div class="shop-item-icon">🎨</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Verdure</p>
+                                    <p class="shop-item-description">Un thème naturel et apaisant</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">28 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <!-- Pastel - Doux -->
+                            <div class="shop-item" data-item-id="skin-pastel" data-item-price="32" data-item-type="skin">
+                                <span class="shop-item-tag tag-doux">Doux</span>
+                                <div class="shop-item-icon">🩰</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Pastel</p>
+                                    <p class="shop-item-description">Couleurs douces et ambiance légère</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">32 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cyberpunk - Futuriste -->
+                            <div class="shop-item" data-item-id="skin-cyberpunk" data-item-price="38" data-item-type="skin">
+                                <span class="shop-item-tag tag-futuriste">Futuriste</span>
+                                <div class="shop-item-icon">🤖</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Cyberpunk</p>
+                                    <p class="shop-item-description">Violet, bleu néon, rose flashy, effet lumineux</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">38 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Forêt - Nature -->
+                            <div class="shop-item" data-item-id="skin-foret" data-item-price="30" data-item-type="skin">
+                                <span class="shop-item-tag tag-nature">Nature</span>
+                                <div class="shop-item-icon">🌲</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Forêt</p>
+                                    <p class="shop-item-description">Tons verts et bruns, ambiance nature</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">30 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sable chaud - Chaleur -->
+                            <div class="shop-item" data-item-id="skin-sable" data-item-price="28" data-item-type="skin">
+                                <span class="shop-item-tag tag-chaleur">Chaleur</span>
+                                <div class="shop-item-icon">🏖️</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Sable chaud</p>
+                                    <p class="shop-item-description">Jaune doré, orange, effet granuleux</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">28 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Minuit - Élégant -->
+                            <div class="shop-item" data-item-id="skin-minuit" data-item-price="36" data-item-type="skin">
+                                <span class="shop-item-tag tag-elegant">Élégant</span>
+                                <div class="shop-item-icon">🌙</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Minuit</p>
+                                    <p class="shop-item-description">Bleu nuit profond, touches argentées</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">36 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shop-item" data-item-id="skin-ocean" data-item-price="32" data-item-type="skin">
+                                <span class="shop-item-tag tag-basique">Nature</span>
+                                <div class="shop-item-icon">🌊</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Océan</p>
+                                    <p class="shop-item-description">Profondeurs marines et lueurs bioluminescentes</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">32 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shop-item" data-item-id="skin-lavande" data-item-price="30" data-item-type="skin">
+                                <span class="shop-item-tag tag-doux">Doux</span>
+                                <div class="shop-item-icon">💜</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Lavande</p>
+                                    <p class="shop-item-description">Violet doux et apaisant, ambiance zen</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">30 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shop-item" data-item-id="skin-cerise" data-item-price="34" data-item-type="skin">
+                                <span class="shop-item-tag tag-exotique">Exotique</span>
+                                <div class="shop-item-icon">🌸</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Cerise</p>
+                                    <p class="shop-item-description">Fleurs de cerisier, esthétique japonaise</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">34 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shop-item" data-item-id="skin-arctique" data-item-price="36" data-item-type="skin">
+                                <span class="shop-item-tag tag-elegant">Élégant</span>
+                                <div class="shop-item-icon">❄️</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Arctique</p>
+                                    <p class="shop-item-description">Bleu glacé et givre, froid élégant</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">36 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
 
                         <!-- Obsidienne Royale - Exotique -->
                         <div class="shop-item" data-item-id="skin-obsidienne" data-item-price="35" data-item-type="skin">
@@ -355,14 +568,121 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
+                    </div>
+
+                    <!-- Zone Pass -->
+                    <div class="shop-section">
+                        <h3 class="shop-section-title">Pass</h3>
+                        <div class="shop-items-grid" id="pass-grid">
+                            <p class="coming-soon-text">Chargement des bundles...</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Zone Pass -->
-                <div class="shop-section">
-                    <h3 class="shop-section-title">Pass</h3>
-                    <div class="shop-items-grid" id="pass-grid">
-                        <p class="coming-soon-text">Bientôt disponible...</p>
+                <!-- Onglet: Fonds -->
+                <div class="shop-tab-panel" data-shop-tab-panel="fonds">
+                    <div class="shop-section">
+                        <h3 class="shop-section-title">Fonds</h3>
+                        <div class="shop-items-grid" id="backgrounds-grid">
+                            <!-- Vagues inversées - Basique -->
+                            <div class="shop-item" data-item-id="vagues-inversees" data-item-price="30" data-item-type="fond">
+                                <span class="shop-item-tag tag-basique">Basique</span>
+                                <div class="shop-item-icon">🖼️</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Vagues inversées</p>
+                                    <p class="shop-item-description">Les vagues en haut, retournées</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">30 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pixel Art - Rétro -->
+                            <div class="shop-item" data-item-id="pixel-art" data-item-price="34" data-item-type="fond">
+                                <span class="shop-item-tag tag-retro">Rétro</span>
+                                <div class="shop-item-icon">🟪</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Pixel Art</p>
+                                    <p class="shop-item-description">Effet mosaïque animée façon pixels rétro</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">34 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aurore - Boréale -->
+                            <div class="shop-item" data-item-id="aurora" data-item-price="38" data-item-type="fond">
+                                <span class="shop-item-tag tag-boreale">Boréale</span>
+                                <div class="shop-item-icon">🌌</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Aurore</p>
+                                    <p class="shop-item-description">Dégradés mouvants façon aurores boréales</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">38 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Papier froissé - Texture -->
+                            <div class="shop-item" data-item-id="crumpled-paper" data-item-price="26" data-item-type="fond">
+                                <span class="shop-item-tag tag-texture">Texture</span>
+                                <div class="shop-item-icon">📄</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Papier froissé</p>
+                                    <p class="shop-item-description">Texture animée de papier froissé</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">26 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Linéaire - Basique -->
+                            <div class="shop-item" data-item-id="lineaire" data-item-price="28" data-item-type="fond">
+                                <span class="shop-item-tag tag-basique">Basique</span>
+                                <div class="shop-item-icon">📐</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Linéaire</p>
+                                    <p class="shop-item-description">Lignes diagonales qui grossissent puis rétrécissent</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">28 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ondes - Basique -->
+                            <div class="shop-item" data-item-id="ondes" data-item-price="22" data-item-type="fond">
+                                <span class="shop-item-tag tag-basique">Basique</span>
+                                <div class="shop-item-icon">🫧</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Ondes</p>
+                                    <p class="shop-item-description">Cercles qui partent du centre et s'agrandissent</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">22 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Duel - Exotique -->
+                            <div class="shop-item" data-item-id="duel" data-item-price="35" data-item-type="fond">
+                                <span class="shop-item-tag tag-exotique">Exotique</span>
+                                <div class="shop-item-icon">⚔️</div>
+                                <div class="shop-item-info">
+                                    <p class="shop-item-name">Duel</p>
+                                    <p class="shop-item-description">Deux points qui se déplacent et changent de couleur</p>
+                                    <div class="shop-item-footer">
+                                        <span class="shop-item-price">35 pts</span>
+                                        <button class="shop-buy-btn">Acheter</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -377,3 +697,4 @@
         <p id="badge-tooltip-description-moncompte"></p>
     </div>
 </div>
+<!-- Scripts are loaded by index.html (parent page) -->

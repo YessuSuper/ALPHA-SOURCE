@@ -8,6 +8,12 @@ let chatForm;
 let userInput;
 let previewContainer = null;
 
+// 🚨 CACHE CONTEXTE (évite de refetch les 3 JSON à chaque message)
+let _contextCache = { data: null, ts: 0 };
+const CONTEXT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const MAX_FILE_SIZE_MB = 3;
+
 // Contexte réduit pour limiter les tokens envoyés à l'IA
 function summarizeText(text, max = 1200) {
     if (!text || typeof text !== 'string') return '';
@@ -168,12 +174,21 @@ function clearChatSession() {
 
 
 // 🚨 UTILITAIRES FICHIERS
-function fileToBase64(file) {
+function chatFileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onload = () => {
+            const result = reader.result;
+            console.log('[CHAT-FRONT] FileReader result type:', typeof result, 'preview:', String(result).substring(0, 80));
+            if (typeof result === 'string' && result.includes(',')) {
+                resolve(result.split(',')[1]);
+            } else {
+                console.error('[CHAT-FRONT] FileReader result inattendu:', result);
+                resolve(null);
+            }
+        };
         reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
     });
 }
 
@@ -240,9 +255,11 @@ function displayFilePreview(file) {
 async function callGeminiAPI(history, currentMessage) {
     const chatWindow = document.getElementById('chat-window');
 
-    const creativity = document.getElementById('creativity-slider').value;
-    const modeValue = document.getElementById('ai-mode-select').value;
-    const levelValue = document.getElementById('school-level-select').value;
+    // Lire les contrôles visibles (desktop OU mobile)
+    const isMobile = window.innerWidth <= 768;
+    const creativity = document.getElementById(isMobile ? 'creativity-slider-mobile' : 'creativity-slider')?.value || '0.7';
+    const modeValue = document.getElementById(isMobile ? 'ai-mode-select-mobile' : 'ai-mode-select')?.value || 'basique';
+    const levelValue = document.getElementById(isMobile ? 'school-level-select-mobile' : 'school-level-select')?.value || '3eme';
 
     const username = (window.currentUsername || localStorage.getItem('source_username') || "").trim();
     const wantsExtended = /\b(\/extended|extended|contexte complet|context complet|full context|full data)\b/i.test(currentMessage || '');
@@ -253,48 +270,61 @@ async function callGeminiAPI(history, currentMessage) {
     const finalHistory = truncatedHistory;
 
     let base64File = null;
+    let fileMimeType = null;
     if (attachedFile) {
-        base64File = await fileToBase64(attachedFile);
+        // Validation taille fichier avant conversion
+        const fileSizeMB = attachedFile.size / (1024 * 1024);
+        if (fileSizeMB > MAX_FILE_SIZE_MB) {
+            return `Image trop lourde (${fileSizeMB.toFixed(1)}MB). Maximum autorisé : ${MAX_FILE_SIZE_MB}MB. Compresse ton image et réessaie.`;
+        }
+        fileMimeType = attachedFile.type || null;
+        try {
+            base64File = await chatFileToBase64(attachedFile);
+        } catch (e) {
+            console.error('[CHAT-FRONT] Erreur conversion base64:', e);
+            base64File = null;
+        }
     }
 
-    // Paralléliser les 3 fetch BDD pour plus de vitesse
+    // Contexte BDD (avec cache de 5 minutes)
     let evolvingDBContent = "Base de donnée de tendance non disponible ou vide.";
     let fixedDBContent = "Base de donnée fixe (profs/EDT/classement) non disponible.";
     let coursDBContent = "Base de donnée des cours non disponible.";
     let extendedContext = '';
+
+    const now = Date.now();
+    const cacheValid = _contextCache.data && (now - _contextCache.ts < CONTEXT_CACHE_TTL);
     
-    try {
-        const [dbRes, allRes, coursRes] = await Promise.all([
-            fetch('/public/api/bdd.json'),
-            fetch('/api/all.json'),
-            fetch('/api/cours.json')
-        ]);
-        
-        if (dbRes.ok) {
-            const dbData = await dbRes.json();
-            evolvingDBContent = summarizeBdd(dbData);
-            if (wantsExtended) {
-                extendedContext += `\n[BDD évolutive étendue]\n${summarizeText(JSON.stringify(dbData, null, 2), 5000)}`;
-            }
+    if (cacheValid) {
+        evolvingDBContent = _contextCache.data.evolving;
+        fixedDBContent = _contextCache.data.fixed;
+        coursDBContent = _contextCache.data.cours;
+    } else {
+        try {
+            const [dbRes, allRes, coursRes] = await Promise.all([
+                fetch('/public/api/bdd.json'),
+                fetch('/api/all.json'),
+                fetch('/api/cours.json')
+            ]);
+            if (dbRes.ok) { const d = await dbRes.json(); evolvingDBContent = summarizeBdd(d); }
+            if (allRes.ok) { const d = await allRes.json(); fixedDBContent = summarizeAllData(d); }
+            if (coursRes.ok) { const d = await coursRes.json(); coursDBContent = summarizeCours(d); }
+            _contextCache = { data: { evolving: evolvingDBContent, fixed: fixedDBContent, cours: coursDBContent }, ts: Date.now() };
+        } catch (error) {
+            console.warn("Avertissement: Impossible de charger les BDD:", error);
         }
-        
-        if (allRes.ok) {
-            const allData = await allRes.json();
-            fixedDBContent = summarizeAllData(allData);
-            if (wantsExtended) {
-                extendedContext += `\n[BDD fixe étendue]\n${summarizeText(JSON.stringify(allData, null, 2), 5000)}`;
-            }
-        }
-        
-        if (coursRes.ok) {
-            const coursData = await coursRes.json();
-            coursDBContent = summarizeCours(coursData);
-            if (wantsExtended) {
-                extendedContext += `\n[Cours étendus]\n${summarizeText(JSON.stringify(coursData, null, 2), 5000)}`;
-            }
-        }
-    } catch (error) {
-        console.warn("Avertissement: Impossible de charger les BDD:", error);
+    }
+
+    if (wantsExtended) {
+        // Extended force un re-fetch complet
+        try {
+            const [dbRes, allRes, coursRes] = await Promise.all([
+                fetch('/public/api/bdd.json'), fetch('/api/all.json'), fetch('/api/cours.json')
+            ]);
+            if (dbRes.ok) extendedContext += `\n[BDD évolutive étendue]\n${summarizeText(JSON.stringify(await dbRes.json(), null, 2), 5000)}`;
+            if (allRes.ok) extendedContext += `\n[BDD fixe étendue]\n${summarizeText(JSON.stringify(await allRes.json(), null, 2), 5000)}`;
+            if (coursRes.ok) extendedContext += `\n[Cours étendus]\n${summarizeText(JSON.stringify(await coursRes.json(), null, 2), 5000)}`;
+        } catch (e) { console.warn('Extended context fetch failed:', e); }
     }
 
     const extendedBlock = wantsExtended && extendedContext
@@ -322,13 +352,25 @@ ${extendedBlock}
     chatWindow.appendChild(loadingDiv);
     chatWindow.scrollTop = chatWindow.scrollHeight;
 
-    let geminiResponseText = "Erreur inconnue lors de l'appel API 🗿";
+    let geminiResponseText = "";
 
-    const MAX_RETRIES = 20;
+    // Détection offline
+    if (!navigator.onLine) {
+        loadingDiv.remove();
+        return "📡 Tu es hors connexion. Vérifie ton internet et réessaie.";
+    }
+
+    const MAX_RETRIES = 5;
     let attempt = 0;
 
     while (attempt < MAX_RETRIES) {
         try {
+            if (attempt > 0) {
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+                loadingDiv.textContent = `SOURCE réessaie... (${attempt + 1}/${MAX_RETRIES})`;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
             const response = await fetch('/public/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -338,32 +380,42 @@ ${extendedBlock}
                     currentMessage: currentMessage,
                     creativity, modeValue, levelValue,
                     base64File,
-                    mimeType: attachedFile ? attachedFile.type : null,
+                    mimeType: fileMimeType,
                     systemInstruction: finalSystemInstruction
                 }),
             });
 
+            if (response.status === 429) {
+                throw new Error('RATE_LIMIT');
+            }
             if (!response.ok) {
                 const errorBody = await response.text();
-                throw new Error(`Erreur serveur SOURCE: ${response.status} - ${errorBody.substring(0, 50)}`);
+                throw new Error(`HTTP_${response.status}`);
             }
 
             const data = await response.json();
             geminiResponseText = data.response;
 
-            // Ajout des points côté client uniquement (si la fonction est dispo)
             if (data.newIndividualPoints !== undefined && typeof addUserPoints === 'function') {
                 addUserPoints(username, data.newIndividualPoints);
+            }
+            if (typeof data.newIndividualPoints === 'number' && typeof window.__recordPointsTotal === 'function') {
+                try { window.__recordPointsTotal(data.newIndividualPoints, 'chat'); } catch {}
             }
 
             break;
         } catch (error) {
-            console.warn(`Erreur tentative ${attempt + 1}:`, error);
+            console.warn(`[CHAT] Tentative ${attempt + 1}/${MAX_RETRIES}:`, error.message);
             if (attempt >= MAX_RETRIES - 1) {
-                geminiResponseText = `Impossible de contacter le serveur SOURCE après ${MAX_RETRIES} tentatives 🗿`;
+                if (error.message === 'RATE_LIMIT') {
+                    geminiResponseText = "⏳ Trop de requêtes. Attends quelques secondes et réessaie.";
+                } else if (!navigator.onLine) {
+                    geminiResponseText = "📡 Connexion perdue. Vérifie ton internet et réessaie.";
+                } else {
+                    geminiResponseText = "❌ Impossible de joindre SOURCE AI. Vérifie ta connexion ou réessaie dans un instant.";
+                }
                 break;
             }
-            await new Promise(resolve => setTimeout(resolve, 500));
         }
         attempt++;
     }

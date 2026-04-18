@@ -23,20 +23,28 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            console.log("Connexion réussie, gros zinzin !");
+            console.log("Connexion réussie !");
             
             // 🚨 FIX : NOUVEAU IDENTIFIANT SOURCE 🚨
             if (data.user && data.user.username) {
                 localStorage.setItem('source_username', data.user.username);
             }
-            
-            if (data.first_login) {
-                // Redirect to onboarding page
-                window.location.href = '/pages/onboarding.html';
+
+            // Afficher le tutoriel uniquement à la première connexion
+            if (data.user && data.user.connexions === 1) {
+                localStorage.removeItem('alpha_site_tutorial_seen');
             } else {
-                // Redirection vers la page principale du site
-                window.location.href = data.redirect;
+                localStorage.setItem('alpha_site_tutorial_seen', '1');
             }
+
+            // Première connexion → afficher l'onboarding (pfp, anniversaire, mdp)
+            if (data.first_login) {
+                showOnboarding(data.user.username);
+                return;
+            }
+            
+            // Redirection vers la page principale du site
+            window.location.href = data.redirect;
         } else {
             if (data.redirect) {
                 // Stocker les infos du ban si présentes
@@ -49,28 +57,27 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
                 window.location.href = data.redirect;
             } else {
                 // Statut 401 ou succès à false
-                errorMessage.textContent = data.message || "Identifiants incorrects, espèce de gros zinzin.";
+                errorMessage.textContent = data.message || "Identifiants incorrects.";
                 errorMessage.style.display = 'block';
             }
         }
 
     } catch (error) {
         // Erreur de réseau (serveur non lancé, etc.)
-        errorMessage.textContent = "Erreur de réseau. Le serveur n'est peut-être pas lancé. BORDEL.";
+        errorMessage.textContent = "Erreur de réseau. Le serveur n'est peut-être pas lancé.";
         errorMessage.style.display = 'block';
         console.error("Erreur de connexion :", error);
     }
 });
 
-let currentStep=1,guidePages=[],currentGuidePage=0;
+let currentStep=1;
 
 function showOnboarding(u){
     console.log('ONBOARDING START for',u);
     document.getElementById('user-name').textContent=u;
     document.getElementById('login-container').style.display='none';
-    let m=document.getElementById('onboarding-modal');
-    m.style.display='flex';
-    document.getElementById('validate-pic-btn').disabled=false;
+    let m=document.getElementById('onboarding-container');
+    m.style.display='block';
     showStep(1);
 }
 
@@ -92,13 +99,12 @@ function initOnboarding(){
         let f=e.target.files[0];
         if(f){
             let r=new FileReader();
-            r.onload=(e)=>{
-                document.getElementById('profile-preview').src=e.target.result;
+            r.onload=(ev)=>{
+                document.getElementById('profile-preview').src=ev.target.result;
                 document.getElementById('profile-preview').style.display='block';
             };
             r.readAsDataURL(f);
         }
-        document.getElementById('validate-pic-btn').disabled=false;
     };
     
     let vp=document.getElementById('validate-pic-btn');
@@ -109,41 +115,49 @@ function initOnboarding(){
             fd.append('avatar',f);
             fd.append('username',localStorage.getItem('source_username'));
             try{
-                console.log('Upload avatar onboarding - File:', f);
-                console.log('Upload avatar onboarding - Username:', localStorage.getItem('source_username'));
                 let r=await fetch('/public/api/profile/upload-avatar',{method:'POST',body:fd});
-                console.log('Upload response status:', r.status);
                 let d=await r.json();
-                console.log('Upload response data:', d);
                 if(d.success){
-                    console.log('Avatar uploaded successfully');
                     showStep(2);
                 }else{
-                    console.error('Upload failed:', d.message);
-                    await showModal('Erreur upload: ' + (d.message || 'Erreur inconnue'));
+                    alert('Erreur upload: ' + (d.message || 'Erreur inconnue'));
                 }
             }catch(e){
                 console.error('Erreur upload onboarding:', e);
-                await showModal('Erreur réseau lors de l\'upload');
+                alert('Erreur réseau');
             }
         }else showStep(2);
     };
     
-    let bi=document.getElementById('birth-date-input');
-    if(bi)bi.onchange=()=>{
-        document.getElementById('validate-birth-btn').disabled=!bi.value;
+    let sk=document.getElementById('skip-pic-btn');
+    if(sk)sk.onclick=()=>showStep(2);
+    
+    // Remplir les selects jour/mois/année
+    let dayS=document.getElementById('birth-day');
+    let monthS=document.getElementById('birth-month');
+    let yearS=document.getElementById('birth-year');
+    const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    if(dayS){for(let i=1;i<=31;i++){let o=document.createElement('option');o.value=i;o.textContent=i;dayS.appendChild(o);}}
+    if(monthS){months.forEach((m,i)=>{let o=document.createElement('option');o.value=i+1;o.textContent=m;monthS.appendChild(o);});}
+    if(yearS){let cy=new Date().getFullYear();for(let y=cy;y>=cy-100;y--){let o=document.createElement('option');o.value=y;o.textContent=y;yearS.appendChild(o);}}
+    
+    let checkBirth=()=>{
+        let d=dayS&&dayS.value, m=monthS&&monthS.value, y=yearS&&yearS.value;
+        document.getElementById('validate-birth-btn').disabled=!(d&&m&&y);
     };
+    if(dayS)dayS.onchange=checkBirth;
+    if(monthS)monthS.onchange=checkBirth;
+    if(yearS)yearS.onchange=checkBirth;
     
     let vb=document.getElementById('validate-birth-btn');
     if(vb)vb.onclick=async()=>{
-        let bd=document.getElementById('birth-date-input').value;
-        if(bd){
-            try{
-                let r=await fetch('/api/update-birth-date',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:localStorage.getItem('source_username'),birthDate:bd})});
-                let d=await r.json();
-                if(d.success)showStep(3);
-            }catch(e){console.error(e);}
-        }
+        let d=dayS.value.padStart(2,'0'), m=monthS.value.padStart(2,'0'), y=yearS.value;
+        let bd=`${y}-${m}-${d}`;
+        try{
+            let r=await fetch('/api/update-birth-date',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:localStorage.getItem('source_username'),birthDate:bd})});
+            let res=await r.json();
+            if(res.success)showStep(3);
+        }catch(e){console.error(e);}
     };
     
     let chk=()=>{
@@ -163,62 +177,11 @@ function initOnboarding(){
             let r=await fetch('/api/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:localStorage.getItem('source_username'),newPassword:pwd})});
             let d=await r.json();
             if(d.success){
-                await loadGuide();
-                showStep(4);
+                window.location.href='/index.html';
             }
         }catch(e){console.error(e);}
     };
     
-    let prev=document.getElementById('prev-guide-btn');
-    if(prev)prev.onclick=()=>{
-        if(currentGuidePage>0){
-            currentGuidePage--;
-            showGuidePage(currentGuidePage);
-        }
-    };
-    
-    let next=document.getElementById('next-guide-btn');
-    if(next)next.onclick=()=>{
-        if(currentGuidePage<guidePages.length-1){
-            currentGuidePage++;
-            showGuidePage(currentGuidePage);
-        }
-    };
-    
-    let fin=document.getElementById('finish-onboarding-btn');
-    if(fin)fin.onclick=()=>{
-        window.location.href='/index.html';
-    };
-    
-    let cls=document.getElementById('close-modal-btn');
-    if(cls)cls.onclick=()=>{
-        window.location.href='/index.html';
-    };
-}
-
-async function loadGuide(){
-    try{
-        let r=await fetch('/api/guide');
-        let d=await r.json();
-        guidePages=d.pages||[{content:'<p>Bienvenue!</p>'}];
-    }catch(e){
-        guidePages=[{content:'<p>Guide indisponible</p>'}];
-    }
-    showGuidePage(0);
-}
-
-function showGuidePage(i){
-    if(!guidePages||guidePages.length===0)return;
-    let c=document.getElementById('guide-content');
-    if(c)c.innerHTML=guidePages[i].content;
-    let ind=document.getElementById('guide-indicator');
-    if(ind)ind.textContent=`${i+1}/${guidePages.length}`;
-    let pb=document.getElementById('prev-guide-btn');
-    if(pb)pb.disabled=i===0;
-    let nb=document.getElementById('next-guide-btn');
-    if(nb)nb.style.display=i<guidePages.length-1?'inline':'none';
-    let fb=document.getElementById('finish-onboarding-btn');
-    if(fb)fb.style.display=i===guidePages.length-1?'inline':'none';
 }
 
 if(document.readyState==='loading'){

@@ -1,3 +1,12 @@
+#moncompte-layout, .moncompte-header, .moncompte-section, #moncompte-container, .moncompte-item, .moncompte-content, .moncompte-topline, .moncompte-title {
+	position: relative;
+	z-index: 2;
+}
+/* Garantit que le contenu mon compte passe devant le fond pixel-art */
+#moncompte-layout, .moncompte-header, .moncompte-section, #moncompte-container, .moncompte-item, .moncompte-content, .moncompte-topline, .moncompte-title {
+	position: relative;
+	z-index: 1;
+}
 /* ========================================================================= */
 /* --- Styles pour la page Mon Compte --- */
 /* ========================================================================= */
@@ -10,6 +19,15 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+}
+#moncompte-page button:focus-visible,
+#moncompte-page input:focus-visible,
+#moncompte-page select:focus-visible,
+#moncompte-page [role="button"]:focus-visible,
+.modal-overlay .close-modal-btn:focus-visible {
+	outline: 3px solid var(--accent, #8ab4ff);
+	outline-offset: 2px;
+	box-shadow: 0 0 0 2px rgba(8, 12, 26, 0.8);
 }
 
 /* 1. HAUT: Bandeau supérieur avec informations utilisateur */
@@ -26,6 +44,23 @@
 	align-self: center;
 	margin: 0 auto;
 	color: var(--header-text, var(--text, white));
+	position: relative;
+	overflow: hidden;
+}
+
+#user-profile-header::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: var(--header-social-banner, linear-gradient(110deg, #153e75, #009688, #59d6ff));
+	opacity: 0.85;
+	pointer-events: none;
+	z-index: 0;
+}
+
+#user-profile-header > * {
+	position: relative;
+	z-index: 1;
 }
 
 #user-avatar-section {
@@ -107,6 +142,20 @@
 	flex-wrap: wrap;
 }
 
+.user-course-stars-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 6px;
+	opacity: 0.95;
+}
+
+.user-course-stars-value {
+	font-size: 0.95em;
+	color: var(--header-muted, rgba(255, 255, 255, 0.75));
+	text-shadow: var(--header-text-shadow, 0 0 2px rgba(0, 0, 0, 0.95));
+}
+
 .user-badge-icon {
 	width: 22px;
 	height: 22px;
@@ -133,6 +182,168 @@
 	color: var(--header-muted, var(--text-muted, rgba(255, 255, 255, 0.7)));
 	text-shadow: var(--header-text-shadow, 0 0 2px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.65), 0 2px 14px rgba(0, 0, 0, 0.55));
     font-weight: 500;
+}
+#social-profile-panel {
+	background: linear-gradient(160deg, rgba(14, 24, 46, 0.78), rgba(8, 14, 28, 0.78));
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 14px;
+	padding: 16px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+#profile-summary-panel {
+	background: linear-gradient(160deg, rgba(14, 24, 46, 0.82), rgba(8, 14, 28, 0.82));
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 14px;
+	padding: 14px;
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 12px;
+	align-items: center;
+}
+
+#profile-quick-actions {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#profile-summary-banner {
+	height: 66px;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: var(--social-banner-bg, linear-gradient(110deg, #153e75, #009688, #59d6ff));
+	background-size: cover;
+	background-position: center;
+	grid-column: 1 / -1;
+}
+
+#profile-summary-content {
+	min-width: 0;
+}
+
+#profile-summary-badges {
+	margin: 0;
+	min-height: 24px;
+}
+
+#open-profile-editor-btn {
+	width: auto;
+	min-width: 180px;
+	padding: 12px 18px;
+}
+
+/* Compat: si l'ancien panneau est toujours injecte, on le masque */
+#profile-summary-panel {
+	display: none;
+}
+
+#profile-editor-modal .modal-content {
+	max-width: 860px;
+	width: min(860px, 96vw);
+	max-height: 88vh;
+	overflow-y: auto;
+}
+
+.profile-editor-grid {
+	grid-template-columns: repeat(2, minmax(260px, 1fr));
+}
+
+#social-banner-preview {
+	height: 74px;
+	border-radius: 12px;
+	margin-bottom: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: var(--social-banner-bg, linear-gradient(110deg, #153e75, #009688, #59d6ff));
+	background-size: cover;
+	background-position: center;
+}
+
+#social-profile-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(220px, 1fr));
+	gap: 12px;
+	align-items: start;
+}
+
+.social-card {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 10px;
+	padding: 12px;
+	overflow: hidden;
+}
+
+.social-card h3 {
+	margin: 0 0 10px 0;
+	font-size: 1em;
+	letter-spacing: 0.4px;
+	color: #dff0ff;
+}
+
+.social-input-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+/* Vitrine badges: grille stable sur PC pour eviter les debordements visuels */
+#social-badge-showcase + .social-input-row {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+	align-items: stretch;
+}
+
+#social-badge-showcase + .social-input-row #save-social-showcase-btn {
+	grid-column: 1 / -1;
+	width: 100%;
+}
+
+.social-input-row .form-input {
+	margin: 0;
+	padding: 10px;
+	font-size: 0.95em;
+}
+
+.social-badge-showcase {
+	min-height: 42px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
+}
+
+#social-badge-slot-1,
+#social-badge-slot-2,
+#social-badge-slot-3 {
+	min-width: 120px;
+	max-width: 160px;
+}
+
+.social-badge-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 8px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	font-size: 0.9em;
+}
+
+.social-stats {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 6px;
+	font-size: 0.92em;
+	color: rgba(255, 255, 255, 0.94);
+}
+
+.social-stats strong {
+	color: #ffffff;
+	font-size: 1.04em;
 }
 
 /* Badges dans l'en-tête : ajouter aussi un éclat noir */
@@ -251,6 +462,27 @@
         gap: 18px;
     }
 
+	#profile-summary-panel {
+		grid-template-columns: 1fr;
+	}
+
+	#profile-quick-actions {
+		justify-content: stretch;
+	}
+
+	#open-profile-editor-btn {
+		width: 100%;
+	}
+
+	#profile-editor-modal .modal-content {
+		width: 96vw;
+		max-height: 90vh;
+	}
+
+	.profile-editor-grid {
+		grid-template-columns: 1fr;
+	}
+
     #user-profile-header {
         flex-direction: column;
         text-align: center;
@@ -322,7 +554,7 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
-	z-index: 9999999 !important;
+	z-index: 10000 !important;
 	justify-content: center;
 	align-items: center;
 	pointer-events: none;
@@ -453,7 +685,7 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
-	z-index: 9999999 !important;
+	z-index: 10000 !important;
 	justify-content: center;
 	align-items: center;
 	pointer-events: none;
@@ -591,7 +823,7 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
-	z-index: 9999999 !important;
+	z-index: 10000 !important;
 	justify-content: center;
 	align-items: center;
 	pointer-events: none;
@@ -682,6 +914,31 @@
     margin: 0;
 }
 
+/* Progress bar inside badge cards */
+.badge-progress-bar {
+    width: 100%;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.badge-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #71d94c, #3ddc84);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.badge-progress-label {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.55);
+    text-align: center;
+    display: block;
+    margin-top: 2px;
+}
+
 .no-badges-text {
     color: rgba(255, 255, 255, 0.5);
     font-style: italic;
@@ -697,7 +954,7 @@
     border-radius: 8px;
     padding: 12px 16px;
     max-width: 250px;
-    z-index: 10000000;
+    z-index: 50000;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -746,7 +1003,7 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.7);
-	z-index: 9999999 !important;
+	z-index: 10000 !important;
 	justify-content: center;
 	align-items: center;
 	pointer-events: none;
@@ -839,6 +1096,53 @@
 	font-size: 1.2em;
 }
 
+/* Onglets Boutique (Thèmes / Fonds) */
+.shop-tabs {
+	display: flex;
+	gap: 10px;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 12px;
+	padding: 8px;
+	margin-bottom: 18px;
+}
+
+.shop-tab-btn {
+	flex: 1;
+	background: transparent;
+	border: none;
+	border-radius: 10px;
+	padding: 10px 12px;
+	color: rgba(255, 255, 255, 0.85);
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.shop-tab-btn:hover {
+	background: rgba(255, 255, 255, 0.06);
+	transform: translateY(-1px);
+}
+
+.shop-tab-btn:focus-visible {
+	outline: 2px solid rgba(113, 217, 76, 0.6);
+	outline-offset: -2px;
+}
+
+.shop-tab-btn.active {
+	background: linear-gradient(135deg, rgba(113, 217, 76, 0.22), rgba(77, 124, 255, 0.18));
+	color: #ffffff;
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.shop-tab-panel {
+	display: none;
+}
+
+.shop-tab-panel.active {
+	display: block;
+}
+
 /* Sections de la boutique */
 .shop-section {
 	margin-bottom: 30px;
@@ -915,6 +1219,252 @@
 	text-align: center;
 	margin-bottom: 10px;
 	margin-top: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+}
+
+.shop-item-icon svg,
+.inventory-item-icon svg {
+	width: 40px;
+	height: 40px;
+	display: block;
+}
+
+.fond-preview {
+	position: relative;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	background: linear-gradient(145deg, var(--fond-c1), var(--fond-c3));
+	box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.18), inset 0 -1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.fond-layer {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+}
+
+.fond-dot {
+	position: absolute;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	opacity: 0;
+}
+
+.fond-preview-vagues .fond-layer-a,
+.fond-preview-vagues .fond-layer-b,
+.fond-preview-vagues .fond-layer-c,
+.fond-preview-vagues-inversees .fond-layer-a,
+.fond-preview-vagues-inversees .fond-layer-b,
+.fond-preview-vagues-inversees .fond-layer-c {
+	opacity: 1;
+}
+
+.fond-preview-vagues .fond-layer-a {
+	background: radial-gradient(ellipse at 50% 100%, var(--fond-c2) 0 58%, transparent 59%);
+	animation: fpWaveX 3.2s ease-in-out infinite;
+}
+
+.fond-preview-vagues .fond-layer-b {
+	background: radial-gradient(ellipse at 35% 100%, var(--fond-c4) 0 50%, transparent 51%);
+	opacity: 0.65;
+	animation: fpWaveX 2.4s ease-in-out infinite reverse;
+}
+
+.fond-preview-vagues .fond-layer-c {
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 55%);
+}
+
+.fond-preview-vagues-inversees .fond-layer-a {
+	background: radial-gradient(ellipse at 50% 0%, var(--fond-c2) 0 58%, transparent 59%);
+	animation: fpWaveX 3.1s ease-in-out infinite;
+}
+
+.fond-preview-vagues-inversees .fond-layer-b {
+	background: radial-gradient(ellipse at 65% 0%, var(--fond-c4) 0 50%, transparent 51%);
+	opacity: 0.65;
+	animation: fpWaveX 2.2s ease-in-out infinite reverse;
+}
+
+.fond-preview-vagues-inversees .fond-layer-c {
+	background: linear-gradient(0deg, rgba(255, 255, 255, 0.12), transparent 55%);
+}
+
+.fond-preview-lineaire .fond-layer-a,
+.fond-preview-lineaire .fond-layer-b {
+	opacity: 1;
+	background-size: 120% 120%;
+	animation: fpDiagonal 2.8s linear infinite;
+}
+
+.fond-preview-lineaire .fond-layer-a {
+	background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--fond-c2) 6px 9px);
+}
+
+.fond-preview-lineaire .fond-layer-b {
+	background-image: repeating-linear-gradient(135deg, transparent 0 10px, var(--fond-c4) 10px 13px);
+	opacity: 0.6;
+	animation-duration: 3.8s;
+}
+
+.fond-preview-duel .fond-layer-a,
+.fond-preview-duel .fond-dot-a,
+.fond-preview-duel .fond-dot-b {
+	opacity: 1;
+}
+
+.fond-preview-duel .fond-layer-a {
+	background: radial-gradient(circle at center, rgba(255, 255, 255, 0.16), transparent 60%);
+}
+
+.fond-preview-duel .fond-dot-a {
+	background: var(--fond-c2);
+	box-shadow: 0 0 8px var(--fond-c2);
+	animation: fpDuelA 2.2s ease-in-out infinite;
+}
+
+.fond-preview-duel .fond-dot-b {
+	background: var(--fond-c4);
+	box-shadow: 0 0 8px var(--fond-c4);
+	animation: fpDuelB 2.2s ease-in-out infinite;
+}
+
+.fond-preview-ondes .fond-layer-a,
+.fond-preview-ondes .fond-layer-b,
+.fond-preview-ondes .fond-layer-c {
+	opacity: 1;
+	border: 2px solid var(--fond-c2);
+	border-radius: 50%;
+	background: transparent;
+	left: 50%;
+	top: 50%;
+	inset: auto;
+	transform: translate(-50%, -50%) scale(0.1);
+	animation: fpPulse 2.4s ease-out infinite;
+}
+
+.fond-preview-ondes .fond-layer-a { width: 10px; height: 10px; }
+.fond-preview-ondes .fond-layer-b { width: 16px; height: 16px; animation-delay: 0.45s; border-color: var(--fond-c3); }
+.fond-preview-ondes .fond-layer-c { width: 22px; height: 22px; animation-delay: 0.9s; border-color: var(--fond-c4); }
+
+.fond-preview-pixel-art .fond-layer-a,
+.fond-preview-pixel-art .fond-layer-b {
+	opacity: 1;
+	animation: fpPixelStep 1.2s steps(4, end) infinite;
+}
+
+.fond-preview-pixel-art .fond-layer-a {
+	background-image:
+		linear-gradient(90deg, var(--fond-c1) 50%, transparent 50%),
+		linear-gradient(var(--fond-c2) 50%, transparent 50%);
+	background-size: 8px 8px, 8px 8px;
+	background-position: 0 0, 4px 4px;
+}
+
+.fond-preview-pixel-art .fond-layer-b {
+	background-image:
+		linear-gradient(90deg, var(--fond-c3) 50%, transparent 50%),
+		linear-gradient(var(--fond-c4) 50%, transparent 50%);
+	background-size: 8px 8px, 8px 8px;
+	background-position: 2px 2px, 6px 6px;
+	opacity: 0.55;
+	animation-duration: 1.8s;
+}
+
+.fond-preview-aurora .fond-layer-a,
+.fond-preview-aurora .fond-layer-b {
+	opacity: 1;
+	filter: blur(2px) saturate(120%);
+	animation: fpAurora 4.5s ease-in-out infinite;
+}
+
+.fond-preview-aurora .fond-layer-a {
+	background: linear-gradient(120deg, transparent 10%, var(--fond-c2) 35%, var(--fond-c3) 60%, transparent 90%);
+}
+
+.fond-preview-aurora .fond-layer-b {
+	background: linear-gradient(60deg, transparent 8%, var(--fond-c4) 32%, var(--fond-c1) 58%, transparent 88%);
+	opacity: 0.75;
+	animation-direction: reverse;
+	animation-duration: 5.8s;
+}
+
+.fond-preview-crumpled-paper .fond-layer-a,
+.fond-preview-crumpled-paper .fond-layer-b,
+.fond-preview-crumpled-paper .fond-layer-c {
+	opacity: 1;
+}
+
+.fond-preview-crumpled-paper .fond-layer-a {
+	background-image:
+		repeating-linear-gradient(18deg, rgba(255, 255, 255, 0.14) 0 2px, transparent 2px 7px),
+		repeating-linear-gradient(112deg, rgba(0, 0, 0, 0.2) 0 2px, transparent 2px 8px);
+	animation: fpPaper 3.6s ease-in-out infinite;
+}
+
+.fond-preview-crumpled-paper .fond-layer-b {
+	background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.25), transparent 45%);
+	animation: fpPaper 4.6s ease-in-out infinite reverse;
+}
+
+.fond-preview-crumpled-paper .fond-layer-c {
+	background: linear-gradient(145deg, var(--fond-c1), var(--fond-c2));
+	opacity: 0.35;
+}
+
+@keyframes fpWaveX {
+	0% { transform: translateX(-10%) scaleY(1); }
+	50% { transform: translateX(8%) scaleY(1.08); }
+	100% { transform: translateX(-10%) scaleY(1); }
+}
+
+@keyframes fpDiagonal {
+	0% { background-position: 0 0; }
+	100% { background-position: 30px 30px; }
+}
+
+@keyframes fpDuelA {
+	0% { left: 4px; top: 6px; }
+	50% { left: 29px; top: 29px; }
+	100% { left: 4px; top: 6px; }
+}
+
+@keyframes fpDuelB {
+	0% { left: 29px; top: 29px; }
+	50% { left: 4px; top: 6px; }
+	100% { left: 29px; top: 29px; }
+}
+
+@keyframes fpPulse {
+	0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0.8; }
+	85% { opacity: 0.15; }
+	100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+}
+
+@keyframes fpPixelStep {
+	0% { transform: translate(0, 0); }
+	25% { transform: translate(2px, -1px); }
+	50% { transform: translate(-1px, 2px); }
+	75% { transform: translate(1px, 1px); }
+	100% { transform: translate(0, 0); }
+}
+
+@keyframes fpAurora {
+	0% { transform: translateX(-30%) skewX(-8deg); }
+	50% { transform: translateX(18%) skewX(6deg); }
+	100% { transform: translateX(-30%) skewX(-8deg); }
+}
+
+@keyframes fpPaper {
+	0% { transform: translate(0, 0) rotate(0deg); }
+	50% { transform: translate(1px, -1px) rotate(0.8deg); }
+	100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 .shop-item-info {
@@ -929,15 +1479,151 @@
 	font-size: 1em;
 	text-align: center;
 	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
 }
 
 .shop-item-description {
-	color: rgba(255, 255, 255, 0.7);
+	color: rgba(255, 255, 255, 0.9);
 	font-size: 0.85em;
 	text-align: center;
 	margin: 0 0 auto 0;
 	line-height: 1.3;
 	flex-grow: 1;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.shop-item-offer-badge {
+	display: inline-block;
+	font-size: 0.72em;
+	font-weight: 700;
+	padding: 3px 8px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 215, 97, 0.5);
+	background: rgba(255, 184, 0, 0.2);
+	color: #ffd56a;
+	margin: 6px auto 2px auto;
+}
+
+.shop-item-rarity {
+	display: inline-block;
+	font-size: 0.7em;
+	font-weight: 700;
+	padding: 3px 7px;
+	border-radius: 7px;
+	letter-spacing: 0.3px;
+	text-transform: uppercase;
+	margin: 2px auto 6px auto;
+}
+
+.rarity-commun {
+	color: #d9e3ef;
+	border: 1px solid rgba(217, 227, 239, 0.35);
+	background: rgba(217, 227, 239, 0.13);
+}
+
+.rarity-rare {
+	color: #8fc8ff;
+	border: 1px solid rgba(143, 200, 255, 0.4);
+	background: rgba(143, 200, 255, 0.12);
+}
+
+.rarity-epique {
+	color: #c7a6ff;
+	border: 1px solid rgba(199, 166, 255, 0.45);
+	background: rgba(199, 166, 255, 0.12);
+}
+
+.rarity-legendaire {
+	color: #ffc978;
+	border: 1px solid rgba(255, 201, 120, 0.45);
+	background: rgba(255, 201, 120, 0.12);
+}
+
+.rarity-mythique {
+	color: #ff85db;
+	border: 1px solid rgba(255, 133, 219, 0.45);
+	background: rgba(255, 133, 219, 0.12);
+}
+
+.bundle-card {
+	background: linear-gradient(155deg, rgba(16, 22, 42, 0.92), rgba(23, 34, 68, 0.86));
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 12px;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.bundle-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.bundle-title {
+	font-size: 0.95em;
+	font-weight: 700;
+	color: #fff;
+}
+
+.bundle-discount {
+	font-size: 0.75em;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: rgba(76, 175, 80, 0.2);
+	color: #8cff96;
+	border: 1px solid rgba(140, 255, 150, 0.4);
+}
+
+.bundle-desc {
+	font-size: 0.82em;
+	color: rgba(255, 255, 255, 0.86);
+}
+
+.bundle-price-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.bundle-price {
+	font-weight: 700;
+	color: #8cc1ff;
+}
+
+.shop-history {
+	margin-top: 18px;
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+	padding-top: 12px;
+}
+
+.shop-history-title {
+	margin: 0 0 8px 0;
+	font-size: 0.95em;
+	color: rgba(255, 255, 255, 0.95);
+}
+
+.shop-history-list {
+	max-height: 170px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.shop-history-item {
+	font-size: 0.8em;
+	padding: 7px 9px;
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 7px;
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .shop-item-footer {
@@ -977,6 +1663,11 @@
 	transform: scale(1.05);
 }
 
+.shop-buy-btn:focus-visible {
+	outline: 2px solid #5cb85c;
+	outline-offset: 2px;
+}
+
 .shop-buy-btn:active {
 	transform: scale(0.98);
 }
@@ -1002,6 +1693,15 @@
 
 /* Responsive pour la boutique */
 @media (max-width: 768px) {
+	#social-profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.social-input-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
 	.shop-items-grid {
 		gap: 12px;
 	}
@@ -1069,8 +1769,51 @@
 	gap: 25px;
 }
 
+/* Onglets inventaire (Thèmes / Fonds) */
+.inventory-tabs {
+	display: flex;
+	gap: 10px;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 12px;
+	padding: 8px;
+}
+
+.inventory-tab-btn {
+	flex: 1;
+	background: transparent;
+	border: none;
+	border-radius: 10px;
+	padding: 10px 12px;
+	color: rgba(255, 255, 255, 0.85);
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.inventory-tab-btn:hover {
+	background: rgba(255, 255, 255, 0.06);
+	transform: translateY(-1px);
+}
+
+.inventory-tab-btn.active {
+	background: linear-gradient(135deg, rgba(113, 217, 76, 0.22), rgba(77, 124, 255, 0.18));
+	color: #ffffff;
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.inventory-tab-panel {
+	display: none;
+}
+
+.inventory-tab-panel.active {
+	display: block;
+}
+
 #current-skin-display h3,
-#inventory-skins-display h3 {
+#inventory-skins-display h3,
+#current-fond-display h3,
+#inventory-fonds-display h3 {
 	font-size: 1.1em;
 	margin: 0 0 12px 0;
 	color: var(--text);
@@ -1093,6 +1836,9 @@
 .inventory-item-icon {
 	font-size: 1.8em;
 	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .inventory-item-info {

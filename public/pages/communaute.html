@@ -1,7 +1,7 @@
 <div id="community-main-layout">
 
     <aside id="channel-browser-sidebar">
-        
+
         <div id="sidebar-header">
             <div id="user-profile-section">
                 <div class="profile-circle">
@@ -9,7 +9,10 @@
                 </div>
                 <span id="current-user-display-name">bah_tgstp</span>
             </div>
-            <button id="create-discussion-btn" title="Créer un nouveau Groupe ou Sujet">+</button>
+            <div style="display: flex; gap: 5px;">
+                <button id="give-points-btn" title="Donner des points à quelqu'un">&#128176;</button>
+                <button id="create-discussion-btn" title="Créer un nouveau Groupe ou Sujet">&#10133;</button>
+            </div>
         </div>
 
         <div id="create-menu-overlay" style="display: none;">
@@ -18,6 +21,41 @@
                 <div class="menu-item" data-action="newTopic">Nouveau sujet</div>
                 <div class="menu-item" data-action="newFill">Nouveau fill</div>
                 <div class="menu-item" data-action="newMp">Message privé</div>
+            </div>
+        </div>
+
+        <!-- Modal Donner des Points -->
+        <div id="give-points-overlay" style="display: none;">
+            <div id="give-points-panel">
+                <div id="give-points-header">
+                    <h3>Donner des points</h3>
+                    <button id="close-give-points-btn">&times;</button>
+                </div>
+
+                <div id="give-points-body">
+                    <div class="points-balance-card">
+                        <span class="points-label">Vos points actuels</span>
+                        <div id="give-points-current-balance" class="points-value">--</div>
+                    </div>
+
+                    <form id="give-points-form" class="modal-form">
+                        <div class="form-group" style="position: relative;">
+                            <label for="give-points-recipient">Destinataire :</label>
+                            <input type="text" id="give-points-recipient" required autocomplete="off"
+                                placeholder="Chercher un élève...">
+                            <div id="give-points-suggestions" class="suggestions-list" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="give-points-amount">Montant :</label>
+                            <input type="number" id="give-points-amount" required min="1"
+                                placeholder="Montant à donner">
+                        </div>
+
+                        <button type="submit" class="modal-submit-btn" style="width: 100%; margin-top: 10px;">Envoyer
+                            les points</button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -57,15 +95,18 @@
                         <div id="group-step-2" class="group-wizard-step" style="display: none;">
                             <div class="form-group">
                                 <label for="group-members-search">Ajouter des membres (facultatif) :</label>
-                                <input type="text" id="group-members-search" autocomplete="off" placeholder="Rechercher un élève...">
-                                <div id="group-members-suggestions" class="suggestions-list" style="display: none;"></div>
+                                <input type="text" id="group-members-search" autocomplete="off"
+                                    placeholder="Rechercher un élève...">
+                                <div id="group-members-suggestions" class="suggestions-list" style="display: none;">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <div id="group-members-list" class="group-members-list"></div>
                             </div>
                             <div class="group-wizard-actions">
                                 <button type="button" id="group-back-btn" class="modal-secondary-btn">Retour</button>
-                                <button type="submit" id="group-create-btn" class="modal-submit-btn">Créer le groupe</button>
+                                <button type="submit" id="group-create-btn" class="modal-submit-btn">Créer le
+                                    groupe</button>
                             </div>
                         </div>
                     </form>
@@ -98,7 +139,8 @@
                             </div>
                             <div class="group-wizard-actions">
                                 <button type="button" id="topic-back-btn" class="modal-secondary-btn">Retour</button>
-                                <button type="button" id="topic-next-btn-2" class="modal-submit-btn">Étape suivante</button>
+                                <button type="button" id="topic-next-btn-2" class="modal-submit-btn">Étape
+                                    suivante</button>
                             </div>
                         </div>
 
@@ -133,7 +175,8 @@
                         </div>
                         <div class="form-group">
                             <label for="fill-members-search">Ajouter des membres (facultatif) :</label>
-                            <input type="text" id="fill-members-search" autocomplete="off" placeholder="Rechercher un élève...">
+                            <input type="text" id="fill-members-search" autocomplete="off"
+                                placeholder="Rechercher un élève...">
                             <div id="fill-members-suggestions" class="suggestions-list" style="display: none;"></div>
                         </div>
                         <div class="form-group">
@@ -155,18 +198,18 @@
             </div>
         </div>
 
-            <ul id="channel-list" class="discussion-list">
-                <!-- Les discussions seront chargées dynamiquement depuis global.json -->
-            </ul>
+        <ul id="channel-list" class="discussion-list">
+            <!-- Les discussions seront chargées dynamiquement depuis global.json -->
+        </ul>
     </aside>
-    
+
     <div id="active-chat-column">
         <h2 class="page-title">
-            <button type="button" id="chat-title-pill" class="chat-title-pill" disabled>
-                <span id="chat-title"># Joan Calixte Alex (Romains)</span>
+            <button type="button" id="chat-title-pill" class="chat-title-pill">
+                # Joan Calixte Alex (Romains)
             </button>
         </h2>
-        
+
         <div id="messages-container" class="message-box-style">
             <p class="placeholder-message">Sélectionnez une discussion pour commencer...</p>
         </div>
@@ -184,14 +227,13 @@
             <div id="reply-preview-area" style="display: none;"></div>
 
             <div id="message-input-area">
-                <textarea id="community-message-input"
-                                placeholder=""
-                                rows="1"></textarea>
-                
+                <textarea id="community-message-input" placeholder="" rows="1"></textarea>
+
                 <button type="button" id="community-file-button" class="file-button">
                     <img src="/ressources/details/dossiericon.png" alt="📁" style="width: 20px; height: 20px;">
                 </button>
-                <input type="file" id="community-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar" style="display: none;">
+                <input type="file" id="community-file-input" accept="image/*,video/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                    style="display: none;">
 
                 <button id="send-community-message-btn">➤</button>
             </div>
@@ -207,10 +249,17 @@
             <button type="button" class="close-modal-btn" id="close-user-profile-btn">&times;</button>
         </div>
         <div class="modal-body">
+            <div id="profile-modal-banner" class="profile-modal-banner"></div>
             <div class="user-profile-info">
-                <img src="/ressources/user-icon.png" alt="Photo de profil" id="profile-modal-avatar" class="profile-modal-avatar">
+                <img src="/ressources/user-icon.png" alt="Photo de profil" id="profile-modal-avatar"
+                    class="profile-modal-avatar">
                 <h3 id="profile-modal-username">Username</h3>
+                <div id="profile-modal-stars" class="profile-modal-stars" aria-label="Note moyenne des cours"></div>
                 <p id="profile-modal-birthdate" class="profile-detail">Date de naissance : --/--/----</p>
+            </div>
+            <div class="profile-badges-section">
+                <h4>Vitrine</h4>
+                <div id="profile-showcase-badges" class="badges-display"></div>
             </div>
             <div class="profile-badges-section">
                 <h4 id="profile-current-badges-title">Badges actuels</h4>
@@ -238,16 +287,24 @@
 
 <!-- Menu contextuel message -->
 <div id="message-context-menu" class="message-context-menu" style="display: none;">
+    <div class="context-menu-reactions">
+        <button class="context-reaction-btn" data-emoji="👍">👍</button>
+        <button class="context-reaction-btn" data-emoji="❤️">❤️</button>
+        <button class="context-reaction-btn" data-emoji="😂">😂</button>
+        <button class="context-reaction-btn" data-emoji="😮">😮</button>
+        <button class="context-reaction-btn" data-emoji="😢">😢</button>
+        <button class="context-reaction-btn" data-emoji="🔥">🔥</button>
+    </div>
     <div class="context-menu-item" data-action="reply">
-        <span class="context-menu-icon"></span>
+        <span class="context-menu-icon">&#8617;</span>
         <span>Répondre</span>
     </div>
     <div class="context-menu-item" data-action="report">
-        <span class="context-menu-icon"></span>
+        <span class="context-menu-icon">&#9888;</span>
         <span>Signaler</span>
     </div>
     <div class="context-menu-item" data-action="copy">
-        <span class="context-menu-icon"></span>
+        <span class="context-menu-icon">&#128203;</span>
         <span>Copier</span>
     </div>
 </div>
@@ -271,21 +328,25 @@
 
         <div class="group-details-body">
             <div class="group-details-top">
-                <img id="group-details-photo" class="group-details-photo" src="/ressources/communaute/grpicon.png" alt="Photo du groupe">
-                <button type="button" id="group-details-change-photo-btn" class="modal-secondary-btn">Changer l'icône</button>
+                <img id="group-details-photo" class="group-details-photo" src="/ressources/communaute/grpicon.png"
+                    alt="Photo du groupe">
+                <button type="button" id="group-details-change-photo-btn" class="modal-secondary-btn">Changer
+                    l'icône</button>
                 <input type="file" id="group-details-photo-input" accept="image/*" style="display:none;">
             </div>
 
             <div class="form-group">
                 <label for="group-details-name">Nom du groupe :</label>
                 <input type="text" id="group-details-name">
-                <button type="button" id="group-details-save-name" class="modal-submit-btn" style="display: none;">Enregistrer le nom</button>
+                <button type="button" id="group-details-save-name" class="modal-submit-btn"
+                    style="display: none;">Enregistrer le nom</button>
             </div>
 
             <div class="form-group">
                 <label for="group-details-description">Description :</label>
                 <textarea id="group-details-description" rows="4"></textarea>
-                <button type="button" id="group-details-save-description" class="modal-submit-btn">Enregistrer la description</button>
+                <button type="button" id="group-details-save-description" class="modal-submit-btn">Enregistrer la
+                    description</button>
             </div>
 
             <div class="form-group">
@@ -310,7 +371,8 @@
                 </div>
             </div>
 
-            <button type="button" id="group-details-delete-btn" class="modal-submit-btn" style="display: none;">Supprimer</button>
+            <button type="button" id="group-details-delete-btn" class="modal-submit-btn"
+                style="display: none;">Supprimer</button>
         </div>
     </div>
 </div>
@@ -354,8 +416,10 @@
                 <div id="fill-details-members" class="group-details-members"></div>
             </div>
 
-            <button type="button" id="fill-details-request-btn" class="modal-submit-btn" style="display: none;">Demander à rejoindre</button>
-            <button type="button" id="fill-details-leave-btn" class="modal-secondary-btn" style="display: none;">Quitter le fill</button>
+            <button type="button" id="fill-details-request-btn" class="modal-submit-btn" style="display: none;">Demander
+                à rejoindre</button>
+            <button type="button" id="fill-details-leave-btn" class="modal-secondary-btn" style="display: none;">Quitter
+                le fill</button>
 
             <div id="fill-admin-transfer" class="admin-transfer" style="display: none;">
                 <div class="form-group">
@@ -368,7 +432,8 @@
                 </div>
             </div>
 
-            <button type="button" id="fill-details-delete-btn" class="modal-submit-btn" style="display: none;">Supprimer</button>
+            <button type="button" id="fill-details-delete-btn" class="modal-submit-btn"
+                style="display: none;">Supprimer</button>
         </div>
     </div>
 </div>

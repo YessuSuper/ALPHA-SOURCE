@@ -7,8 +7,8 @@ const readline = require('readline');
 const EcoleDirecteAPI = require('./ecoledirecte-api');
 
 const CREDENTIALS = {
-  identifiant: 'even.henri',
-  motdepasse: 'Superpitchu_8'
+  identifiant: process.env.ED_USERNAME || '',
+  motdepasse: process.env.ED_PASSWORD || ''
 };
 
 // Interface pour lire l'entrée utilisateur

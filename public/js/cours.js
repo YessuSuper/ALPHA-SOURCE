@@ -22,6 +22,11 @@ console.log('document.readyState =', document.readyState);
 
 	let coursesData = [];
 	let filteredCourses = []; // 🚨 C'EST CE TABLEAU QUI SERA AFFICHÉ 🚨
+	let starVoteModal = null;
+	let starVoteStars = null;
+	let starVoteRating = null;
+	let starVoteCount = null;
+	let selectedStarCourseId = null;
 
 	// ----- Helpers -----
 	const safeJson = async (response) => {
@@ -63,11 +68,111 @@ console.log('document.readyState =', document.readyState);
 		deleteTimerTimeout = null;
 	};
 
+	function roundedQuarter(value) {
+		return Math.max(0, Math.min(5, Math.round(value * 4) / 4));
+	}
+
+	function computeStarsFromCourse(course) {
+		const totalVotes = Number(course.votes_total || 0);
+		if (course && (course.hide_stars === true || course.stars === null)) {
+			return { stars: 0, totalVotes: Number(course.votes_total || 0), hidden: true };
+		}
+		if (totalVotes > 0 && typeof course.stars === 'number') {
+			return { stars: roundedQuarter(course.stars), totalVotes, hidden: false };
+		}
+		if (!totalVotes) return { stars: 0, totalVotes: 0, hidden: false };
+		const scoreSum = Number(course.score_sum || 0);
+		const avg = scoreSum / totalVotes; // avg in [-1,1]
+		const mapped = ((avg + 1) / 2) * 5; // map to [0,5]
+		return { stars: roundedQuarter(mapped), totalVotes, hidden: false };
+	}
+
+	let starMaskUid = 0;
+	function renderQuarterStarsHtml(rating, variant) {
+		const clamped = Math.max(0, Math.min(5, Number(rating) || 0));
+		const totalQuarters = Math.round(clamped * 4);
+		const klass = variant === 'badge' ? 'sstars sstars--badge' : 'sstars sstars--modal';
+		const fillRank = { tl: 1, bl: 2, br: 3, tr: 4 }; // TL=0.25, BL=0.50, BR=0.75, TR=1.0
+		const stars = [];
+
+		// Chemin étoile (5 branches) dans un viewBox 24x24
+		const starPath = 'M12 2.1l2.93 6.4 6.92.6-5.24 4.54 1.56 6.76L12 16.98 5.83 20.4l1.56-6.76L2.15 9.1l6.92-.6L12 2.1z';
+
+		for (let starIndex = 0; starIndex < 5; starIndex++) {
+			const uid = ++starMaskUid;
+			const maskId = `star-mask-${variant}-${uid}`;
+			const starQuarters = Math.max(0, Math.min(4, totalQuarters - starIndex * 4));
+
+			const rect = (pos, x, y) => {
+				const filled = starQuarters >= fillRank[pos];
+				return `<rect class="sstar-q ${filled ? 'filled' : ''} sstar-q--${pos}" x="${x}" y="${y}" width="12" height="12" />`;
+			};
+
+			stars.push(
+				`<span class="sstar" aria-hidden="true">
+					<svg class="sstar-svg" viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+						<defs>
+							<mask id="${maskId}">
+								<rect x="0" y="0" width="24" height="24" fill="black" />
+								<path d="${starPath}" fill="white" />
+							</mask>
+						</defs>
+						<path class="sstar-bg" d="${starPath}" />
+						<g mask="url(#${maskId})">
+							${rect('tl', 0, 0)}
+							${rect('tr', 12, 0)}
+							${rect('bl', 0, 12)}
+							${rect('br', 12, 12)}
+						</g>
+						<path class="sstar-outline" d="${starPath}" />
+					</svg>
+				</span>`
+			);
+		}
+		return `<span class="${klass}" aria-label="Note ${clamped.toFixed(2)} sur 5">${stars.join('')}</span>`;
+	}
+
+	function renderStars(container, rating) {
+		if (!container) return;
+		container.innerHTML = renderQuarterStarsHtml(rating, 'modal');
+	}
+
+	let modalJustOpened = false;
+	function closeStarVoteModal() {
+		if (!starVoteModal) return;
+		starVoteModal.classList.remove('active');
+	}
+
+	function openStarVoteModal(course) {
+		if (!course) return;
+		setupStarVoteModal();
+		if (!starVoteModal) return;
+		console.log('Open star modal for course', course.id);
+		selectedStarCourseId = course.id;
+		const { stars, totalVotes, hidden } = computeStarsFromCourse(course);
+		renderStars(starVoteStars, stars);
+		if (starVoteRating) starVoteRating.textContent = hidden ? '—' : (stars ? stars.toFixed(2) : '—');
+		if (starVoteCount) starVoteCount.textContent = totalVotes;
+
+		const username = localStorage.getItem('source_username') || '';
+		const canVote = Boolean(course.can_vote) || (Boolean(username) && !course.has_voted && String(course.uploaderName || '').toLowerCase() !== String(username).toLowerCase());
+		const voteButtons = starVoteModal.querySelectorAll('.vote-btn');
+		voteButtons.forEach(btn => {
+			btn.disabled = !canVote;
+			btn.setAttribute('aria-disabled', String(!canVote));
+		});
+		starVoteModal.classList.add('active');
+		modalJustOpened = true;
+		setTimeout(() => { modalJustOpened = false; }, 120);
+	}
+
 	// ----- Création d’une carte cours -----
 	function createCourseCard(course) {
 		const card = document.createElement('div');
 		card.classList.add('course-file-card');
 		card.dataset.id = course.id;
+
+		const { stars, totalVotes, hidden } = computeStarsFromCourse(course);
 
 		const fileUrl = course.filePath || course.filepath || course.file || '';
 		const extension = getExtensionFromUrl(fileUrl);
@@ -96,6 +201,22 @@ console.log('document.readyState =', document.readyState);
 		}
 
 		card.appendChild(previewArea);
+
+		// Badge étoiles (en haut à droite)
+		const starBadge = document.createElement('button');
+		starBadge.type = 'button';
+		starBadge.className = 'course-star-badge';
+		starBadge.innerHTML = `
+			<div class="star-badge-stars">${renderQuarterStarsHtml(stars || 0, 'badge')}</div>
+			<span class="star-badge-value">${hidden ? '—' : (totalVotes ? stars.toFixed(2) : '—')}</span>
+		`;
+		starBadge.addEventListener('click', (e) => {
+			e.stopPropagation();
+			e.preventDefault();
+			openStarVoteModal(course);
+			console.log('Star badge clicked', course.id);
+		});
+		card.appendChild(starBadge);
 
 		// --- Overlay avec Titre/Matière + Actions ---
 		const infoOverlay = document.createElement('div');
@@ -180,7 +301,8 @@ console.log('document.readyState =', document.readyState);
 	// ----- Fetch des cours -----
 	async function fetchCoursesAndDisplay() {
 		try {
-			const url = `/public/api/course/list`; 
+			const username = localStorage.getItem('source_username') || '';
+			const url = `/public/api/course/list?username=${encodeURIComponent(username)}`;
 			const response = await fetch(url, { headers: { 'Accept': 'application/json' }});
 			
 			const data = response.ok ? await safeJson(response) : { courses: [] };
@@ -205,10 +327,12 @@ console.log('document.readyState =', document.readyState);
 
 		// Formatage de la date
 		let dateStr = 'Date inconnue';
+		let relDateStr = dateStr;
 		if (course.uploadedAt) {
 			try {
 				const date = new Date(course.uploadedAt);
 				dateStr = date.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+				relDateStr = typeof window.timeAgo === 'function' ? window.timeAgo(date) : dateStr;
 			} catch (e) { console.error(e); }
 		}
 
@@ -216,7 +340,7 @@ console.log('document.readyState =', document.readyState);
 			<div class="course-detail-item"><strong>Matière:</strong> <span>${escapeHtml(course.subject || '—')}</span></div>
 			<div class="course-detail-item"><strong>Description:</strong> <p>${escapeHtml(course.description || 'Aucune description')}</p></div>
 			<div class="course-detail-item"><strong>Ajouté par:</strong> <span>${escapeHtml(course.uploaderName || 'Anonyme')}</span></div>
-			<div class="course-detail-item"><strong>Date d'ajout:</strong> <span>${escapeHtml(dateStr)}</span></div>
+			<div class="course-detail-item"><strong>Date d'ajout:</strong> <span class="relative-time" title="${escapeHtml(dateStr)}">${escapeHtml(relDateStr)}</span></div>
 			
 			<div class="course-detail-actions" style="margin-top: 20px; text-align: center;">
 				<a href="${escapeHtmlAttr(fileUrl)}" target="_blank" rel="noopener" class="modal-download-btn">
@@ -366,6 +490,80 @@ console.log('document.readyState =', document.readyState);
 		}, { passive: true });
 	}
 
+	async function sendStarVote(value) {
+		if (!selectedStarCourseId) return;
+		try {
+			const username = localStorage.getItem('source_username') || '';
+			const res = await fetch('/public/api/course/vote', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ courseId: selectedStarCourseId, vote: value, username })
+			});
+			const data = await safeJson(res) || {};
+			if (!data.success) throw new Error(data.message || 'Vote refusé');
+
+			// Notif points (discret, haut de l'écran)
+			if (typeof data.pointsAwarded === 'number') {
+				try {
+					if (typeof window.__applyPointsDelta === 'function') window.__applyPointsDelta(data.pointsAwarded, 'vote');
+					else if (typeof window.showPointsToast === 'function') window.showPointsToast(data.pointsAwarded);
+				} catch {}
+			}
+
+			const updated = data.course;
+			coursesData = coursesData.map(c => c.id === updated.id ? updated : c);
+			filteredCourses = filteredCourses.map(c => c.id === updated.id ? updated : c);
+			applyFilters();
+			openStarVoteModal(updated);
+		} catch (e) {
+			console.error('Vote étoile échoué:', e);
+			showModal(`Erreur vote: ${e.message || e}`);
+		}
+	}
+
+	function setupStarVoteModal() {
+		if (starVoteModal && starVoteModal.dataset.bound === 'true') return;
+
+		starVoteModal = document.getElementById('star-vote-modal');
+		starVoteStars = document.getElementById('vote-modal-stars');
+		starVoteRating = document.getElementById('vote-modal-rating');
+		starVoteCount = document.getElementById('vote-modal-count');
+		if (!starVoteModal) return;
+
+		// Close button
+		const closeBtn = document.getElementById('close-star-vote-btn');
+		if (closeBtn && closeBtn.dataset.bound !== 'true') {
+			closeBtn.dataset.bound = 'true';
+			closeBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				closeStarVoteModal();
+			});
+		}
+
+		// Click outside modal-content closes
+		starVoteModal.addEventListener('click', (e) => {
+			if (modalJustOpened) return;
+			if (e.target === starVoteModal) closeStarVoteModal();
+		});
+
+		// Stop propagation inside content
+		const modalContent = starVoteModal.querySelector('.star-vote-content');
+		if (modalContent) {
+			modalContent.addEventListener('click', (e) => e.stopPropagation());
+			// Vote buttons (delegation)
+			modalContent.addEventListener('click', (e) => {
+				const btn = e.target.closest('.vote-btn');
+				if (!btn) return;
+				const val = Number(btn.dataset.value);
+				if (isNaN(val)) return;
+				sendStarVote(val);
+			});
+		}
+
+		starVoteModal.dataset.bound = 'true';
+	}
+
 	// ----- Delete temporaire -----
 	function setupTemporaryDeleteButton(courseId, initialDurationSeconds) {
 		cleanupDeleteButton();
@@ -434,6 +632,7 @@ console.log('document.readyState =', document.readyState);
 		detailsModal = document.getElementById('details-modal');
 		detailsContent = document.getElementById('details-content');
 		detailsTitle = document.getElementById('details-title');
+		setupStarVoteModal();
 
 		setupModalListeners();
 
@@ -523,7 +722,7 @@ console.log('document.readyState =', document.readyState);
 		}
 	});
 
-	document.addEventListener('DOMContentLoaded', initCoursePage);
+	// initCoursePage est appelé par renderPage via window.__CourseModuleInit
 
 	// ----- Expose pour debug -----
 	window.__CourseModule = { fetchCoursesAndDisplay, displayCourses, applyFilters };

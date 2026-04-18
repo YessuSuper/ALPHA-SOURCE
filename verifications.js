@@ -1,11 +1,9 @@
-// verifications.js - Vérifications périodiques pour le système de points
+﻿// verifications.js - Vérifications périodiques pour le système de points
 const fs = require('fs');
 const path = require('path');
 const { checkAndApplyMessageRewards, checkAndApplyRankingRewards, checkInactiveUsers, checkFillActivity, recalculateBadges } = require('./js/points.js');
-// const { log, logToFile } = require('./logger.js');
-
-// Chemins des fichiers
-const USERS_PATH = path.join(__dirname, 'public', 'api', 'users.json');
+const { log, logToFile } = require('./logger.js');
+const { readUsers, writeUsers } = require('./routes/shared');
 
 // Variable pour suivre le dernier enregistrement de graphique
 let lastGraphUpdate = null;
@@ -16,25 +14,24 @@ function recordDailyPoints() {
         const now = new Date();
         const today = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
         
-        // Vérifier si on a déjà enregistré aujourd'hui
+        // VÃ©rifier si on a dÃ©jÃ  enregistrÃ© aujourd'hui
         if (lastGraphUpdate === today) {
-            return; // Déjà fait aujourd'hui
+            return; // DÃ©jÃ  fait aujourd'hui
         }
         
         console.log(`[GRAPH] Enregistrement des points du jour : ${today}`);
         
-        // Lire users.json
-        const rawData = fs.readFileSync(USERS_PATH, 'utf8') || '[]';
-        const users = JSON.parse(rawData);
+        // Lire users depuis SQL
+        const users = readUsers();
         let updated = false;
         
         users.forEach(user => {
-            // Initialiser graph_pt si nécessaire
+            // Initialiser graph_pt si nÃ©cessaire
             if (!Array.isArray(user.graph_pt)) {
                 user.graph_pt = [];
             }
             
-            // Vérifier si on a déjà un enregistrement pour aujourd'hui
+            // VÃ©rifier si on a dÃ©jÃ  un enregistrement pour aujourd'hui
             const existingEntry = user.graph_pt.find(entry => entry.date === today);
             
             if (!existingEntry) {
@@ -44,15 +41,15 @@ function recordDailyPoints() {
                     points: user.pt || 0
                 });
                 updated = true;
-                console.log(`[GRAPH] ${user.username}: ${user.pt || 0} points enregistrés`);
+                console.log(`[GRAPH] ${user.username}: ${user.pt || 0} points enregistrÃ©s`);
             }
         });
         
         // Sauvegarder si modifié
         if (updated) {
-            fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2), 'utf8');
+            writeUsers(users);
             lastGraphUpdate = today;
-            console.log(`[GRAPH] Enregistrement terminé pour ${today}`);
+            console.log(`[GRAPH] Enregistrement terminÃ© pour ${today}`);
         }
         
     } catch (e) {
@@ -60,33 +57,33 @@ function recordDailyPoints() {
     }
 }
 
-// Fonction principale de vérifications
+// Fonction principale de vÃ©rifications
 function startVerifications() {
-    console.log("[VERIFICATIONS] Démarrage du service de vérifications de points...");
+    log('info', 'Démarrage du service de vérifications de points...', 'verifications');
 
-    // Enregistrer les points immédiatement au démarrage
+    // Enregistrer les points immÃ©diatement au dÃ©marrage
     recordDailyPoints();
     
-    // Vérifications immédiates au démarrage
+    // VÃ©rifications immÃ©diates au dÃ©marrage
     performVerifications();
 
-    // Vérifications toutes les 5 secondes
+    // VÃ©rifications toutes les 5 minutes
     setInterval(() => {
-        console.log("[VERIFICATIONS] Vérifications périodiques en cours...");
+        console.log("[VERIFICATIONS] VÃ©rifications pÃ©riodiques en cours...");
         performVerifications();
         
-        // Enregistrer les points du jour (sera ignoré si déjà fait aujourd'hui)
+        // Enregistrer les points du jour (sera ignorÃ© si dÃ©jÃ  fait aujourd'hui)
         recordDailyPoints();
-    }, 5000); // 5 secondes
+    }, 300000); // 5 minutes
 
     // Garder le processus en vie
     process.on('SIGINT', () => {
-        console.log("[VERIFICATIONS] Arrêt du service de vérifications...");
+        console.log("[VERIFICATIONS] ArrÃªt du service de vÃ©rifications...");
         process.exit(0);
     });
 }
 
-// Fonction qui effectue toutes les vérifications
+// Fonction qui effectue toutes les vÃ©rifications
 function performVerifications() {
     try {
         checkAndApplyMessageRewards();
@@ -95,9 +92,10 @@ function performVerifications() {
         checkFillActivity();
         recalculateBadges();
     } catch (e) {
-        console.error("[VERIFICATIONS] Erreur lors des vérifications :", e);
+        console.error('[VERIFICATIONS] Erreur lors des vérifications :', e);
+        logToFile('error', `Erreur vérifications : ${e.message}`, 'verifications');
     }
 }
 
-// Démarrer les vérifications
+// DÃ©marrer les vÃ©rifications
 startVerifications();

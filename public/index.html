@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Alpha Source</title> 
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/css/chat.css"> 
@@ -20,63 +20,46 @@
     <link rel="icon" href="/ressources/icon.png">
 </head>
 <body>
-    <div class="waves">
-        <svg class="wave-layer" viewBox="0 24 150 28" preserveAspectRatio="none">
-            <defs>
-                <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18v44h-352z" />
-            </defs>
-            <g class="wave-group">
-                <use class="wave-1" xlink:href="#wave" x="0" y="-1" />
-                <use class="wave-2" xlink:href="#wave" x="0" y="0" />
-                <use class="wave-3" xlink:href="#wave" x="0" y="1" />
-                <use class="wave-4" xlink:href="#wave" x="0" y="2" />
-            </g>
-            <g class="wave-group-back">
-                <use class="wave-5" xlink:href="#wave" x="0" y="-1" />
-                <use class="wave-6" xlink:href="#wave" x="0" y="0" />
-                <use class="wave-7" xlink:href="#wave" x="0" y="1" />
-                <use class="wave-8" xlink:href="#wave" x="0" y="2" />
-            </g>
-        </svg>
-    </div>
 
-    <div id="main-content-wrapper">
+        <!-- Fond animé dynamique -->
+        <div id="dynamic-bg-root">
+            <!-- Le canvas pixel-art sera ajouté ici dynamiquement -->
+            <div class="community-blur-bg"></div>
+        </div>
+    <div class="waves" id="waves-bg">
+        <svg class="wave-layer" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="wave" d="M-352 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 58-18 88-18 58 18 88 18 58-18 88-18 58 18 88 18v44h-704z" />
+            </defs>
+            <g class="wave-group">
+                <use class="wave-1" xlink:href="#wave" x="0" y="-1" />
+                <use class="wave-2" xlink:href="#wave" x="0" y="0" />
+                <use class="wave-3" xlink:href="#wave" x="0" y="1" />
+                <use class="wave-4" xlink:href="#wave" x="0" y="2" />
+            </g>
+            <g class="wave-group-back">
+                <use class="wave-5" xlink:href="#wave" x="0" y="-1" />
+                <use class="wave-6" xlink:href="#wave" x="0" y="0" />
+                <use class="wave-7" xlink:href="#wave" x="0" y="1" />
+                <use class="wave-8" xlink:href="#wave" x="0" y="2" />
+            </g>
+        </svg>
+    </div>
 
-        <!-- Header mobile avec navigation horizontale -->
-        <div id="mobile-header">
-            <button id="mobile-hamburger-btn" class="mobile-hamburger-btn">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
-            <h1 id="mobile-header-title">ALPHA SOURCE</h1>
-            <nav id="mobile-nav">
-                <a href="#" class="mobile-nav-link" data-page="accueil">
-                    <img src="/ressources/homemenuicon.png" alt="Accueil" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="home">
-                    <img src="/ressources/kiraaimenuicon.png" alt="Chat" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="cours">
-                    <img src="/ressources/coursmenuicon.png" alt="Cours" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="communaute">
-                    <img src="/ressources/communautemenuicon.png" alt="Communauté" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="messagerie">
-                    <img src="/ressources/messageriemenuicon.png" alt="Messages" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="cartable">
-                    <img src="/ressources/cartablemenuicon.png" alt="Cartable" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="info">
-                    <img src="/ressources/infomenuicon.png" alt="Info" class="mobile-nav-icon">
-                </a>
-                <a href="#" class="mobile-nav-link" data-page="moncompte">
-                    <img src="/ressources/comptemenuicon.png" alt="Mon Compte" class="mobile-nav-icon">
-                </a>
-            </nav>
-        </div>
+        <!-- Header mobile HORS du wrapper pour position:fixed correct -->
+    <div id="mobile-header" style="align-items:center;justify-content:center;padding:0;position:fixed;top:0;left:0;right:0;width:100%;box-sizing:border-box;z-index:1500">
+        <nav id="mobile-nav" style="display:flex;width:100%;justify-content:space-evenly;align-items:center;gap:0;flex:1;padding:0;margin:0;box-sizing:border-box" aria-label="Navigation principale">
+            <a href="#" class="mobile-nav-link" data-page="accueil" aria-label="Accueil" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/homemenuicon.png" alt="Accueil" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="home" aria-label="SOURCE AI" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/kiraaimenuicon.png" alt="Chat" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="cours" aria-label="Mes Cours" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/coursmenuicon.png" alt="Cours" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="communaute" aria-label="Communaut&eacute;" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/communautemenuicon.png" alt="Communaut&#233;" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="messagerie" aria-label="Messagerie" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/messageriemenuicon.png" alt="Messages" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="cartable" aria-label="Cartable" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/cartablemenuicon.png" alt="Cartable" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="info" aria-label="Info" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/infomenuicon.png" alt="Info" class="mobile-nav-icon"></a>
+            <a href="#" class="mobile-nav-link" data-page="moncompte" aria-label="Mon Compte" style="flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;height:40px;padding:6px"><img src="/ressources/comptemenuicon.png" alt="Mon Compte" class="mobile-nav-icon"></a>
+        </nav>
+    </div>
+    <div id="main-content-wrapper">
 
         <div id="sidebar">
             <div id="sidebar-header">
@@ -164,6 +147,31 @@
         </div>
     </div>
 
+        <div id="star-vote-modal" class="modal-overlay">
+            <div class="modal-content star-vote-content">
+                <div class="modal-header">
+                    <h2>Noter ce cours</h2>
+                    <button id="close-star-vote-btn" class="close-modal-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="star-vote-display">
+                        <div class="current-stars-display">
+                            <div class="stars-container" id="vote-modal-stars"></div>
+                            <span id="vote-modal-rating">0.0</span>/5
+                        </div>
+                        <div class="vote-count-display">
+                            <span id="vote-modal-count">0</span> vote(s)
+                        </div>
+                    </div>
+                    <div class="vote-buttons-container">
+                        <button class="vote-btn vote-good" data-value="1">Bon</button>
+                        <button class="vote-btn vote-medium" data-value="0.5">Moyen</button>
+                        <button class="vote-btn vote-bad" data-value="-1">Mauvais</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- Custom Modal Structure -->
     <div id="custom-modal-overlay">
         <div id="custom-modal">
@@ -180,7 +188,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/badge-config.js" defer></script>
-    <script src="js/communaute.js" defer></script> 
+    <script src="/js/communaute.js" defer></script> 
     <script src="/script.js" defer></script>
     <script src="/js/home.js" defer></script>
     <script src="/js/chat.js" defer></script>
@@ -189,6 +197,36 @@
     <script src="/js/cours.js" defer></script>
     <script src="/js/mess.js" defer></script> 
     <script src="/js/cartable.js" defer></script>
+    <script src="/js/site-tutorial.js" defer></script>
+    <script>
+    // Fond animé dynamique selon data-fond
+    (function(){
+        function updateDynamicBg() {
+            const fond = document.documentElement.getAttribute('data-fond');
+            const root = document.getElementById('dynamic-bg-root');
+            if (!root) return;
+            root.innerHTML = '';
+            document.getElementById('waves-bg').style.display = (!fond || fond === 'vagues' || fond === '' || fond === 'vagues-inversees') ? '' : 'none';
+            if (fond === 'pixel-art') {
+                const d = document.createElement('div');
+                d.className = 'pixel-art-bg';
+                root.appendChild(d);
+            } else if (fond === 'aurora') {
+                const d = document.createElement('div');
+                d.className = 'aurora-bg';
+                root.appendChild(d);
+            } else if (fond === 'crumpled-paper') {
+                const d = document.createElement('div');
+                d.className = 'crumpled-paper-bg';
+                root.appendChild(d);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', updateDynamicBg);
+        const observer = new MutationObserver(updateDynamicBg);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-fond'] });
+        window.updateDynamicBg = updateDynamicBg;
+    })();
+    </script>
         <script>
             // Expose a simple skin apply hook early for CSS before module scripts
             function applySkinTheme(skinName){

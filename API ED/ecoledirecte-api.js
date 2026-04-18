@@ -1,6 +1,6 @@
-/**
+﻿/**
  * EcoleDirecte API Client
- * Permet de se connecter et récupérer des données depuis EcoleDirecte
+ * Permet de se connecter et rÃ©cupÃ©rer des donnÃ©es depuis EcoleDirecte
  * Documentation: https://github.com/EduWireApps/EcoleDirecte-API-Documentation
  */
 
@@ -44,7 +44,7 @@ class EcoleDirecteAPI {
   }
 
   /**
-   * Effectue une requête HTTPS
+   * Effectue une requÃªte HTTPS
    */
   async request(path, method = 'POST', body = null, headers = {}, acceptEmpty = false) {
     return new Promise((resolve, reject) => {
@@ -77,7 +77,7 @@ class EcoleDirecteAPI {
       let bodyToSend = null;
 
       if (body) {
-        // Format: data={"clé":"valeur"}
+        // Format: data={"clÃ©":"valeur"}
         const formBody = querystring.stringify({ data: JSON.stringify(body) });
         defaultHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
         defaultHeaders['Content-Length'] = Buffer.byteLength(formBody);
@@ -95,7 +95,7 @@ class EcoleDirecteAPI {
       const req = https.request(options, (res) => {
         let data = '';
 
-        // Extraire les cookies de la réponse
+        // Extraire les cookies de la rÃ©ponse
         if (res.headers['set-cookie']) {
           res.headers['set-cookie'].forEach(cookie => {
             const parts = cookie.split(';')[0].split('=');
@@ -117,11 +117,11 @@ class EcoleDirecteAPI {
                 return;
               }
               const hdr = JSON.stringify(res.headers);
-              reject(new Error(`Réponse vide du serveur (HTTP ${res.statusCode}) - ${method} ${path} - Headers: ${hdr}`));
+              reject(new Error(`RÃ©ponse vide du serveur (HTTP ${res.statusCode}) - ${method} ${path} - Headers: ${hdr}`));
               return;
             }
             const jsonData = JSON.parse(data);
-            // Attacher les headers pour récupérer X-Token si présent
+            // Attacher les headers pour rÃ©cupÃ©rer X-Token si prÃ©sent
             jsonData._headers = res.headers;
             resolve(jsonData);
           } catch (e) {
@@ -150,7 +150,7 @@ class EcoleDirecteAPI {
   }
 
   /**
-   * Requête HTTPS brute (binaire) — utile pour télécharger des pièces jointes.
+   * RequÃªte HTTPS brute (binaire) â€” utile pour tÃ©lÃ©charger des piÃ¨ces jointes.
    * Retourne: { statusCode, headers, buffer }
    */
   async requestRaw(path, method = 'GET', body = null, headers = {}) {
@@ -235,35 +235,35 @@ class EcoleDirecteAPI {
   }
 
   /**
-   * Récupère le token GTK nécessaire pour la connexion
+   * RÃ©cupÃ¨re le token GTK nÃ©cessaire pour la connexion
    */
   async getGTKToken() {
-    console.log('📌 Récupération du token GTK...');
+    console.log('ðŸ“Œ RÃ©cupÃ©ration du token GTK...');
     try {
       const response = await this.request(`/v3/login.awp?gtk=1&v=${this.version}`, 'GET', null, {}, true);
       
-      // Vérifier si GTK est dans les cookies
+      // VÃ©rifier si GTK est dans les cookies
       if (this.cookies['GTK'] || this.cookies['gtk']) {
         this.gtkToken = this.cookies['GTK'] || this.cookies['gtk'];
-        console.log('✅ Token GTK obtenu depuis les cookies');
+        console.log('âœ… Token GTK obtenu depuis les cookies');
         return this.gtkToken;
       } else if (response.token) {
         this.gtkToken = response.token;
-        console.log('✅ Token GTK obtenu');
+        console.log('âœ… Token GTK obtenu');
         return this.gtkToken;
       } else {
-        throw new Error('Pas de GTK reçu');
+        throw new Error('Pas de GTK reÃ§u');
       }
     } catch (error) {
-      throw new Error(`Erreur lors de la récupération du token GTK: ${error.message}`);
+      throw new Error(`Erreur lors de la rÃ©cupÃ©ration du token GTK: ${error.message}`);
     }
   }
 
   /**
-   * Récupère le QCM pour la double authentification
+   * RÃ©cupÃ¨re le QCM pour la double authentification
    */
   async getQCM() {
-    console.log('📋 Récupération du QCM...');
+    console.log('ðŸ“‹ RÃ©cupÃ©ration du QCM...');
     try {
       const response = await this.request('/v3/connexion/doubleauth.awp', 'POST', {});
       
@@ -273,7 +273,7 @@ class EcoleDirecteAPI {
           Buffer.from(p, 'base64').toString('utf-8')
         );
         
-        console.log('\n❓ Question: ' + question);
+        console.log('\nâ“ Question: ' + question);
         console.log('Propositions:');
         propositions.forEach((prop, index) => {
           console.log(`  ${index + 1}. ${prop}`);
@@ -288,31 +288,31 @@ class EcoleDirecteAPI {
         throw new Error(`Erreur QCM: Code ${response.code}`);
       }
     } catch (error) {
-      throw new Error(`Erreur lors de la récupération du QCM: ${error.message}`);
+      throw new Error(`Erreur lors de la rÃ©cupÃ©ration du QCM: ${error.message}`);
     }
   }
 
   /**
-   * Répond au QCM
+   * RÃ©pond au QCM
    */
   async answerQCM(answerBase64) {
-    console.log('📤 Envoi de la réponse au QCM...');
+    console.log('ðŸ“¤ Envoi de la rÃ©ponse au QCM...');
     try {
       const response = await this.request('/v3/connexion/doubleauth.awp', 'POST', {
         choix: answerBase64
       });
       
       if (response.code === 200) {
-        console.log('✅ QCM validé');
+        console.log('âœ… QCM validÃ©');
         return {
           cn: response.data.cn,
           cv: response.data.cv
         };
       } else {
-        throw new Error(`Erreur réponse QCM: Code ${response.code}`);
+        throw new Error(`Erreur rÃ©ponse QCM: Code ${response.code}`);
       }
     } catch (error) {
-      throw new Error(`Erreur lors de la réponse au QCM: ${error.message}`);
+      throw new Error(`Erreur lors de la rÃ©ponse au QCM: ${error.message}`);
     }
   }
 
@@ -320,11 +320,11 @@ class EcoleDirecteAPI {
    * Effectue la connexion simple sans QCM
    */
   async loginSimple() {
-    console.log('🔐 Tentative de connexion...');
+    console.log('ðŸ” Tentative de connexion...');
     try {
       const body = {
-        identifiant: encodeURIComponent(this.identifiant),
-        motdepasse: encodeURIComponent(this.motdepasse),
+        identifiant: this.identifiant,
+        motdepasse: this.motdepasse,
         isRelogin: false,
         uuid: ""
       };
@@ -332,25 +332,25 @@ class EcoleDirecteAPI {
       const response = await this.request(`/v3/login.awp?v=${this.version}`, 'POST', body);
       
       if (response.code === 200) {
-        // Récupérer le token depuis les headers si présent
+        // RÃ©cupÃ©rer le token depuis les headers si prÃ©sent
         this.token = (response._headers && (response._headers['x-token'] || response._headers['X-Token'])) || response.token || null;
         this.host = response.host || (response._headers && response._headers['x-http-host']) || null;
 
-        // Sélectionner le premier compte non-prof, sinon le premier
+        // SÃ©lectionner le premier compte non-prof, sinon le premier
         const accounts = response.data && response.data.accounts ? response.data.accounts : [];
         if (accounts.length === 0) {
-          throw new Error('Liste des comptes vide dans la réponse');
+          throw new Error('Liste des comptes vide dans la rÃ©ponse');
         }
         const selected = accounts.find(acc => acc.typeCompte !== 'P') || accounts[0];
         this.account = selected;
-        console.log('✅ Connexion réussie!');
-        console.log(`👤 Utilisateur: ${selected.prenom || '-'} ${selected.nom || '-'}`);
+        console.log('âœ… Connexion rÃ©ussie!');
+        console.log(`ðŸ‘¤ Utilisateur: ${selected.prenom || '-'} ${selected.nom || '-'}`);
         return this.account;
       } else if (response.code === 250) {
-        console.log('⚠️  Double authentification requise (QCM)');
+        console.log('âš ï¸  Double authentification requise (QCM)');
         return { requireQCM: true, token: response.token };
       } else {
-        throw new Error(`Code erreur: ${response.code} - ${response.message || 'Connexion échouée'}`);
+        throw new Error(`Code erreur: ${response.code} - ${response.message || 'Connexion Ã©chouÃ©e'}`);
       }
     } catch (error) {
       throw error;
@@ -358,10 +358,10 @@ class EcoleDirecteAPI {
   }
 
   /**
-   * Connexion avec QCM si nécessaire
+   * Connexion avec QCM si nÃ©cessaire
    */
   async loginWithQCM(faAnswers) {
-    console.log('🔐 Connexion avec QCM...');
+    console.log('ðŸ” Connexion avec QCM...');
     try {
       const body = {
         identifiant: this.identifiant,
@@ -378,12 +378,12 @@ class EcoleDirecteAPI {
         this.host = response.host || (response._headers && response._headers['x-http-host']) || null;
         const accounts = response.data && response.data.accounts ? response.data.accounts : [];
         if (accounts.length === 0) {
-          throw new Error('Liste des comptes vide dans la réponse');
+          throw new Error('Liste des comptes vide dans la rÃ©ponse');
         }
         const selected = accounts.find(acc => acc.typeCompte !== 'P') || accounts[0];
         this.account = selected;
-        console.log('✅ Connexion avec QCM réussie!');
-        console.log(`👤 Utilisateur: ${selected.prenom || '-'} ${selected.nom || '-'}`);
+        console.log('âœ… Connexion avec QCM rÃ©ussie!');
+        console.log(`ðŸ‘¤ Utilisateur: ${selected.prenom || '-'} ${selected.nom || '-'}`);
         return this.account;
       } else {
         throw new Error(`Code erreur: ${response.code} - ${response.message}`);
@@ -394,21 +394,21 @@ class EcoleDirecteAPI {
   }
 
   /**
-   * Connexion complète (avec gestion du QCM si nécessaire)
+   * Connexion complÃ¨te (avec gestion du QCM si nÃ©cessaire)
    */
   async login() {
     try {
-      // Étape 1: Récupérer le token GTK
+      // Ã‰tape 1: RÃ©cupÃ©rer le token GTK
       await this.getGTKToken();
 
-      // Étape 2: Tentative de connexion simple
+      // Ã‰tape 2: Tentative de connexion simple
       const result = await this.loginSimple();
 
       if (result.requireQCM) {
-        // Étape 3: Si QCM requis, récupérer le QCM
+        // Ã‰tape 3: Si QCM requis, rÃ©cupÃ©rer le QCM
         this.token = result.token;
-        console.log('\n📝 Connexion nécessite une réponse au QCM');
-        console.log('⚠️  ATTENTION: Cette réponse doit être fournie manuellement dans un vrai environnement');
+        console.log('\nðŸ“ Connexion nÃ©cessite une rÃ©ponse au QCM');
+        console.log('âš ï¸  ATTENTION: Cette rÃ©ponse doit Ãªtre fournie manuellement dans un vrai environnement');
         return {
           requireQCM: true,
           message: 'QCM required - manual input needed'
@@ -417,49 +417,49 @@ class EcoleDirecteAPI {
 
       return this.account;
     } catch (error) {
-      console.error('❌ Erreur de connexion:', error.message);
+      console.error('âŒ Erreur de connexion:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère les informations du compte
+   * RÃ©cupÃ¨re les informations du compte
    */
   async getAccount() {
     if (!this.account) {
-      throw new Error('Non connecté. Appelez login() d\'abord.');
+      throw new Error('Non connectÃ©. Appelez login() d\'abord.');
     }
     return this.account;
   }
 
   /**
-   * Récupère la timeline de l'élève
+   * RÃ©cupÃ¨re la timeline de l'Ã©lÃ¨ve
    */
   async getTimeline() {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('📅 Récupération de la timeline...');
+    console.log('ðŸ“… RÃ©cupÃ©ration de la timeline...');
     try {
       const response = await this.request(this.withGet(`/v3/eleves/${this.account.id}/timeline.awp`), 'POST', {});
       if (response.code === 200) {
-        console.log(`✅ Timeline: ${response.data.length} événements`);
+        console.log(`âœ… Timeline: ${response.data.length} Ã©vÃ©nements`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur timeline:', error.message);
+      console.error('âŒ Erreur timeline:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère l'emploi du temps
+   * RÃ©cupÃ¨re l'emploi du temps
    */
   async getEmploiDuTemps(dateDebut, dateFin) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log(`📚 Récupération de l'emploi du temps (${dateDebut} au ${dateFin})...`);
+    console.log(`ðŸ“š RÃ©cupÃ©ration de l'emploi du temps (${dateDebut} au ${dateFin})...`);
     const body = {
       dateDebut,
       dateFin,
@@ -478,106 +478,106 @@ class EcoleDirecteAPI {
         try {
             const response = await this.request(this.withGet(p), 'POST', body);
             if (response.code === 200) {
-                console.log(`✅ Emploi du temps: ${response.data.length} cours`);
+                console.log(`âœ… Emploi du temps: ${response.data.length} cours`);
                 return response.data;
             } else {
                 lastError = new Error(`Code ${response.code}`);
             }
         } catch (e) {
             lastError = e;
-            // console.warn(`⚠️ Echec sur ${p}: ${e.message}`);
+            // console.warn(`âš ï¸ Echec sur ${p}: ${e.message}`);
         }
     }
     
-    console.error('❌ Erreur emploi du temps (tous endpoints échoués):', lastError ? lastError.message : 'Inconnue');
-    throw lastError || new Error('Impossible de récupérer l\'emploi du temps');
+    console.error('âŒ Erreur emploi du temps (tous endpoints Ã©chouÃ©s):', lastError ? lastError.message : 'Inconnue');
+    throw lastError || new Error('Impossible de rÃ©cupÃ©rer l\'emploi du temps');
   }
 
   /**
-   * Récupère les notes
+   * RÃ©cupÃ¨re les notes
    */
   async getNotes(anneeScolaire = '') {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('📊 Récupération des notes...');
+    console.log('ðŸ“Š RÃ©cupÃ©ration des notes...');
     try {
       const body = { anneeScolaire };
       const response = await this.request(this.withGet(`/v3/eleves/${this.account.id}/notes.awp`), 'POST', body);
       
       if (response.code === 200) {
-        console.log(`✅ Notes: ${response.data.periodes.length} périodes`);
+        console.log(`âœ… Notes: ${response.data.periodes.length} pÃ©riodes`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur notes:', error.message);
+      console.error('âŒ Erreur notes:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère le cahier de texte (travail à faire)
+   * RÃ©cupÃ¨re le cahier de texte (travail Ã  faire)
    */
   async getCahierDeTexte(date) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log(`📖 Récupération du cahier de texte (${date})...`);
+    console.log(`ðŸ“– RÃ©cupÃ©ration du cahier de texte (${date})...`);
     try {
       // IMPORTANT: Sur certains comptes, l'endpoint cahier de texte fonctionne uniquement sur /v3/Eleves (E majuscule)
-      // et en POST (même si on utilise verbe=get). En minuscules, on peut obtenir un 403.
+      // et en POST (mÃªme si on utilise verbe=get). En minuscules, on peut obtenir un 403.
       const response = await this.request(this.withGet(`/v3/Eleves/${this.account.id}/cahierdetexte/${date}.awp`), 'POST', {});
       
       if (response.code === 200) {
-        console.log(`✅ Cahier de texte: ${response.data.matieres.length} matières`);
+        console.log(`âœ… Cahier de texte: ${response.data.matieres.length} matiÃ¨res`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur cahier de texte:', error.message);
+      console.error('âŒ Erreur cahier de texte:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère tout le travail à faire (Devoirs) en une seule requête.
-   * C'est beaucoup plus efficace que d'itérer jour par jour.
+   * RÃ©cupÃ¨re tout le travail Ã  faire (Devoirs) en une seule requÃªte.
+   * C'est beaucoup plus efficace que d'itÃ©rer jour par jour.
    */
   async getTravailAFaire() {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('📝 Récupération globale du travail à faire...');
+    console.log('ðŸ“ RÃ©cupÃ©ration globale du travail Ã  faire...');
     try {
-      // Endpoint global pour le travail à faire
+      // Endpoint global pour le travail Ã  faire
       const response = await this.request(this.withGet(`/v3/Eleves/${this.account.id}/cahierdetexte.awp`), 'POST', {});
       
       if (response.code === 200) {
-        // La réponse contient un objet avec les dates comme clés
+        // La rÃ©ponse contient un objet avec les dates comme clÃ©s
         // ex: { "2026-01-06": [ ... ], "2026-01-07": [ ... ] }
-        console.log(`✅ Travail à faire récupéré avec succès`);
+        console.log(`âœ… Travail Ã  faire rÃ©cupÃ©rÃ© avec succÃ¨s`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur travail à faire global:', error.message);
+      console.error('âŒ Erreur travail Ã  faire global:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère la liste des messages (messagerie) en lecture seule.
-   * Endpoint observé (web):
+   * RÃ©cupÃ¨re la liste des messages (messagerie) en lecture seule.
+   * Endpoint observÃ© (web):
    *  /v3/eleves/<id>/messages.awp?verbe=get&mode=destinataire&v=...
    */
   async getMessagesList(mode, anneeMessages) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
 
     const safeMode = (mode === 'destinataire' || mode === 'expediteur') ? mode : 'destinataire';
     const safeAnnee = (typeof anneeMessages === 'string' && anneeMessages.trim()) ? anneeMessages.trim() : '';
 
-    console.log(`💬 Récupération de la liste des messages (${safeMode})...`);
+    console.log(`ðŸ’¬ RÃ©cupÃ©ration de la liste des messages (${safeMode})...`);
     const body = { anneeMessages: safeAnnee };
 
     const tried = [];
@@ -599,17 +599,17 @@ class EcoleDirecteAPI {
       }
     }
 
-    throw new Error(`Impossible de récupérer la liste des messages. Endpoints tentés: ${tried.join(' | ')}`);
+    throw new Error(`Impossible de rÃ©cupÃ©rer la liste des messages. Endpoints tentÃ©s: ${tried.join(' | ')}`);
   }
 
   /**
-   * Récupère le détail d'un message.
-   * Endpoint observé (web):
+   * RÃ©cupÃ¨re le dÃ©tail d'un message.
+   * Endpoint observÃ© (web):
    *  /v3/eleves/<id>/messages/<ID_MESSAGE>.awp?verbe=get&mode=destinataire&v=...
    * Body: { anneeMessages: "2025-2026" }
    */
   async getMessageById(idMessage, mode, anneeMessages) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
 
     const safeId = parseInt(idMessage, 10);
     if (isNaN(safeId) || !isFinite(safeId) || safeId <= 0) {
@@ -639,15 +639,15 @@ class EcoleDirecteAPI {
       }
     }
 
-    throw new Error(`Impossible de récupérer le message ${safeId}. Endpoints tentés: ${tried.join(' | ')}`);
+    throw new Error(`Impossible de rÃ©cupÃ©rer le message ${safeId}. Endpoints tentÃ©s: ${tried.join(' | ')}`);
   }
 
   /**
-   * Télécharge une pièce jointe d'un message.
-   * IMPORTANT: les endpoints varient selon les versions/établissements, donc on essaie plusieurs chemins.
+   * TÃ©lÃ©charge une piÃ¨ce jointe d'un message.
+   * IMPORTANT: les endpoints varient selon les versions/Ã©tablissements, donc on essaie plusieurs chemins.
    */
   async downloadMessageAttachment(idMessage, idFile, mode, anneeMessages) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
 
     const safeMsg = parseInt(idMessage, 10);
     const safeFile = parseInt(idFile, 10);
@@ -736,16 +736,16 @@ class EcoleDirecteAPI {
       }
     }
 
-    throw new Error(`Impossible de télécharger la pièce jointe. Endpoints tentés: ${tried.join(' | ')}`);
+    throw new Error(`Impossible de tÃ©lÃ©charger la piÃ¨ce jointe. Endpoints tentÃ©s: ${tried.join(' | ')}`);
   }
 
   /**
-   * Met à jour l'état "effectué" des devoirs.
+   * Met Ã  jour l'Ã©tat "effectuÃ©" des devoirs.
    * Endpoint web: /v3/Eleves/<id>/cahierdetexte.awp?verbe=put
    * Payload: { idDevoirsEffectues: number[], idDevoirsNonEffectues: number[] }
    */
   async setDevoirsEffectues(idDevoirsEffectues, idDevoirsNonEffectues) {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
 
     function toIdList(v) {
       const arr = Array.isArray(v) ? v : [];
@@ -760,7 +760,7 @@ class EcoleDirecteAPI {
     const effectues = toIdList(idDevoirsEffectues);
     const nonEffectues = toIdList(idDevoirsNonEffectues);
 
-    console.log('✅ Mise à jour devoirs effectué...');
+    console.log('âœ… Mise Ã  jour devoirs effectuÃ©...');
     try {
       const response = await this.request(
         this.withPut(`/v3/Eleves/${this.account.id}/cahierdetexte.awp`),
@@ -772,30 +772,30 @@ class EcoleDirecteAPI {
       );
 
       if (response.code === 200) {
-        // Mettre à jour le token si renvoyé.
+        // Mettre Ã  jour le token si renvoyÃ©.
         this.token = (response._headers && (response._headers['x-token'] || response._headers['X-Token'])) || response.token || this.token;
         this.host = response.host || (response._headers && response._headers['x-http-host']) || this.host;
         return response;
       }
       throw new Error(`Code ${response.code}`);
     } catch (error) {
-      console.error('❌ Erreur mise à jour devoirs effectue:', error.message);
+      console.error('âŒ Erreur mise Ã  jour devoirs effectue:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère la vie scolaire (absences, sanctions, etc.)
+   * RÃ©cupÃ¨re la vie scolaire (absences, sanctions, etc.)
    */
   async getVieScolaire() {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('📋 Récupération de la vie scolaire...');
+    console.log('ðŸ“‹ RÃ©cupÃ©ration de la vie scolaire...');
     try {
       const response = await this.request(this.withGet(`/v3/eleves/${this.account.id}/viescolaire.awp`), 'POST', {});
       
       if (response.code === 200) {
-        console.log(`✅ Vie scolaire:`);
+        console.log(`âœ… Vie scolaire:`);
         console.log(`   - ${response.data.absencesRetards.length} absences/retards`);
         console.log(`   - ${response.data.sanctionsEncouragements.length} sanctions/encouragements`);
         return response.data;
@@ -803,55 +803,56 @@ class EcoleDirecteAPI {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur vie scolaire:', error.message);
+      console.error('âŒ Erreur vie scolaire:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère les documents administratifs
+   * RÃ©cupÃ¨re les documents administratifs
    */
   async getDocuments(archive = '') {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('📄 Récupération des documents administratifs...');
+    console.log('ðŸ“„ RÃ©cupÃ©ration des documents administratifs...');
     try {
       const path = this.withGet(`/v3/elevesDocuments.awp?archive=${archive}`);
       const response = await this.request(path, 'POST', {});
       
       if (response.code === 200) {
-        console.log(`✅ Documents: ${response.data.notes.length} notes, ${response.data.administratifs.length} administratifs`);
+        console.log(`âœ… Documents: ${response.data.notes.length} notes, ${response.data.administratifs.length} administratifs`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur documents:', error.message);
+      console.error('âŒ Erreur documents:', error.message);
       throw error;
     }
   }
 
   /**
-   * Récupère les espaces de travail
+   * RÃ©cupÃ¨re les espaces de travail
    */
   async getEspacesTravail() {
-    if (!this.account) throw new Error('Non connecté');
+    if (!this.account) throw new Error('Non connectÃ©');
     
-    console.log('🏢 Récupération des espaces de travail...');
+    console.log('ðŸ¢ RÃ©cupÃ©ration des espaces de travail...');
     try {
       const response = await this.request(this.withGet(`/v3/E/${this.account.id}/espacestravail.awp`), 'POST', {});
       
       if (response.code === 200) {
-        console.log(`✅ Espaces de travail: ${response.data.length}`);
+        console.log(`âœ… Espaces de travail: ${response.data.length}`);
         return response.data;
       } else {
         throw new Error(`Code ${response.code}`);
       }
     } catch (error) {
-      console.error('❌ Erreur espaces de travail:', error.message);
+      console.error('âŒ Erreur espaces de travail:', error.message);
       throw error;
     }
   }
 }
 
 module.exports = EcoleDirecteAPI;
+

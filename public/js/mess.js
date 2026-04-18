@@ -3,7 +3,7 @@
 // 🚨 VARIABLES ET DONNÉES 🚨
 
 const classList = [
-    'Even', 'Alexandre', 'Calixte', 'Noé', 'Julia', 'Joan', 'Juliette', 'Jezzy',
+    'Even', 'Alexandre', 'Calixte', 'Noé', 'Julia', 'Joan', 'Juliette', 'Jezy',
     'Inès', 'Timéo', 'Tyméo', 'Clautilde', 'Loanne', 'Lucie', 'Camille', 'Sofia',
     'Lilia', 'Amir', 'Robin', 'Arthur', 'Maxime', 'Gaultier', 'Antoine', 'Louis',
     'Anne-Victoria', 'Léa', 'Sarah', 'Ema', 'Jade', 'Alicia', 'Claire'
@@ -76,7 +76,7 @@ function buildMessageBodyHtmlWithCourseLinks(bodyText) {
 function navigateToCourseById(courseId) {
     const id = String(courseId || '').trim();
     if (!id) return;
-    try { localStorage.setItem(COURSE_FILTER_STORAGE_KEY, id); } catch (_) {}
+    try { localStorage.setItem(COURSE_FILTER_STORAGE_KEY, id); } catch (_) { }
 
     if (typeof window.renderPage === 'function') {
         window.renderPage('cours');
@@ -115,7 +115,7 @@ function showScreen(screen) {
     else if (screen === 'compose') compose?.classList.remove('hidden');
     else if (screen === 'detail') detail?.classList.remove('hidden');
     else if (screen === 'rescue') rescue?.classList.remove('hidden');
-    
+
     if (screen !== 'welcome') {
         showMainContent();
     }
@@ -151,12 +151,12 @@ function renderMessageList() {
     const list = document.getElementById('message-list-inbox');
     if (!list) return;
     list.innerHTML = '';
-    
-    messages.sort((a, b) => b.id.localeCompare(a.id)); 
-    
+
+    messages.sort((a, b) => b.id.localeCompare(a.id));
+
     const countElement = document.getElementById('message-count');
     if (countElement) countElement.textContent = `(${messages.length})`;
-    
+
     if (!Array.isArray(messages) || messages.length === 0) {
         list.innerHTML = '<p style="padding:12px;color:#aaa;">Aucun message.</p>';
         return;
@@ -170,13 +170,14 @@ function renderMessageList() {
         if (msg.id === activeMessageId) item.classList.add('active');
         if (msg.parentMessageId) item.classList.add('is-reply');
         if (msg.subject === 'Urgent' || msg.type === 'rescue_alert') item.classList.add('urgent');
-        
+
         const senderDisplay = msg.senderId === MY_USER_ID ? 'Moi' : msg.senderName;
-        
+        const relDate = typeof window.timeAgo === 'function' ? window.timeAgo(msg.date || msg.timestamp) : escapeHtml(msg.date);
+
         item.innerHTML = `
-            <span class="message-sender-preview">${senderDisplay}</span>
-            <span class="message-subject-preview">${msg.subject}</span>
-            <span class="message-date">${msg.date}</span>
+            <span class="message-sender-preview">${escapeHtml(senderDisplay)}</span>
+            <span class="message-subject-preview">${escapeHtml(msg.subject)}</span>
+            <span class="message-date relative-time" title="${escapeHtml(msg.date)}">${relDate}</span>
         `;
         list.appendChild(item);
     });
@@ -192,7 +193,7 @@ async function markMessageAsRead(messageId) {
             body: JSON.stringify({ userId: MY_USER_ID, messageId: id })
         });
         // Signal au widget Accueil que les messages ont changé
-        try { sessionStorage.setItem('alpha_messages_dirty', 'true'); } catch {}
+        try { sessionStorage.setItem('alpha_messages_dirty', 'true'); } catch { }
     } catch (e) {
         console.warn('[MESS] mark-read failed', e);
     }
@@ -227,11 +228,11 @@ function renderReadStatus(msg) {
 function renderMessageDetail(messageId) {
     const msg = messages.find(m => m.id === messageId);
     if (!msg) return;
-    
+
     // Afficher le contenu principal sur mobile
     showMainContent();
-    
-    activeMessageId = messageId; 
+
+    activeMessageId = messageId;
     const subjectEl = document.getElementById('detail-subject');
     if (subjectEl) {
         subjectEl.textContent = msg.subject;
@@ -248,7 +249,7 @@ function renderMessageDetail(messageId) {
             badge.style.display = 'none';
         }
     }
-    
+
     const senderDisplay = msg.senderId === MY_USER_ID ? 'Moi' : msg.senderName;
     const senderNameEl = document.querySelector('#detail-sender .sender-name-detail');
     if (senderNameEl) senderNameEl.textContent = senderDisplay;
@@ -264,12 +265,12 @@ function renderMessageDetail(messageId) {
     if (bodyContainer) {
         bodyContainer.innerHTML = buildMessageBodyHtmlWithCourseLinks(msg.body);
     }
-    
+
     const attachmentsContainer = document.getElementById('detail-attachments');
     if (!attachmentsContainer) {
-        console.error("PUTAIN LOG (MESS): Conteneur 'detail-attachments' non trouvé dans le DOM.");
+        console.error("[LOG] (MESS): Conteneur 'detail-attachments' non trouvé dans le DOM.");
     }
-    
+
     if (attachmentsContainer) {
         attachmentsContainer.innerHTML = '';
         if (msg.attachments && msg.attachments.length > 0) {
@@ -295,7 +296,7 @@ function renderMessageDetail(messageId) {
         msg.unread = false;
         markMessageAsRead(messageId);
         // Rafraîchit la liste après un court délai (pour récupérer lusPar/nonLus à jour)
-        setTimeout(() => { fetchMessages().catch(() => {}); }, 250);
+        setTimeout(() => { fetchMessages().catch(() => { }); }, 250);
     }
 
     const replyBtn = document.getElementById('reply-to-message-btn');
@@ -311,7 +312,7 @@ function renderMessageDetail(messageId) {
 
     renderRescueActions(msg);
 
-    renderMessageList(); 
+    renderMessageList();
     showScreen('detail');
 }
 
@@ -453,7 +454,7 @@ function processMessages(rawMessages) {
         const sender = usersData.find(u => u.id === String(msg.senderId));
         const dateObj = new Date(msg.timestamp);
         const dateDisplay = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-        
+
         const rawRecipients = Array.isArray(msg.recipients) ? msg.recipients.map(String) : [];
         const recipientNames = rawRecipients
             .map(r => {
@@ -464,12 +465,12 @@ function processMessages(rawMessages) {
                 return r;
             })
             .filter(Boolean);
-        
+
         const shouldMask = Array.isArray(msg.maskSenderFor) && MY_USER_ID && msg.maskSenderFor.includes(MY_USER_ID);
         const senderNameDisplay = msg.senderName
             ? msg.senderName
             : ((msg.isAnonymous || msg.senderId === 'anon' || shouldMask) ? 'Anonyme' : (sender ? sender.name : 'Inconnu'));
-        
+
         return {
             ...msg,
             senderName: senderNameDisplay,
@@ -483,10 +484,10 @@ function processMessages(rawMessages) {
 }
 
 async function fetchMessages() {
-    const endpoint = MY_USER_ID ? `/api/messagerie/messages?userId=${MY_USER_ID}` : '/api/messagerie/messages'; 
-    console.log(`PUTAIN LOG (MESS) : Tentative de récupération des messages pour ID ${MY_USER_ID} depuis ${endpoint}...`);
+    const endpoint = MY_USER_ID ? `/api/messagerie/messages?userId=${MY_USER_ID}` : '/api/messagerie/messages';
+    console.log(`[LOG] (MESS) : Tentative de récupération des messages pour ID ${MY_USER_ID} depuis ${endpoint}...`);
     try {
-        const response = await fetch(endpoint); 
+        const response = await fetch(endpoint);
         if (!response.ok) throw new Error(`Erreur HTTP! Statut: ${response.status}`);
 
         let rawMessages = await response.json();
@@ -510,7 +511,7 @@ async function fetchMessages() {
         renderMessageList();
 
     } catch (error) {
-        console.error('PUTAIN LOG (MESS) : Échec de la récupération des messages:', error);
+        console.error('[LOG] (MESS) : Échec de la récupération des messages:', error);
         const list = document.getElementById('message-list-inbox');
         if (list) list.innerHTML = '<p style="padding:12px;color:#ffb3b3;">Erreur réseau: messages non chargés.</p>';
         setInboxStatus('Erreur réseau: messages non chargés', 'error');
@@ -524,25 +525,25 @@ function updateRecipientTags() {
     const container = document.getElementById('recipient-input-container');
     const hiddenInput = document.getElementById('selected-recipients-ids');
     const inputField = document.getElementById('recipient-input-field');
-    const isReplyMode = document.getElementById('parent-message-id')?.value !== ''; 
+    const isReplyMode = document.getElementById('parent-message-id')?.value !== '';
     if (!container || !hiddenInput || !inputField) return;
-    
+
     container.querySelectorAll('.recipient-tag').forEach(tag => tag.remove());
-    
+
     selectedRecipients.forEach(user => {
         const tag = document.createElement('span');
         tag.classList.add('recipient-tag');
         tag.setAttribute('data-user-id', user.id);
-        
+
         let removeButtonHtml = '';
-        if (!isReplyMode) { 
+        if (!isReplyMode) {
             removeButtonHtml = `<button type="button" class="remove-tag-btn" data-user-id="${user.id}">×</button>`;
         }
-        
+
         tag.innerHTML = `${user.name} ${removeButtonHtml}`;
         container.insertBefore(tag, inputField);
     });
-    
+
     hiddenInput.value = selectedRecipients.map(u => u.id).join(',');
     if (selectedRecipients.length > 0) hiddenInput.removeAttribute('required');
     else hiddenInput.setAttribute('required', 'required');
@@ -561,7 +562,7 @@ function addRecipient(user) {
 
 function removeRecipient(userId) {
     const isReplyMode = document.getElementById('parent-message-id')?.value !== '';
-    if (isReplyMode) return; 
+    if (isReplyMode) return;
     selectedRecipients = selectedRecipients.filter(u => u.id !== userId);
     updateRecipientTags();
 }
@@ -570,18 +571,18 @@ function renderAutocomplete(query) {
     const list = document.getElementById('autocomplete-list');
     if (!list) return;
     list.innerHTML = '';
-    
+
     const inputField = document.getElementById('recipient-input-field');
     if (query.length < 2 || inputField.disabled) { list.classList.add('hidden'); return; }
 
-    const filteredUsers = usersData.filter(user => 
-        classList.includes(user.name) && 
-        user.name.toLowerCase().startsWith(query.toLowerCase()) && 
+    const filteredUsers = usersData.filter(user =>
+        classList.includes(user.name) &&
+        user.name.toLowerCase().startsWith(query.toLowerCase()) &&
         !selectedRecipients.find(u => u.id === user.id)
     );
-    
+
     if (filteredUsers.length === 0) { list.classList.add('hidden'); return; }
-    
+
     filteredUsers.forEach(user => {
         const item = document.createElement('li');
         item.textContent = user.name;
@@ -593,8 +594,8 @@ function renderAutocomplete(query) {
 }
 
 function addAllClass() {
-    if (document.getElementById('add-all-class-btn')?.disabled) return; 
-    
+    if (document.getElementById('add-all-class-btn')?.disabled) return;
+
     selectedRecipients = [];
     let classRecipients = usersData.filter(user => classList.includes(user.name));
     const userWithId2 = usersData.find(u => u.id === '2');
@@ -618,7 +619,7 @@ function showRescueForm() {
 async function showComposeForm(isReply = false, originalMsgId = null) {
     const form = document.getElementById('send-message-form');
     if (!form) return;
-    
+
     // Afficher le contenu principal sur mobile
     showMainContent();
 
@@ -630,7 +631,7 @@ async function showComposeForm(isReply = false, originalMsgId = null) {
     form.reset();
     selectedRecipients = [];
     attachedFiles = [];
-    activeMessageId = originalMsgId || null; 
+    activeMessageId = originalMsgId || null;
     updateFileButtonText();
 
     let parentIdInput = document.getElementById('parent-message-id');
@@ -641,7 +642,7 @@ async function showComposeForm(isReply = false, originalMsgId = null) {
         parentIdInput.name = 'parentMessageId';
         form.appendChild(parentIdInput);
     }
-    
+
     const recipientGroup = document.querySelector('.recipient-group');
     const inputField = document.getElementById('recipient-input-field');
     const addAllBtn = document.getElementById('add-all-class-btn');
@@ -675,17 +676,17 @@ async function showComposeForm(isReply = false, originalMsgId = null) {
                 anonymousLabel.style.opacity = 0.5;
             } else {
                 if (originalMsg.senderName === 'Anonyme' || originalMsg.senderId === 'anon') {
-                    await showModal("Putain! Tu ne peux pas répondre à un message Anonyme !");
+                    await showModal("Erreur : Tu ne peux pas répondre à un message Anonyme !");
                     renderMessageDetail(activeMessageId);
                     return;
                 }
-                
+
                 let recipientUser = usersData.find(u => u.id === String(originalMsg.senderId));
                 if (!recipientUser) recipientUser = usersData.find(u => u.id === '1');
-                
+
                 if (recipientUser) addRecipient(recipientUser);
                 parentIdInput.value = originalMsgId;
-                
+
                 recipientGroup?.classList.add('disabled');
                 inputField.disabled = true;
                 addAllBtn.disabled = true;
@@ -708,8 +709,8 @@ async function showComposeForm(isReply = false, originalMsgId = null) {
         anonymousCheckbox.disabled = false;
         anonymousLabel.style.opacity = 1;
     }
-    
-    updateRecipientTags(); 
+
+    updateRecipientTags();
     showScreen('compose');
 }
 
@@ -731,17 +732,17 @@ async function handleMessageSubmit(e) {
     const form = e.target;
     const formData = new FormData(form);
     const mode = form.dataset.mode || 'standard';
-    
+
     const recipientIds = selectedRecipients.map(u => u.id);
-    if (!MY_USER_ID) { await showModal("PUTAIN ERREUR : ID utilisateur manquant."); return; }
-    if (recipientIds.length === 0) { await showModal("Putain, tu dois sélectionner au moins un destinataire !"); return; }
+    if (!MY_USER_ID) { await showModal("ERREUR : ID utilisateur manquant."); return; }
+    if (recipientIds.length === 0) { await showModal("Attention, tu dois sélectionner au moins un destinataire !"); return; }
     const subject =
         formData.get('subject') ||
         document.getElementById('message-subject')?.value ||
         '(Sans sujet)';
 
     if (!subject.trim()) {
-        await showModal("PUTAIN ÉCHEC de l'envoi : champ 'subject' vide.");
+        await showModal("Échec de l'envoi : champ 'subject' vide.");
         return;
     }
 
@@ -762,8 +763,8 @@ async function handleMessageSubmit(e) {
         attachments: attachmentsData
     };
 
-    console.log("PUTAIN LOG (MESS) : Envoi du message avec payload:", payload);
-    
+    console.log("[LOG] (MESS) : Envoi du message avec payload:", payload);
+
     try {
         const response = await fetch('/api/messagerie/send', {
             method: 'POST',
@@ -783,11 +784,11 @@ async function handleMessageSubmit(e) {
             showScreen('welcome');
             await fetchMessages();
         } else {
-            await showModal(`PUTAIN ÉCHEC de l'envoi : ${result.message || 'Erreur inconnue serveur.'}`);
+            await showModal(`Échec de l'envoi : ${result.message || 'Erreur inconnue serveur.'}`);
         }
     } catch (error) {
         console.error('ERREUR FATALE LORS DE L\'ENVOI:', error);
-        await showModal(`RAHHH! Erreur réseau ou serveur lors de l'envoi. ${error.message}`);
+        await showModal(`Erreur réseau ou serveur lors de l'envoi. ${error.message}`);
     }
 }
 
@@ -841,9 +842,9 @@ async function submitRescueResponse(form, formData, attachmentsData) {
 function handleFileSelection(e) {
     const files = e.target.files;
     if (files.length > 0) {
-        attachedFiles = Array.from(files); 
+        attachedFiles = Array.from(files);
         updateFileButtonText();
-        console.log(`PUTAIN LOG (MESS): ${attachedFiles.length} fichiers sélectionnés.`);
+        console.log(`[LOG] (MESS): ${attachedFiles.length} fichiers sélectionnés.`);
     }
 }
 
@@ -894,7 +895,7 @@ async function handleRescueRequestSubmit(e) {
 // 🚨 INITIALISATION PRINCIPALE 🚨
 // ==================================================================
 
-window.initMessageriePage = async () => { 
+window.initMessageriePage = async () => {
     const realName = (window.currentUsername || localStorage.getItem('source_username') || "NOM_DEFAUT_USER").trim();
     MY_USERNAME = realName;
     const wanted = normalizeNameKey(MY_USERNAME);
@@ -938,9 +939,9 @@ window.initMessageriePage = async () => {
     }
 
     if (!MY_USER_ID) {
-        console.error("PUTAIN : ID utilisateur non valide. Messagerie désactivée.");
+        console.error("ERREUR : ID utilisateur non valide. Messagerie désactivée.");
         const target = document.querySelector('.message-section') || document.getElementById('messaging-welcome-screen') || document.getElementById('message-list-inbox');
-        if (target) target.innerHTML = '<p class="error-msg">Putain! Connexion non reconnue.</p>';
+        if (target) target.innerHTML = '<p class="error-msg">Erreur : Connexion non reconnue.</p>';
         return;
     }
 
@@ -957,7 +958,7 @@ window.initMessageriePage = async () => {
                 renderMessageDetail(id);
             }
         }
-    } catch {}
+    } catch { }
 
     let fileInput = document.getElementById('file-attachment-input');
     if (!fileInput) {
@@ -967,7 +968,7 @@ window.initMessageriePage = async () => {
         fileInput.name = 'attachments';
         fileInput.multiple = true;
         fileInput.classList.add('hidden');
-        document.getElementById('send-message-form')?.appendChild(fileInput); 
+        document.getElementById('send-message-form')?.appendChild(fileInput);
     }
     fileInput.removeEventListener('change', handleFileSelection);
     fileInput.addEventListener('change', handleFileSelection);
@@ -984,10 +985,235 @@ window.initMessageriePage = async () => {
         hideMainContent();
         showScreen('welcome');
     });
-    
+
     document.getElementById('message-list-inbox')?.addEventListener('click', (e) => {
         const item = e.target.closest('.message-item');
         if (item) renderMessageDetail(item.getAttribute('data-message-id'));
+    });
+
+    // --- GESTION DES ONGLETS (Messagerie / ED) ---
+    const tabBtns = document.querySelectorAll('.mess-tab-btn');
+    // Mode Single View : on réutilise les mêmes conteneurs
+    let currentMessMode = 'internal'; // 'internal' | 'ed'
+
+    function switchMessTab(targetId) {
+        // targetId correspond au dataset du bouton (ex: 'ed-wrapper'), mais on s'en sert juste pour le mode
+        const newMode = (targetId === 'ed-wrapper') ? 'ed' : 'internal';
+
+        tabBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.target === targetId);
+        });
+
+        // 1. Nettoyer la vue actuelle
+        const listContainer = document.getElementById('message-list-inbox');
+        if (listContainer) listContainer.innerHTML = '';
+        const detailView = document.getElementById('message-detail-view');
+        if (detailView) detailView.classList.add('hidden');
+        document.getElementById('messaging-welcome-screen')?.classList.remove('hidden');
+
+        // 2. Gérer la visibilité des boutons spécifiques
+        const internalActions = document.getElementById('compose-actions');
+        if (internalActions) internalActions.style.display = (newMode === 'internal') ? 'flex' : 'none';
+
+        // 3. Changer le mode et charger le contenu
+        currentMessMode = newMode;
+        if (newMode === 'ed') {
+            // Afficher immédiatement si déjà chargé, sinon fetch
+            if (edMessages && edMessages.length > 0) {
+                renderEDMessageList();
+            } else {
+                fetchEDMessages(true); // true = visible loading
+            }
+        } else {
+            fetchMessages();
+        }
+    }
+
+    // --- LOGIQUE ECOLE DIRECTE (ED) ---
+    const ED_API_URL = '/ed'; // Relatif
+    let edMessages = [];
+    let edLoading = false;
+
+    // Fonction de récupération (peut être appelée en background au chargement)
+    async function fetchEDMessages(isVisible = false) {
+        if (edLoading) return;
+        edLoading = true;
+
+        const listContainer = document.getElementById('message-list-inbox');
+        if (isVisible && listContainer) {
+            listContainer.innerHTML = '<p style="padding:10px; color:#aaa;">Chargement Ecole Directe...</p>';
+        }
+
+        try {
+            // Utilisation de la route proxy intégrée
+            // Récupérer l'utilisateur courant du site (stocké en localStorage)
+            const siteUser = (localStorage.getItem('source_username') || '').trim();
+            if (!siteUser) {
+                if (isVisible && listContainer) listContainer.innerHTML = `<p style="padding:10px; color:#ff5555;">Non connecté ED.<br><small>Connectez-vous à votre compte AlphaSource (en haut à droite) pour activer le Cartable.</small></p>`;
+                return;
+            }
+
+            const headers = { 'x-alpha-user': siteUser };
+            const msgResp = await fetch('/ed/messages', { headers });
+
+            if (msgResp.status === 401) {
+                if (isVisible && listContainer) listContainer.innerHTML = `<p style="padding:10px; color:#ff5555;">Non connecté ED.<br><small>Passez par l'onglet Notes pour vous connecter.</small></p>`;
+                return;
+            }
+
+            const msgData = await msgResp.json();
+            if (msgData.messages) {
+                edMessages = msgData.messages;
+                // Si l'utilisateur est toujours sur l'onglet ED, on affiche
+                if (currentMessMode === 'ed') renderEDMessageList();
+            } else {
+                if (isVisible && listContainer) listContainer.innerHTML = '<p style="padding:10px; color:#aaa;">Erreur format.</p>';
+            }
+
+        } catch (error) {
+            console.error("ED Fetch Error:", error);
+            if (isVisible && listContainer) {
+                listContainer.innerHTML = `<div style="padding:15px; color:#ff7b7b;">
+                    <p>Erreur récupération.</p>
+                    <small>${error.message}</small>
+                    <br><button id="retry-ed-btn" class="action-button secondary small mt-10">Réessayer</button>
+                </div>`;
+                document.getElementById('retry-ed-btn')?.addEventListener('click', () => fetchEDMessages(true));
+            }
+        } finally {
+            edLoading = false;
+        }
+    }
+
+    // Préchargement au démarrage (background)
+    setTimeout(() => {
+        fetchEDMessages(false);
+    }, 1000);
+
+    function renderEDMessageList() {
+        const listContainer = document.getElementById('message-list-inbox');
+        // Sécurité : on n'affiche que si on est bien en mode ED
+        if (!listContainer || currentMessMode !== 'ed') return;
+
+        listContainer.innerHTML = '';
+
+        if (!edMessages || edMessages.length === 0) {
+            listContainer.innerHTML = '<p style="padding:15px; text-align:center; color:#666;">Aucun message Ecole Directe.</p>';
+            return;
+        }
+
+        edMessages.forEach(msg => {
+            const item = document.createElement('div');
+            item.className = 'message-item';
+            item.setAttribute('data-message-id', msg.id);
+            item.style.borderLeft = '4px solid #4d7cff';
+
+            // Gestion Lu/Non lu
+            // L'API renvoie souvent 'read': boolean
+            if (msg.read === false || (msg.summary && msg.summary.read === false)) {
+                item.classList.add('unread');
+                item.style.backgroundColor = '#2a2a35';
+            }
+            if (String(msg.id) === String(activeMessageId)) item.classList.add('active');
+
+            const expediteur = (msg.from && (msg.from.prenom || msg.from.nom))
+                ? `${msg.from.prenom || ''} ${msg.from.nom || ''}`.trim()
+                : (msg.summary && msg.summary.expediteur) || 'Inconnu';
+
+            const subject = msg.subject || (msg.summary && msg.summary.subject) || '(Sans objet)';
+            const dateStr = msg.date || (msg.summary && msg.summary.date) || '';
+
+            let displayDate = dateStr;
+            try {
+                if (dateStr) {
+                    const d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        displayDate = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                    }
+                }
+            } catch (e) { }
+
+            item.innerHTML = `
+                <span class="message-sender-preview" style="color:white;">${expediteur}</span>
+                <span class="message-subject-preview" style="color:#aaa;">${subject}</span>
+                <span class="message-date">${displayDate}</span>
+            `;
+
+            item.onclick = () => {
+                activeMessageId = msg.id;
+                // Update selection visual
+                const allItems = listContainer.querySelectorAll('.message-item');
+                allItems.forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+                renderEDMessageDetail(msg);
+            };
+            listContainer.appendChild(item);
+        });
+    }
+
+    function renderEDMessageDetail(msg) {
+        showScreen('detail');
+        // Masquer les éléments spécifiques Interne
+        const badge = document.getElementById('detail-urgent-badge');
+        if (badge) badge.style.display = 'none';
+        const readP = document.getElementById('detail-readby');
+        if (readP) readP.style.display = 'none';
+        const unreadP = document.getElementById('detail-unreadby');
+        if (unreadP) unreadP.style.display = 'none';
+        const rescuePanel = document.getElementById('rescue-actions');
+        if (rescuePanel) rescuePanel.classList.add('hidden');
+        const replyBtn = document.getElementById('reply-to-message-btn');
+        if (replyBtn) replyBtn.style.display = 'none';
+
+        const subjectEl = document.getElementById('detail-subject');
+        if (subjectEl) subjectEl.textContent = msg.subject || '(Sans objet)';
+
+        const expediteur = (msg.from && (msg.from.prenom || msg.from.nom))
+            ? `${msg.from.prenom || ''} ${msg.from.nom || ''}`.trim()
+            : (msg.summary && msg.summary.expediteur) || 'Inconnu';
+
+        const senderNameEl = document.querySelector('#detail-sender .sender-name-detail');
+        if (senderNameEl) senderNameEl.textContent = expediteur;
+
+        const bodyContainer = document.getElementById('detail-body-content');
+        if (bodyContainer) {
+            let content = msg.content || (msg.summary && msg.summary.content) || '';
+
+            // Tentative de décodage Base64 sommaire
+            if (content && /^[A-Za-z0-9+/=]+$/.test(content.replace(/\s/g, ''))) {
+                try {
+                    content = atob(content);
+                    content = new TextDecoder('utf-8').decode(new Uint8Array([...content].map(c => c.charCodeAt(0))));
+                } catch (e) { }
+            }
+            bodyContainer.innerHTML = content;
+        }
+
+        const attachmentsContainer = document.getElementById('detail-attachments');
+        if (attachmentsContainer) {
+            attachmentsContainer.innerHTML = '';
+            if (msg.files && msg.files.length > 0) {
+                const title = document.createElement('h2');
+                title.textContent = 'Pièces Jointes :';
+                attachmentsContainer.appendChild(title);
+                msg.files.forEach(f => {
+                    const link = document.createElement('a');
+                    link.href = `/ed/messages/${msg.id}/files/${f.id}`;
+                    link.target = '_blank';
+                    link.textContent = `📎 ${f.libelle}`;
+                    const p = document.createElement('p');
+                    p.appendChild(link);
+                    attachmentsContainer.appendChild(p);
+                });
+            }
+        }
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            if (target) switchMessTab(target);
+        });
     });
 
     // Clic sur un ID de cours dans le message (pill)
@@ -1004,10 +1230,10 @@ window.initMessageriePage = async () => {
             navigateToCourseById(courseId);
         });
     }
-    
+
     const inputField = document.getElementById('recipient-input-field');
     inputField?.addEventListener('input', (e) => renderAutocomplete(e.target.value));
-    document.getElementById('add-all-class-btn')?.addEventListener('click', addAllClass); 
+    document.getElementById('add-all-class-btn')?.addEventListener('click', addAllClass);
     document.getElementById('recipient-input-container')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-tag-btn')) removeRecipient(e.target.getAttribute('data-user-id'));
     });
@@ -1027,7 +1253,11 @@ window.initMessageriePage = async () => {
     document.getElementById('mobile-message-close-btn')?.addEventListener('click', () => {
         hideMainContent();
         showScreen('welcome');
-        renderMessageList();
+        if (currentMessMode === 'ed') {
+            renderEDMessageList();
+        } else {
+            renderMessageList();
+        }
     });
 
     showScreen('welcome');

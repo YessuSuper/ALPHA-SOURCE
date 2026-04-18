@@ -1,34 +1,72 @@
-/**
- * API Web simple pour intégrer EcoleDirecte avec votre site
- * Serveur Express qui expose les données EcoleDirecte
+﻿/**
+ * API Web simple pour intÃ©grer EcoleDirecte avec votre site
+ * Serveur Express qui expose les donnÃ©es EcoleDirecte
  */
 
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const EcoleDirecteAPI = require('./ecoledirecte-api');
 
+const router = express.Router();
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+const MDPED_PATH = path.join(__dirname, '..', 'public', 'api', 'mdped.json');
 
-// État courant de la session côté serveur
-let apiInstance = null;
-let lastError = null;
+// Gestion des sessions multiples (clÃ© = username local normalisÃ©)
+const sessions = new Map(); // key -> { api: EcoleDirecteAPI, lastError: string }
 
-// Cache simple en mémoire pour réduire le temps de chargement (devoirs/cahier de texte)
-// TTL court pour limiter les données obsolètes.
+// Cache simple en mÃ©moire par utilisateur
 const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
-const devoirsCache = new Map(); // key: start|end -> { ts, payload }
-const cahierCache = new Map(); // key: ymd -> { ts, data }
-const messagesCache = new Map(); // key: annee|mode -> { ts, payload }
+// Structure des caches : Map<userKey, Map<cacheKey, { ts, data }>>
+const caches = {
+    devoirs: new Map(),
+    cahier: new Map(),
+    messages: new Map()
+};
 
-function defaultAnneeMessages() {
-  // Prefer the year provided by the account if available.
+function getCacheStore(type, userKey) {
+    if (!caches[type]) return null;
+    if (!caches[type].has(userKey)) caches[type].set(userKey, new Map());
+    return caches[type].get(userKey);
+}
+
+function normalizeUserKey(key) {
+    return String(key || '').trim().toLowerCase();
+}
+
+function getUserKeyFromReq(req) {
+    // 1. Header spÃ©cifique
+    const h = req.get('x-source-user') || req.get('x-alpha-user');
+    if (h) return normalizeUserKey(h);
+    
+    // 2. Query param (pour les GET faciles)
+    if (req.query.user || req.query.username) return normalizeUserKey(req.query.user || req.query.username);
+
+    // 3. Body (pour login)
+    if (req.body && (req.body.localUser || req.body.username)) return normalizeUserKey(req.body.localUser || req.body.username);
+
+    return '';
+}
+
+function getSession(req) {
+    const key = getUserKeyFromReq(req);
+    // Si pas de clÃ© et serveur unique dev local, on peut tenter une session par dÃ©faut "default"
+    // ou "even" pour rÃ©trocompatibilitÃ©, mais mieux vaut Ãªtre strict.
+    // Fallback temporaire pour index.html non modifiÃ© : si 1 seule session active, on la prend.
+    if (!key) {
+        if (sessions.size === 1) return sessions.values().next().value;
+        return null; 
+    }
+    return sessions.get(key);
+}
+
+function defaultAnneeMessages(apiInstance) {
   const v = apiInstance && apiInstance.account && apiInstance.account.anneeScolaireCourante;
   if (typeof v === 'string' && /^\d{4}-\d{4}$/.test(v)) {
     return v;
   }
-  // Fallback: infer from current date (school year starting around Sep).
   const d = new Date();
   const y = d.getFullYear();
   const m = d.getMonth() + 1;
@@ -86,76 +124,98 @@ function isTruthyFlag(v) {
     if (s === 'true' || s === '1' || s === 'oui' || s === 'o' || s === 'y' || s === 'yes') return true;
     if (s === 'false' || s === '0' || s === 'non' || s === 'n' || s === 'no') return false;
   }
-  // Fallback: any other non-empty value.
   return !!v;
 }
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+router.use(cors());
+router.use(express.json());
 
-app.get('/api/login', async (req, res) => {
-  try {
-    apiInstance = new EcoleDirecteAPI('even.henri', 'Superpitchu_8');
-    const account = await apiInstance.login();
-
-    if (account && account.requireQCM) {
-      return res.status(200).json({
-        success: false,
-        requireQCM: true,
-        message: 'QCM required - manual input needed'
-      });
+// --- Fonctions utilitaires mdped.json ---
+function readMdped() {
+    try {
+        if (!fs.existsSync(MDPED_PATH)) return {};
+        return JSON.parse(fs.readFileSync(MDPED_PATH, 'utf8'));
+    } catch(e) {
+        console.error("Erreur lecture mdped.json", e);
+        return {};
     }
+}
 
-    const safeClasse = account?.profile?.classe?.libelle || account?.classe?.libelle || account?.classe || '-';
-
-    res.json({
-      success: true,
-      account: {
-        id: account.id,
-        identifiant: account.identifiant,
-        prenom: account.prenom,
-        nom: account.nom,
-        email: account.email,
-        nomEtablissement: account.nomEtablissement,
-        classe: safeClasse,
-        anneeScolaireCourante: account.anneeScolaireCourante
-      }
-    });
-  } catch (error) {
-    lastError = error.message;
-    res.status(401).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+function writeMdped(data) {
+    try {
+        fs.writeFileSync(MDPED_PATH, JSON.stringify(data, null, 2), 'utf8');
+    } catch(e) {
+        console.error("Erreur Ã©criture mdped.json", e);
+    }
+}
 
 /**
  * POST /api/login
- * Connexion avec identifiant et mot de passe fournis par le client.
- * Body JSON: { identifiant: string, motdepasse: string }
+ * Body: { identifiant, motdepasse, localUser? }
+ * Si identifiant/motdepasse fournis : tente connexion ED -> succes -> sauvegarde dans mdped.json
+ * Si localUser seul : tente connexion via mdped.json
  */
-app.post('/api/login', async (req, res) => {
+router.post('/api/login', async (req, res) => {
   try {
-    const identifiant = (req.body && typeof req.body.identifiant === 'string') ? req.body.identifiant.trim() : '';
-    const motdepasse = (req.body && typeof req.body.motdepasse === 'string') ? req.body.motdepasse : '';
+    const identifiant = (req.body.identifiant || '').trim();
+    const motdepasse = (req.body.motdepasse || '');
+    let localUser = normalizeUserKey(req.body.localUser || 'invitÃ©');
+    
+    // Si pas de localUser spÃ©cifiÃ© mais 'even' est hardcodÃ© avant, on gÃ©rait Ã§a comment ?
+    // Pour compatibilitÃ©, si on login sans user, on prÃ©sume 'default'
+    if (!localUser && !identifiant) return res.status(400).json({ error: 'localUser ou identifiant requis' });
 
-    if (!identifiant || !motdepasse) {
-      return res.status(400).json({ success: false, error: 'identifiant et motdepasse requis' });
+    let api = null;
+    let savedEntry = null;
+
+    // A) Cas Connexion explicite (nouveaux credentials)
+    if (identifiant && motdepasse) {
+        api = new EcoleDirecteAPI(identifiant, motdepasse);
+        const account = await api.login();
+        
+        if (account && account.requireQCM) {
+             return res.status(200).json({ success: false, requireQCM: true, message: 'QCM required' });
+        }
+        
+        // SUCCÃˆS : On sauvegarde si un nom local est fourni
+        if (localUser && localUser !== 'invitÃ©') {
+            const data = readMdped();
+            // On met Ã  jour ou crÃ©e l'entrÃ©e
+            data[localUser] = {
+                username: req.body.localUser, // garder la casse originale pour l'affichage si voulu
+                id: identifiant,
+                mdp: motdepasse,
+                accountId: account.id
+            };
+            writeMdped(data);
+            console.log(`[API ED] Identifiants sauvegardÃ©s pour ${localUser}`);
+        }
+    } 
+    // B) Cas Connexion automatique via fichier
+    else if (localUser) {
+        const data = readMdped();
+        const entry = data[localUser];
+        if (!entry || !entry.id || !entry.mdp) {
+            return res.status(401).json({ error: `Aucun identifiant connu pour ${localUser}` });
+        }
+        api = new EcoleDirecteAPI(entry.id, entry.mdp);
+        const account = await api.login();
+        if (account && account.requireQCM) {
+             return res.status(200).json({ success: false, requireQCM: true, message: 'QCM required' });
+        }
+        savedEntry = entry;
     }
 
-    apiInstance = new EcoleDirecteAPI(identifiant, motdepasse);
-    const account = await apiInstance.login();
-
-    if (account && account.requireQCM) {
-      return res.status(200).json({
-        success: false,
-        requireQCM: true,
-        message: 'QCM required - manual input needed'
-      });
+    if (!api || !api.token) {
+        return res.status(401).json({ error: 'Echec connexion' });
     }
 
+    // Enregistrer la session
+    const finalUserKey = localUser || 'default';
+    sessions.set(finalUserKey, { api, lastError: null });
+
+    const account = await api.getAccount();
     const safeClasse = account?.profile?.classe?.libelle || account?.classe?.libelle || account?.classe || '-';
 
     res.json({
@@ -169,25 +229,42 @@ app.post('/api/login', async (req, res) => {
         nomEtablissement: account.nomEtablissement,
         classe: safeClasse,
         anneeScolaireCourante: account.anneeScolaireCourante
-      }
+      },
+      localUser: finalUserKey
     });
+
   } catch (error) {
-    lastError = error.message;
+    console.error("Login error:", error);
     res.status(401).json({ success: false, error: error.message });
   }
 });
 
+// GET Legacy login (dev local hardcoded Even) - A SUPPRIMER A TERME
+// On le garde pour ne pas casser si des scripts l'appellent encore sans args
+router.get('/api/login', async (req, res) => {
+    // Tente de connecter 'even' par dÃ©faut si prÃ©sent dans mdped
+    try {
+        const data = readMdped();
+        if (data['even'] && data['even'].id) {
+            const api = new EcoleDirecteAPI(data['even'].id, data['even'].mdp);
+            await api.login();
+            sessions.set('even', { api, lastError: null });
+            const account = await api.getAccount();
+            return res.json({ success: true, account });
+        }
+    } catch(e) {}
+    res.status(401).json({ error: 'Utilisez POST /api/login avec identifiants' });
+});
+
 /**
  * GET /api/notes
- * Récupère les notes
  */
-app.get('/api/notes', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/notes', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
 
   try {
-    const notes = await apiInstance.getNotes();
+    const notes = await session.api.getNotes();
     res.json(notes);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -196,20 +273,21 @@ app.get('/api/notes', async (req, res) => {
 
 /**
  * GET /api/messages
- * Récupère les messages (messagerie) en lecture seule.
  */
-app.get('/api/messages', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/messages', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
+
+  const apiInstance = session.api;
+  const userKey = getUserKeyFromReq(req) || 'default';
+  const messagesCache = getCacheStore('messages', userKey);
 
   try {
     const annee = (
       (typeof req.query.anneeMessages === 'string' && req.query.anneeMessages.trim())
         ? req.query.anneeMessages.trim()
-        : ((typeof req.query.annee === 'string' && req.query.annee.trim()) ? req.query.annee.trim() : defaultAnneeMessages())
+        : ((typeof req.query.annee === 'string' && req.query.annee.trim()) ? req.query.annee.trim() : defaultAnneeMessages(apiInstance))
     );
-    // mode: all|destinataire|expediteur
     const mode = (typeof req.query.mode === 'string' && req.query.mode.trim()) ? req.query.mode.trim() : 'all';
 
     const cacheKey = annee + '|' + mode;
@@ -219,28 +297,12 @@ app.get('/api/messages', async (req, res) => {
     }
 
     function pickList(data) {
-      // EcoleDirecte varie pas mal selon les endpoints/versions.
-      // On cherche une liste de messages de manière tolérante.
       if (!data) return [];
       if (Array.isArray(data)) return data;
-
-      const directKeys = [
-        'messages',
-        'items',
-        'received',
-        'sent',
-        'mails',
-        'listeMessages',
-        'liste',
-        'boiteReception',
-        'boiteEnvoi'
-      ];
+      const directKeys = ['messages', 'items', 'received', 'sent', 'mails', 'listeMessages', 'liste', 'boiteReception', 'boiteEnvoi'];
       for (let i = 0; i < directKeys.length; i++) {
-        const k = directKeys[i];
-        if (data && Array.isArray(data[k])) return data[k];
+        if (data && Array.isArray(data[directKeys[i]])) return data[directKeys[i]];
       }
-
-      // Structures imbriquées fréquentes
       const nestedKeys = ['data', 'messages', 'result', 'payload'];
       for (let j = 0; j < nestedKeys.length; j++) {
         const nk = nestedKeys[j];
@@ -249,27 +311,22 @@ app.get('/api/messages', async (req, res) => {
           if (found && found.length) return found;
         }
       }
-
-      // Parfois: { messages: { destinataire: [...], expediteur: [...] } }
       if (data && data.messages && typeof data.messages === 'object') {
         const candidates = ['destinataire', 'expediteur', 'inbox', 'outbox'];
         for (let c = 0; c < candidates.length; c++) {
-          const ck = candidates[c];
-          if (Array.isArray(data.messages[ck])) return data.messages[ck];
+          if (Array.isArray(data.messages[candidates[c]])) return data.messages[candidates[c]];
         }
       }
-
       return [];
     }
 
     async function fetchMode(oneMode) {
       const listData = await apiInstance.getMessagesList(oneMode, annee);
       const list = pickList(listData);
-      // Normalize ids
       const ids = [];
       for (let i = 0; i < list.length; i++) {
         const m = list[i] || {};
-        const id = parseInt(m.id || m.idMessage || m.messageId, 10);
+        const id = parseInt(m.id || m.idMessage || m.messageId || m.id_message, 10);
         if (!isNaN(id) && isFinite(id) && id > 0) {
           ids.push({ id, mode: oneMode, summary: m });
         }
@@ -285,7 +342,6 @@ app.get('/api/messages', async (req, res) => {
       targets = (both[0] || []).concat(both[1] || []);
     }
 
-    // De-duplicate by id (keep first occurrence)
     const seen = new Set();
     const unique = [];
     for (let i = 0; i < targets.length; i++) {
@@ -295,18 +351,15 @@ app.get('/api/messages', async (req, res) => {
       unique.push(t);
     }
 
-    // Fetch details in parallel (limited) so we can display content.
     const concurrency = 6;
     const detailed = await promisePool(unique, concurrency, async (t) => {
       const detail = await apiInstance.getMessageById(t.id, t.mode, annee);
-      // keep a few useful summary fields if detail lacks them
       const merged = Object.assign({}, t.summary || {}, detail || {});
       merged._mode = t.mode;
       merged.id = merged.id || t.id;
       return merged;
     });
 
-    // Sort newest first if date is present.
     detailed.sort(function (a, b) {
       const da = String((a && (a.date || a.dateCreation || a.dateEnvoi || a.dateReception)) || '');
       const db = String((b && (b.date || b.dateCreation || b.dateEnvoi || b.dateReception)) || '');
@@ -330,40 +383,26 @@ app.get('/api/messages', async (req, res) => {
 });
 
 /**
- * GET /api/messages/:idMessage/files/:idFile?mode=destinataire|expediteur&annee=YYYY-YYYY
- * Proxy de téléchargement des pièces jointes.
+ * GET /api/messages/:idMessage/files/:idFile
  */
-app.get('/api/messages/:idMessage/files/:idFile', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/messages/:idMessage/files/:idFile', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
+  const apiInstance = session.api;
 
   try {
     const idMessage = parseInt(req.params.idMessage, 10);
     const idFile = parseInt(req.params.idFile, 10);
-    if (isNaN(idMessage) || !isFinite(idMessage) || idMessage <= 0) {
-      return res.status(400).json({ error: 'Invalid idMessage' });
-    }
-    if (isNaN(idFile) || !isFinite(idFile) || idFile <= 0) {
-      return res.status(400).json({ error: 'Invalid idFile' });
-    }
+    if (isNaN(idMessage) || idMessage <= 0) return res.status(400).json({ error: 'Invalid idMessage' });
+    if (isNaN(idFile) || idFile <= 0) return res.status(400).json({ error: 'Invalid idFile' });
 
-    const mode = (typeof req.query.mode === 'string' && req.query.mode.trim()) ? req.query.mode.trim() : 'destinataire';
-    const annee = (
-      (typeof req.query.anneeMessages === 'string' && req.query.anneeMessages.trim())
-        ? req.query.anneeMessages.trim()
-        : ((typeof req.query.annee === 'string' && req.query.annee.trim()) ? req.query.annee.trim() : defaultAnneeMessages())
-    );
-
-    // Optional filename from query to improve Content-Disposition.
-    const filename = (typeof req.query.name === 'string' && req.query.name.trim()) ? req.query.name.trim() : ('piece-jointe-' + idFile);
+    const mode = (req.query.mode || 'destinataire').trim();
+    const annee = (req.query.anneeMessages || req.query.annee || defaultAnneeMessages(apiInstance)).trim();
+    const filename = (req.query.name || ('piece-jointe-' + idFile)).trim();
 
     const r = await apiInstance.downloadMessageAttachment(idMessage, idFile, mode, annee);
-
-    // Pass-through content-type if present.
     const ct = (r.headers && (r.headers['content-type'] || r.headers['Content-Type'])) || 'application/octet-stream';
     res.setHeader('Content-Type', ct);
-    // Force download.
     const safeName = String(filename).replace(/[\r\n\\]/g, '_');
     res.setHeader('Content-Disposition', 'attachment; filename="' + safeName + '"');
     if (r.headers && r.headers['content-length']) {
@@ -378,15 +417,13 @@ app.get('/api/messages/:idMessage/files/:idFile', async (req, res) => {
 
 /**
  * GET /api/timeline
- * Récupère la timeline
  */
-app.get('/api/timeline', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/timeline', async (req, res) => {
+  const session = getSession(req);
+    if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
 
   try {
-    const timeline = await apiInstance.getTimeline();
+    const timeline = await session.api.getTimeline();
     res.json(timeline);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -395,16 +432,14 @@ app.get('/api/timeline', async (req, res) => {
 
 /**
  * GET /api/emploidutemps/:dateDebut/:dateFin
- * Récupère l'emploi du temps
  */
-app.get('/api/emploidutemps/:dateDebut/:dateFin', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/emploidutemps/:dateDebut/:dateFin', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
 
   try {
     const { dateDebut, dateFin } = req.params;
-    const edt = await apiInstance.getEmploiDuTemps(dateDebut, dateFin);
+    const edt = await session.api.getEmploiDuTemps(dateDebut, dateFin);
     res.json(edt);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -413,16 +448,15 @@ app.get('/api/emploidutemps/:dateDebut/:dateFin', async (req, res) => {
 
 /**
  * GET /api/cahierdetexte/:date
- * Récupère le cahier de texte
  */
-app.get('/api/cahierdetexte/:date', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/cahierdetexte/:date', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
 
   try {
     const { date } = req.params;
-    const cahier = await apiInstance.getCahierDeTexte(date);
+    // Utiliser cache cahier ?
+    const cahier = await session.api.getCahierDeTexte(date);
     res.json(cahier);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -430,85 +464,52 @@ app.get('/api/cahierdetexte/:date', async (req, res) => {
 });
 
 /**
- * GET /api/devoirs?start=YYYY-MM-DD&end=YYYY-MM-DD
- * Agrège le cahier de texte sur une plage de dates et renvoie une liste de devoirs.
- *
- * Réponse:
- * {
- *   start: 'YYYY-MM-DD',
- *   end: 'YYYY-MM-DD',
- *   count: <number>,
- *   devoirs: [ { date, matiere, nomProf, contenu } ]
- * }
+ * GET /api/devoirs
  */
-app.get('/api/devoirs', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.get('/api/devoirs', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
+  const apiInstance = session.api;
+  const userKey = getUserKeyFromReq(req) || 'default';
+  
+  const devoirsCache = getCacheStore('devoirs', userKey);
+  const cahierCache = getCacheStore('cahier', userKey);
 
-  function isYmd(s) {
-    return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
-  }
-
-  function toYmd(d) {
-    return d.toISOString().slice(0, 10);
-  }
-
-  function parseYmdToUtcDate(s) {
-    // Force UTC midnight to avoid timezone shifts.
-    return new Date(s + 'T00:00:00.000Z');
-  }
+  function isYmd(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+  function toYmd(d) { return d.toISOString().slice(0, 10); }
+  function parseYmdToUtcDate(s) { return new Date(s + 'T00:00:00.000Z'); }
 
   try {
     const today = new Date();
     const defaultStart = toYmd(today);
     const defaultEnd = toYmd(new Date(today.getTime() + 30 * 86400000));
-
     const start = isYmd(req.query.start) ? req.query.start : defaultStart;
     const end = isYmd(req.query.end) ? req.query.end : defaultEnd;
 
-    if (!isYmd(start) || !isYmd(end)) {
-      return res.status(400).json({ error: 'Invalid date format. Use start=YYYY-MM-DD&end=YYYY-MM-DD' });
-    }
-
     const startDate = parseYmdToUtcDate(start);
     const endDate = parseYmdToUtcDate(end);
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return res.status(400).json({ error: 'Invalid date value' });
-    }
-    if (startDate.getTime() > endDate.getTime()) {
-      return res.status(400).json({ error: 'start must be <= end' });
-    }
-
-    // Hard limit to avoid hammering the upstream.
+    if (startDate.getTime() > endDate.getTime()) return res.status(400).json({ error: 'start must be <= end' });
     const maxDays = 62;
     const days = Math.floor((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
-    if (days > maxDays) {
-      return res.status(400).json({ error: 'Date range too large (max ' + maxDays + ' days)' });
-    }
+    if (days > maxDays) return res.status(400).json({ error: 'Date range too large' });
 
     const rangeKey = start + '|' + end;
     const cachedRange = getCache(devoirsCache, rangeKey);
-    if (cachedRange && cachedRange.payload) {
-      return res.json(cachedRange.payload);
-    }
+    if (cachedRange && cachedRange.payload) return res.json(cachedRange.payload);
 
-    // Build list of dates
     const dateList = [];
     for (let i = 0; i < days; i++) {
-      const d = new Date(startDate.getTime() + i * 86400000);
-      dateList.push(toYmd(d));
+      dateList.push(toYmd(new Date(startDate.getTime() + i * 86400000)));
     }
 
     const devoirs = [];
-
-    // Fetch days in parallel with a small concurrency limit.
     const concurrency = 6;
     const perDayLists = await promisePool(dateList, concurrency, async (ymd) => {
       const cachedDay = getCache(cahierCache, ymd);
-      const cahier = cachedDay ? cachedDay.data : await apiInstance.getCahierDeTexte(ymd);
-      if (!cachedDay) {
-        setCache(cahierCache, ymd, { data: cahier });
+      let cahier = cachedDay ? cachedDay.data : null;
+      if (!cahier) {
+          cahier = await apiInstance.getCahierDeTexte(ymd);
+          setCache(cahierCache, ymd, { data: cahier });
       }
 
       const out = [];
@@ -516,48 +517,27 @@ app.get('/api/devoirs', async (req, res) => {
       for (let j = 0; j < matieres.length; j++) {
         const m = matieres[j] || {};
         const af = (m.aFaire && typeof m.aFaire === 'object') ? m.aFaire : {};
-
-        // Pièces jointes / documents (les schémas ED varient, on agrège plusieurs sources)
+        
         const docs = Array.isArray(af.documents) ? af.documents : [];
         const resDocs = Array.isArray(af.ressourceDocuments) ? af.ressourceDocuments : [];
         const seanceDocs = (af.contenuDeSeance && Array.isArray(af.contenuDeSeance.documents)) ? af.contenuDeSeance.documents : [];
         const pjCount = docs.length + resDocs.length + seanceDocs.length;
         const hasPJ = (pjCount > 0) || isTruthyFlag(m.documentsAFaire) || isTruthyFlag(af.documentsAFaire);
 
-        // Questionnaire / évaluation : côté ED c'est souvent le flag "interrogation"
-        // Certains établissements renvoient aussi rendreEnLigne pour des devoirs/quiz à faire en ligne.
-        const hasQuestionnaire = isTruthyFlag(m.interrogation)
-          || isTruthyFlag(af.interrogation)
-          || isTruthyFlag(m.questionnaire)
-          || isTruthyFlag(af.questionnaire)
-          || isTruthyFlag(m.rendreEnLigne)
-          || isTruthyFlag(af.rendreEnLigne);
+        const hasQuestionnaire = isTruthyFlag(m.interrogation) || isTruthyFlag(af.interrogation) || isTruthyFlag(m.questionnaire) || isTruthyFlag(af.questionnaire) || isTruthyFlag(m.rendreEnLigne) || isTruthyFlag(af.rendreEnLigne);
 
-        // Contenu du devoir (souvent base64 HTML)
-        const b64 = af.contenu;
         let contenu = '';
-        if (b64) {
-          try {
-            contenu = Buffer.from(String(b64), 'base64').toString('utf-8');
-          } catch (e) {
-            contenu = '';
-          }
+        if (af.contenu) {
+          try { contenu = Buffer.from(String(af.contenu), 'base64').toString('utf-8'); } catch (e) { contenu = ''; }
           contenu = (contenu || '').trim();
         }
 
-        // Si pas de contenu ET pas d'indices (PJ / questionnaire), ne pas inclure.
-        if (!contenu && !hasPJ && !hasQuestionnaire) {
-          continue;
-        }
+        if (!contenu && !hasPJ && !hasQuestionnaire) continue;
 
-        // ED fournit souvent un booléen aFaire.effectue (devoir fait/pas fait)
         const effectue = (af.effectue !== undefined) ? !!af.effectue : (m.effectue !== undefined ? !!m.effectue : false);
-        const parsedIdDevoir = (af && af.idDevoir !== undefined && af.idDevoir !== null)
-          ? parseInt(af.idDevoir, 10)
-          : ((m && m.idDevoir !== undefined && m.idDevoir !== null)
-            ? parseInt(m.idDevoir, 10)
-            : ((m && m.id !== undefined && m.id !== null) ? parseInt(m.id, 10) : null));
+        const parsedIdDevoir = (af && af.idDevoir !== undefined) ? parseInt(af.idDevoir, 10) : ((m && m.idDevoir !== undefined) ? parseInt(m.idDevoir, 10) : ((m && m.id !== undefined) ? parseInt(m.id, 10) : null));
         const idDevoir = (!isNaN(parsedIdDevoir) && isFinite(parsedIdDevoir)) ? parsedIdDevoir : null;
+        
         out.push({
           date: ymd,
           matiere: m.matiere || '',
@@ -574,38 +554,22 @@ app.get('/api/devoirs', async (req, res) => {
     });
 
     for (let i = 0; i < perDayLists.length; i++) {
-      const arr = perDayLists[i] || [];
-      for (let j = 0; j < arr.length; j++) {
-        devoirs.push(arr[j]);
-      }
+        devoirs.push(...(perDayLists[i] || []));
     }
 
-    // Sort by date asc then subject.
     devoirs.sort(function (a, b) {
-      if (a.date < b.date) { return -1; }
-      if (a.date > b.date) { return 1; }
+      if (a.date < b.date) return -1;
+      if (a.date > b.date) return 1;
       var am = (a.matiere || '').toLowerCase();
       var bm = (b.matiere || '').toLowerCase();
-      if (am < bm) { return -1; }
-      if (am > bm) { return 1; }
+      if (am < bm) return -1;
+      if (am > bm) return 1;
       return 0;
     });
 
-    res.json({
-      start,
-      end,
-      count: devoirs.length,
-      devoirs
-    });
-
-    setCache(devoirsCache, rangeKey, {
-      payload: {
-        start,
-        end,
-        count: devoirs.length,
-        devoirs
-      }
-    });
+    const payload = { start, end, count: devoirs.length, devoirs };
+    setCache(devoirsCache, rangeKey, { payload });
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -613,40 +577,29 @@ app.get('/api/devoirs', async (req, res) => {
 
 /**
  * POST /api/devoirs/effectue
- * Body JSON:
- *  - { idDevoir: number, effectue: boolean }
- *  - ou { idDevoirsEffectues: number[], idDevoirsNonEffectues: number[] }
- *
- * Reproduit la requête web:
- *  POST /v3/Eleves/<id>/cahierdetexte.awp?verbe=put
- *  data={ idDevoirsEffectues: [...], idDevoirsNonEffectues: [...] }
  */
-app.post('/api/devoirs/effectue', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
+router.post('/api/devoirs/effectue', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
+  const apiInstance = session.api;
+  const userKey = getUserKeyFromReq(req) || 'default';
+  
+  const devoirsCache = getCacheStore('devoirs', userKey);
+  const cahierCache = getCacheStore('cahier', userKey);
 
   const body = req.body || {};
-
   function toIdList(v) {
     const arr = Array.isArray(v) ? v : [];
-    const out = [];
-    for (let i = 0; i < arr.length; i++) {
-      const n = parseInt(arr[i], 10);
-      if (!isNaN(n) && isFinite(n)) out.push(n);
-    }
-    return out;
+    return arr.map(x => parseInt(x, 10)).filter(n => !isNaN(n) && isFinite(n));
   }
 
   let idDevoirsEffectues = [];
   let idDevoirsNonEffectues = [];
 
-  if (body.idDevoir !== undefined && body.idDevoir !== null) {
+  if (body.idDevoir !== undefined) {
     const id = parseInt(body.idDevoir, 10);
     const eff = !!body.effectue;
-    if (isNaN(id) || !isFinite(id)) {
-      return res.status(400).json({ error: 'Invalid idDevoir' });
-    }
+    if (isNaN(id)) return res.status(400).json({ error: 'Invalid idDevoir' });
     idDevoirsEffectues = eff ? [id] : [];
     idDevoirsNonEffectues = eff ? [] : [id];
   } else {
@@ -654,23 +607,13 @@ app.post('/api/devoirs/effectue', async (req, res) => {
     idDevoirsNonEffectues = toIdList(body.idDevoirsNonEffectues);
   }
 
-  // Avoid empty update calls.
-  if (idDevoirsEffectues.length === 0 && idDevoirsNonEffectues.length === 0) {
-    return res.status(400).json({ error: 'No ids provided' });
-  }
+  if (!idDevoirsEffectues.length && !idDevoirsNonEffectues.length) return res.status(400).json({ error: 'No ids provided' });
 
   try {
     await apiInstance.setDevoirsEffectues(idDevoirsEffectues, idDevoirsNonEffectues);
-
-    // Invalidate caches since effectue status has changed upstream.
-    devoirsCache.clear();
-    cahierCache.clear();
-
-    res.json({
-      success: true,
-      effectues: idDevoirsEffectues,
-      nonEffectues: idDevoirsNonEffectues
-    });
+    if (devoirsCache) devoirsCache.clear();
+    if (cahierCache) cahierCache.clear();
+    res.json({ success: true, effectues: idDevoirsEffectues, nonEffectues: idDevoirsNonEffectues });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -678,16 +621,13 @@ app.post('/api/devoirs/effectue', async (req, res) => {
 
 /**
  * GET /api/viescolaire
- * Récupère la vie scolaire
  */
-app.get('/api/viescolaire', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
-
+router.get('/api/viescolaire', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
   try {
-    const vieScolaire = await apiInstance.getVieScolaire();
-    res.json(vieScolaire);
+    const vie = await session.api.getVieScolaire();
+    res.json(vie);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -695,17 +635,13 @@ app.get('/api/viescolaire', async (req, res) => {
 
 /**
  * GET /api/documents
- * Récupère les documents administratifs
  */
-app.get('/api/documents', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
-
+router.get('/api/documents', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
   try {
-    const archive = req.query.archive || '';
-    const documents = await apiInstance.getDocuments(archive);
-    res.json(documents);
+    const docs = await session.api.getDocuments(req.query.archive || '');
+    res.json(docs);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -713,16 +649,13 @@ app.get('/api/documents', async (req, res) => {
 
 /**
  * GET /api/espacestravail
- * Récupère les espaces de travail
  */
-app.get('/api/espacestravail', async (req, res) => {
-  if (!apiInstance) {
-    return res.status(401).json({ error: 'Not connected' });
-  }
-
+router.get('/api/espacestravail', async (req, res) => {
+  const session = getSession(req);
+  if (!session || !session.api) return res.status(401).json({ error: 'Not connected' });
   try {
-    const espacestravail = await apiInstance.getEspacesTravail();
-    res.json(espacestravail);
+    const espaces = await session.api.getEspacesTravail();
+    res.json(espaces);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -730,125 +663,49 @@ app.get('/api/espacestravail', async (req, res) => {
 
 /**
  * GET /api/status
- * Statut de connexion
  */
-app.get('/api/status', (req, res) => {
-  if (apiInstance && apiInstance.account) {
+router.get('/api/status', (req, res) => {
+  const session = getSession(req);
+  if (session && session.api && session.api.account) {
     res.json({
       connected: true,
-      user: `${apiInstance.account.prenom} ${apiInstance.account.nom}`
+      user: `${session.api.account.prenom} ${session.api.account.nom}`,
+      localUser: getUserKeyFromReq(req)
     });
   } else {
     res.json({
       connected: false,
-      lastError: lastError
+      lastError: session ? session.lastError : null
     });
   }
 });
 
 /**
  * GET /api/logout
- * Déconnecte
  */
-app.get('/api/logout', (req, res) => {
-  apiInstance = null;
-  lastError = null;
+router.get('/api/logout', (req, res) => {
+  const key = getUserKeyFromReq(req);
+  if (key && sessions.has(key)) {
+      sessions.delete(key);
+  }
   res.json({ success: true });
 });
 
-// Servir une page de test simple
-app.get('/', (req, res) => {
-  // Servir l'UI complète (onglets Notes / Devoirs / Messagerie / Emploi du temps)
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Serve UI
+router.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+router.get('/root', (req, res) => { res.sendFile(path.join(__dirname, 'root.html')); });
 
-// Garder l'ancienne page de test minimale accessible
-app.get('/root', (req, res) => {
-  res.sendFile(path.join(__dirname, 'root.html'));
-});
+if (require.main === module) {
+  app.use('/', router);
+  const server = app.listen(PORT, () => {
+    console.log(`ðŸš€ Serveur EcoleDirecte API dÃ©marrÃ© sur http://localhost:${PORT}`);
+  });
+  server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+       console.error(`Port ${PORT} utilisÃ©.`);
+    }
+  });
+} else {
+  module.exports = router;
+}
 
-// Petite page web: emploi du temps sur 1 semaine à partir du 5 janvier
-app.get('/edt', (req, res) => {
-  // Par défaut: semaine du 5 janvier 2026
-  const start = req.query.start || '2026-01-05';
-  // Fin 6 jours après (7 jours total)
-  const end = req.query.end || '2026-01-11';
-
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <title>Emploi du temps (semaine du ${start})</title>
-    </head>
-    <body>
-      <h1>Emploi du temps</h1>
-      <p>Semaine: du ${start} au ${end}</p>
-      <div id="status">Connexion en cours...</div>
-      <div id="content"></div>
-      <script>
-        const api = 'http://localhost:${PORT}/api';
-
-        async function main() {
-          try {
-            const loginRes = await fetch(api + '/login');
-            const login = await loginRes.json();
-            if (!login.success) {
-              document.getElementById('status').innerText = 'Connexion requise (2FA) ou échec: ' + (login.message || login.error || '');
-              return;
-            }
-            document.getElementById('status').innerText = 'Connecté: ' + login.account.prenom + ' ' + login.account.nom;
-
-            const edtRes = await fetch(api + '/emploidutemps/${start}/${end}');
-            const edt = await edtRes.json();
-            const container = document.getElementById('content');
-
-            if (!Array.isArray(edt)) {
-              container.innerText = 'Aucun cours trouvé ou erreur.';
-              return;
-            }
-
-            let currentDate = '';
-            edt.forEach(item => {
-              const date = item.date;
-              if (date !== currentDate) {
-                const h2 = document.createElement('h2');
-                h2.textContent = date;
-                container.appendChild(h2);
-                currentDate = date;
-              }
-              const p = document.createElement('p');
-              const heureDebut = (item.start || item.start_date || '').toString().slice(11,16) || (item.hde || '');
-              const heureFin = (item.end || item.end_date || '').toString().slice(11,16) || (item.hfin || '');
-              p.textContent = (heureDebut ? heureDebut : '') + (heureFin ? ' - ' + heureFin : '') + ' : ' + (item.matiere || item.text || item.remarque || item.libelle || 'Cours');
-              container.appendChild(p);
-            });
-          } catch (e) {
-            document.getElementById('status').innerText = 'Erreur: ' + e.message;
-          }
-        }
-
-        main();
-      </script>
-    </body>
-    </html>
-  `);
-});
-
-// Démarrer le serveur
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Serveur EcoleDirecte API démarré sur http://localhost:${PORT}`);
-  console.log(`Ouvrez http://localhost:${PORT} dans votre navigateur`);
-});
-
-server.on('error', (err) => {
-  if (err && err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} déjà utilisé (EADDRINUSE).`);
-    console.error('➡️  Fermez l\'ancien node.exe ou lancez avec un autre port:');
-    console.error('    PowerShell:  $env:PORT=3002; node .\\api-web-server.js');
-    process.exitCode = 1;
-    return;
-  }
-  console.error('❌ Erreur serveur:', err);
-  process.exitCode = 1;
-});

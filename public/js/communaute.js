@@ -1,24 +1,24 @@
 // public/js/communaute.js
+
 let activeChannelId = null;
 let activeChannelType = null;
 let avatarsCache = {}; // Cache pour les avatars 
-
 let usersColorsCache = {}; // Cache couleurs utilisateurs (anneau)
 let lastGlobalData = null;
 const topicOpenState = new Map(); // topicId -> boolean (par défaut fermé)
 const conversationMeta = new Map(); // key => { lastTs }
 let resortTimer = null;
-
 // Système de réponse aux messages
 let replyingToMessage = null; // Message auquel on répond
-let currentMessages = []; // Tous les messages de la discussion actuelle
-
+let currentMessages = [];
 // Auto-refresh pour messages en temps réel
 let autoRefreshInterval = null;
 let lastMessageId = null;
-
 // Tooltip pour badges (système copié de moncompte.js)
 let communauteTooltipTimeout;
+// Variables pour l'autocomplétion (MOVED UP to prevent ReferenceError)
+let allUsers = [];
+let selectedFillMembers = [];
 
 // Arrêter l'auto-refresh quand on quitte la page
 window.addEventListener('beforeunload', () => {
@@ -28,7 +28,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Fonction globale pour afficher le tooltip de badge
-window.showBadgeTooltipCommunaute = function(event, badgeInfo, isObtained) {
+window.showBadgeTooltipCommunaute = function (event, badgeInfo, isObtained) {
     const tooltip = document.getElementById('badge-tooltip');
     if (!tooltip) return;
 
@@ -73,7 +73,6 @@ window.showBadgeTooltipCommunaute = function(event, badgeInfo, isObtained) {
 };
 
 function initCommunityChat() {
-    console.log("INIT communaute.js : Mode Navigation Active 🗿");
 
     function notify(message, options) {
         try {
@@ -81,9 +80,9 @@ function initCommunityChat() {
                 window.showModal(message, Object.assign({ type: 'alert', title: 'Notification' }, options || {}));
                 return;
             }
-        } catch (e) {}
+        } catch (e) { }
         // fallback
-        try { alert(message); } catch (e) {}
+        try { alert(message); } catch (e) { }
     }
 
     // Ouvrir automatiquement le sidebar sur mobile
@@ -101,7 +100,7 @@ function initCommunityChat() {
     // Gestion du hamburger menu pour la page communauté
     const mobileHamburgerBtn = document.getElementById('mobile-hamburger-btn');
     if (mobileHamburgerBtn) {
-        mobileHamburgerBtn.addEventListener('click', function() {
+        mobileHamburgerBtn.addEventListener('click', function () {
             // Si on est sur mobile et qu'une conversation est ouverte, la fermer d'abord
             if (document.body.classList.contains('community-mobile-chat-open')) {
                 closeMobileConversation();
@@ -119,17 +118,17 @@ function initCommunityChat() {
     }
 
     // Précharger caches (PP + couleurs) pour le menu
-    try { preloadAvatarsCache(); } catch (e) {}
-    try { preloadUsersColors(); } catch (e) {}
+    try { preloadAvatarsCache(); } catch (e) { }
+    try { preloadUsersColors(); } catch (e) { }
 
     // Charger l'avatar de l'utilisateur actuel
     loadCurrentUserAvatar();
 
     // Charger la liste des utilisateurs pour les suggestions @
-    try { loadAvailableUsers(); } catch (e) {}
+    try { loadAvailableUsers(); } catch (e) { }
 
     const channelListContainer = document.getElementById('channel-list');
-    const chatTitleElement = document.getElementById('chat-title');
+    const chatTitleElement = document.getElementById('chat-title-pill');
 
     if (!channelListContainer) return;
 
@@ -140,7 +139,7 @@ function initCommunityChat() {
             .then(data => {
                 lastGlobalData = data;
                 renderDiscussions(data);
-                try { updateChannelAvatarsFromCache(); } catch (e) {}
+                try { updateChannelAvatarsFromCache(); } catch (e) { }
             })
             .catch(err => console.error('Erreur chargement discussions:', err));
     }
@@ -221,10 +220,10 @@ function initCommunityChat() {
     function navigateToCourseById(courseId) {
         const id = String(courseId || '').trim();
         if (!id) return;
-        try { localStorage.setItem(COURSE_FILTER_STORAGE_KEY, id); } catch (e) {}
+        try { localStorage.setItem(COURSE_FILTER_STORAGE_KEY, id); } catch (e) { }
         if (typeof window.renderPage === 'function') { window.renderPage('cours'); return; }
         const anyLink = document.querySelector('[data-page="cours"]');
-        if (anyLink) { try { anyLink.click(); } catch (e) {} return; }
+        if (anyLink) { try { anyLink.click(); } catch (e) { } return; }
         console.warn('Navigation vers cours impossible');
     }
 
@@ -298,7 +297,7 @@ function initCommunityChat() {
     function scheduleResortConversationList() {
         if (resortTimer) clearTimeout(resortTimer);
         resortTimer = setTimeout(() => {
-            try { resortConversationList(); } catch (e) {}
+            try { resortConversationList(); } catch (e) { }
         }, 60);
     }
 
@@ -397,7 +396,7 @@ function initCommunityChat() {
 
                 scheduleResortConversationList();
             })
-            .catch(() => {});
+            .catch(() => { });
     }
 
     // Fonction pour rendre les discussions dans la liste
@@ -675,7 +674,7 @@ function initCommunityChat() {
         });
 
         // Ordonner une première fois (classe en haut), puis resort avec les previews
-        try { resortConversationList(); } catch (e) {}
+        try { resortConversationList(); } catch (e) { }
 
         // Activer le premier élément par défaut (en évitant les topics)
         const first = channelList.querySelector('.discussion-item[data-type="group"], .discussion-item.fill-item.member, .discussion-item[data-type="mp"]');
@@ -684,8 +683,11 @@ function initCommunityChat() {
             activeChannelId = first.getAttribute('data-id') || null;
             const firstType = first.getAttribute('data-type');
             activeChannelType = firstType;
-            const titleEl = document.getElementById('chat-title');
-            if (titleEl) titleEl.textContent = first.getAttribute('data-display-name') || first.innerText.trim();
+            const titlePill = document.getElementById('chat-title-pill');
+            if (titlePill) {
+                titlePill.textContent = first.getAttribute('data-display-name') || first.innerText.trim();
+                titlePill.onclick = openGroupDetailsOverlay;
+            }
             // Charger les messages et configurer l'input
             loadMessages(activeChannelId, firstType);
             toggleMessageInput(firstType);
@@ -705,8 +707,11 @@ function initCommunityChat() {
         // Fermer le sidebar et ouvrir la conversation
         document.body.classList.remove('community-sidebar-open');
         document.body.classList.add('community-mobile-chat-open');
-        const chatTitle = document.getElementById('chat-title');
-        if (chatTitle) chatTitle.textContent = channelName;
+        const chatTitlePill = document.getElementById('chat-title-pill');
+        if (chatTitlePill) {
+            chatTitlePill.textContent = '# ' + channelName;
+            chatTitlePill.onclick = openGroupDetailsOverlay;
+        }
         // charger messages (réutilise la fonction existante si définie)
         try { loadMessages(channelId, channelType); } catch (e) { console.warn('loadMessages non dispo', e); }
     }
@@ -796,6 +801,160 @@ function initCommunityChat() {
         }
     }
 
+    // --- GESTION DU DON DE POINTS ---
+    const givePointsBtn = document.getElementById('give-points-btn');
+    const givePointsOverlay = document.getElementById('give-points-overlay');
+    const closeGivePointsBtn = document.getElementById('close-give-points-btn');
+    const givePointsForm = document.getElementById('give-points-form');
+    let givePointsSuggestions = document.getElementById('give-points-suggestions');
+
+    if (givePointsBtn && givePointsOverlay) {
+        function toggleGivePointsOverlay() {
+            if (givePointsOverlay.style.display === 'flex') {
+                givePointsOverlay.style.display = 'none';
+            } else {
+                givePointsOverlay.style.display = 'flex';
+                // Reset form
+                if (givePointsForm) givePointsForm.reset();
+                if (givePointsSuggestions) givePointsSuggestions.style.display = 'none';
+
+                // Fetch balance
+                fetchCurrentBalance();
+            }
+        }
+
+        givePointsBtn.addEventListener('click', toggleGivePointsOverlay);
+        if (closeGivePointsBtn) closeGivePointsBtn.addEventListener('click', toggleGivePointsOverlay);
+        givePointsOverlay.addEventListener('click', (e) => {
+            if (e.target === givePointsOverlay) toggleGivePointsOverlay();
+        });
+
+        // Autocomplete
+        const recipientInput = document.getElementById('give-points-recipient');
+        if (recipientInput && givePointsSuggestions) {
+            recipientInput.addEventListener('input', () => {
+                const val = recipientInput.value.toLowerCase().trim();
+                givePointsSuggestions.innerHTML = '';
+                if (val.length < 1) {
+                    givePointsSuggestions.style.display = 'none';
+                    return;
+                }
+
+                const matches = (allUsers || []).filter(u =>
+                    u.toLowerCase().includes(val) &&
+                    u.toLowerCase() !== currentUsername.toLowerCase()
+                );
+
+                if (matches.length > 0) {
+                    givePointsSuggestions.style.display = 'block';
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.textContent = match;
+                        div.style.padding = '8px';
+                        div.style.cursor = 'pointer';
+                        div.addEventListener('mouseenter', () => div.style.background = 'rgba(255,255,255,0.1)');
+                        div.addEventListener('mouseleave', () => div.style.background = 'transparent');
+                        div.addEventListener('click', () => {
+                            recipientInput.value = match;
+                            givePointsSuggestions.style.display = 'none';
+                        });
+                        givePointsSuggestions.appendChild(div);
+                    });
+                } else {
+                    givePointsSuggestions.style.display = 'none';
+                }
+            });
+
+            // Clic dehors pour fermer suggestions
+            document.addEventListener('click', (e) => {
+                if (e.target !== recipientInput && e.target !== givePointsSuggestions) {
+                    givePointsSuggestions.style.display = 'none';
+                }
+            });
+        }
+
+        // Fetch Balance
+        function fetchCurrentBalance() {
+            if (!currentUsername) return;
+
+            fetch(`/api/user/balance?username=${encodeURIComponent(currentUsername)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const balanceEl = document.getElementById('give-points-current-balance');
+                        if (balanceEl) balanceEl.textContent = data.points + ' pts';
+                    }
+                })
+                .catch(err => {
+                    console.error("Error fetching balance:", err);
+                    const balanceEl = document.getElementById('give-points-current-balance');
+                    if (balanceEl) balanceEl.textContent = '--';
+                });
+        }
+
+        // Submit Logic
+        if (givePointsForm) {
+            givePointsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const recipient = document.getElementById('give-points-recipient').value.trim();
+                const amount = parseInt(document.getElementById('give-points-amount').value, 10);
+
+                if (!recipient || !amount || amount <= 0) {
+                    notify("Veuillez remplir correctement les champs", { type: 'error' });
+                    return;
+                }
+
+                if (typeof window.showModal === 'function') {
+                    const confirmed = await window.showModal(`Confirmer l'envoi de ${amount} points à ${recipient} ?`, {
+                        type: 'confirm',
+                        title: 'Confirmation de don',
+                        confirmText: 'Envoyer',
+                        cancelText: 'Annuler'
+                    });
+                    if (!confirmed) return;
+                } else {
+                    if (!confirm(`Confirmer l'envoi de ${amount} points à ${recipient} ?`)) return;
+                }
+
+                const btn = givePointsForm.querySelector('button[type="submit"]');
+                if (btn) btn.disabled = true;
+
+                fetch('/api/community/give-points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: currentUsername,
+                        receiver: recipient,
+                        amount: amount
+                    })
+                })
+                    .then(async r => {
+                        const data = await r.json();
+                        if (r.ok && data.success) {
+                            if (typeof window.showModal === 'function') {
+                                await window.showModal(data.message, { type: 'alert', title: 'Succès' });
+                            } else {
+                                notify(data.message, { type: 'success' });
+                            }
+                            toggleGivePointsOverlay();
+                            // Update balance visually (si on rouvre)
+                            const balanceEl = document.getElementById('give-points-current-balance');
+                            if (balanceEl) balanceEl.textContent = data.newBalance + ' pts';
+                        } else {
+                            notify(data.message || "Erreur lors de l'envoi", { type: 'error' });
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        notify("Erreur de connexion", { type: 'error' });
+                    })
+                    .finally(() => {
+                        if (btn) btn.disabled = false;
+                    });
+            });
+        }
+    }
+
     // Fonction pour gérer les actions de création
     function handleCreateAction(action) {
         openCreateModal(action);
@@ -805,7 +964,8 @@ function initCommunityChat() {
     function openCreateModal(action) {
         const modalOverlay = document.getElementById('create-modal-overlay');
         const modalTitle = document.getElementById('modal-title');
-        const forms = document.querySelectorAll('.modal-form');
+        const createModal = document.getElementById('create-modal');
+        const forms = createModal ? createModal.querySelectorAll('.modal-form') : [];
 
         // Masquer tous les formulaires
         forms.forEach(form => form.style.display = 'none');
@@ -823,8 +983,8 @@ function initCommunityChat() {
             case 'newFill':
                 modalTitle.textContent = 'Créer un nouveau fill';
                 document.getElementById('fill-form').style.display = 'flex';
-                try { resetFillMembersSelection(); } catch (e) {}
-                try { loadAvailableUsers(); } catch (e) {}
+                try { resetFillMembersSelection(); } catch (e) { }
+                try { loadAvailableUsers(); } catch (e) { }
                 loadParentOptions();
                 break;
             case 'newMp':
@@ -843,7 +1003,8 @@ function initCommunityChat() {
     // Fonction pour fermer le modal
     function closeCreateModal() {
         const modalOverlay = document.getElementById('create-modal-overlay');
-        const forms = document.querySelectorAll('.modal-form');
+        const createModal = document.getElementById('create-modal');
+        const forms = createModal ? createModal.querySelectorAll('.modal-form') : [];
 
         modalOverlay.style.display = 'none';
         forms.forEach(form => form.style.display = 'none');
@@ -851,7 +1012,7 @@ function initCommunityChat() {
         // Réinitialiser les formulaires
         forms.forEach(form => form.reset());
 
-        try { resetFillMembersSelection(); } catch (e) {}
+        try { resetFillMembersSelection(); } catch (e) { }
     }
 
     // Fonction pour charger les options de parent pour les fills
@@ -947,20 +1108,20 @@ function initCommunityChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, description, isPrivate, username: currentUsername })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`Groupe créé : ${name}`);
-                    closeCreateModal();
-                    loadDiscussions();
-                } else {
-                    alert('Erreur création groupe: ' + data.message);
-                }
-            })
-            .catch(err => {
-                console.error('Erreur création groupe:', err);
-                alert('Erreur serveur');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Groupe créé : ${name}`);
+                        closeCreateModal();
+                        loadDiscussions();
+                    } else {
+                        alert('Erreur création groupe: ' + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur création groupe:', err);
+                    alert('Erreur serveur');
+                });
         });
     }
 
@@ -978,20 +1139,20 @@ function initCommunityChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, description, username: currentUsername })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`Sujet créé : ${name}`);
-                    closeCreateModal();
-                    loadDiscussions();
-                } else {
-                    alert('Erreur création sujet: ' + data.message);
-                }
-            })
-            .catch(err => {
-                console.error('Erreur création sujet:', err);
-                alert('Erreur serveur');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Sujet créé : ${name}`);
+                        closeCreateModal();
+                        loadDiscussions();
+                    } else {
+                        alert('Erreur création sujet: ' + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur création sujet:', err);
+                    alert('Erreur serveur');
+                });
         });
     }
 
@@ -1013,20 +1174,20 @@ function initCommunityChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, description, parentType, parentId, username: currentUsername, members })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`Fill créé : ${name}`);
-                    closeCreateModal();
-                    loadDiscussions();
-                } else {
-                    alert('Erreur création fill: ' + data.message);
-                }
-            })
-            .catch(err => {
-                console.error('Erreur création fill:', err);
-                alert('Erreur serveur');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Fill créé : ${name}`);
+                        closeCreateModal();
+                        loadDiscussions();
+                    } else {
+                        alert('Erreur création fill: ' + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur création fill:', err);
+                    alert('Erreur serveur');
+                });
         });
     }
 
@@ -1043,26 +1204,25 @@ function initCommunityChat() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ recipient, username: currentUsername })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`MP créé avec ${recipient}`);
-                    closeCreateModal();
-                    loadDiscussions();
-                } else {
-                    alert('Erreur création MP: ' + data.message);
-                }
-            })
-            .catch(err => {
-                console.error('Erreur création MP:', err);
-                alert('Erreur serveur');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`MP créé avec ${recipient}`);
+                        closeCreateModal();
+                        loadDiscussions();
+                    } else {
+                        alert('Erreur création MP: ' + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur création MP:', err);
+                    alert('Erreur serveur');
+                });
         });
     }
 
     // Variables pour l'autocomplétion
-    let allUsers = [];
-    let selectedFillMembers = [];
+    // (supprimé: déjà déclaré en haut du fichier)
 
     // Fonction pour charger la liste des utilisateurs disponibles
     function loadAvailableUsers() {
@@ -1241,19 +1401,19 @@ function initCommunityChat() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ fillId, username: currentUsername })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                notify(data.message || 'Demande envoyée.', { title: 'Communauté' });
-                try { loadDiscussions(); } catch (e) {}
-            } else {
-                notify('Erreur demander à rejoindre: ' + data.message, { title: 'Communauté' });
-            }
-        })
-        .catch(err => {
-            console.error('Erreur rejoindre fill:', err);
-            notify('Erreur serveur', { title: 'Communauté' });
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    notify(data.message || 'Demande envoyée.', { title: 'Communauté' });
+                    try { loadDiscussions(); } catch (e) { }
+                } else {
+                    notify('Erreur demander à rejoindre: ' + data.message, { title: 'Communauté' });
+                }
+            })
+            .catch(err => {
+                console.error('Erreur rejoindre fill:', err);
+                notify('Erreur serveur', { title: 'Communauté' });
+            });
     }
 
     // Vue infos fill pour non-membre
@@ -1455,7 +1615,7 @@ function initCommunityChat() {
 
         // On cherche l'élément li le plus proche
         const item = e.target.closest('.discussion-item');
-        
+
         if (item) {
             const id = item.getAttribute('data-id');
             const type = item.getAttribute('data-type');
@@ -1472,8 +1632,11 @@ function initCommunityChat() {
                 item.classList.add('active');
                 item.classList.add('active-fill');
 
-                const titleEl = document.getElementById('chat-title');
-                if (titleEl) titleEl.textContent = item.getAttribute('data-display-name') || item.innerText.trim();
+                const titlePill = document.getElementById('chat-title-pill');
+                if (titlePill) {
+                    titlePill.textContent = item.getAttribute('data-display-name') || item.innerText.trim();
+                    titlePill.onclick = openGroupDetailsOverlay;
+                }
 
                 // Ne pas laisser l'ancien canal (souvent le groupe de classe) actif
                 activeChannelId = null;
@@ -1506,7 +1669,6 @@ function initCommunityChat() {
 
             activeChannelId = id;
             activeChannelType = type;
-            console.log(`Sélection : ${id} (${type}) en VERT 🗿`);
 
             // Mobile: ouvrir plein écran
             if (window.innerWidth <= 768) {
@@ -1586,7 +1748,7 @@ function initCommunityChat() {
 
             // Set après chargement async des options
             pendingFillParentTopicId = topicId;
-            try { loadParentOptions(); } catch (e) {}
+            try { loadParentOptions(); } catch (e) { }
         });
     }
 
@@ -1621,6 +1783,9 @@ function initCommunityChat() {
         // Arrêter l'auto-refresh de l'ancienne discussion
         stopAutoRefresh();
         lastMessageId = null;
+        // Reset new-messages bubble & start typing poll
+        hideNewMsgBubble();
+        startTypingPoll();
 
         fetch(`/public/api/community/messages/${encodeURIComponent(discussionId)}/${encodeURIComponent(discussionType)}?username=${encodeURIComponent(currentUsername)}`)
             .then(response => {
@@ -1630,7 +1795,16 @@ function initCommunityChat() {
             .then(data => {
                 if (data.success) {
                     displayMessages(data.messages);
-                    
+
+                    // Marquer la discussion comme lue
+                    fetch('/public/api/community/mark-read', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: currentUsername, discussionId, discussionType })
+                    }).then(() => {
+                        if (typeof window.__checkNotifications === 'function') window.__checkNotifications();
+                    }).catch(() => {});
+
                     // Initialiser lastMessageId et démarrer l'auto-refresh
                     if (data.messages && data.messages.length > 0) {
                         lastMessageId = data.messages[data.messages.length - 1].id;
@@ -1653,11 +1827,8 @@ function initCommunityChat() {
 
     // Initialiser le menu contextuel sur les messages
     function initializeMessageContextMenu() {
-        console.log('🔧 initializeMessageContextMenu appelé');
         const messagesContainer = document.getElementById('messages-container');
         const contextMenu = document.getElementById('message-context-menu');
-        console.log('messagesContainer:', messagesContainer);
-        console.log('contextMenu:', contextMenu);
         if (!messagesContainer || !contextMenu) {
             console.error('❌ Éléments manquants pour le menu contextuel');
             return;
@@ -1668,11 +1839,9 @@ function initCommunityChat() {
 
         // Gérer le clic droit (PC)
         messagesContainer.addEventListener('contextmenu', (e) => {
-            console.log('🖱️ CONTEXTMENU EVENT!', e.target);
             const messageEl = e.target.closest('.message-item');
-            console.log('messageEl trouvé:', messageEl);
             if (!messageEl) return;
-            
+
             e.preventDefault();
             showContextMenu(messageEl, e.clientX, e.clientY);
         });
@@ -1731,22 +1900,32 @@ function initCommunityChat() {
 
         // Gérer les clics sur les options du menu
         contextMenu.addEventListener('click', async (e) => {
+            // Gérer les boutons de réaction rapide
+            const reactionBtn = e.target.closest('.context-reaction-btn');
+            if (reactionBtn) {
+                const emoji = reactionBtn.getAttribute('data-emoji');
+                const messageId = contextMenu.getAttribute('data-message-id');
+                contextMenu.style.display = 'none';
+                if (emoji && messageId) toggleReaction(messageId, emoji);
+                return;
+            }
+
             const item = e.target.closest('.context-menu-item');
             if (!item) return;
 
             const action = item.getAttribute('data-action');
             const messageId = contextMenu.getAttribute('data-message-id');
             const message = currentMessages.find(m => m.id === messageId);
-            
+
             contextMenu.style.display = 'none';
 
             if (!message) return;
 
-            switch(action) {
+            switch (action) {
                 case 'reply':
                     setReplyingTo(message);
                     break;
-                
+
                 case 'copy':
                     if (message.content) {
                         try {
@@ -1759,7 +1938,7 @@ function initCommunityChat() {
                         }
                     }
                     break;
-                
+
                 case 'report':
                     reportMessage(messageId, message);
                     break;
@@ -1785,9 +1964,9 @@ function initCommunityChat() {
 
         const currentUsername = localStorage.getItem('source_username');
         if (!currentUsername) {
-            window.showModal('Vous devez être connecté pour signaler.', { 
-                type: 'alert', 
-                title: 'Erreur' 
+            window.showModal('Vous devez être connecté pour signaler.', {
+                type: 'alert',
+                title: 'Erreur'
             });
             return;
         }
@@ -1796,31 +1975,31 @@ function initCommunityChat() {
             const response = await fetch('/api/report-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    messageId, 
+                body: JSON.stringify({
+                    messageId,
                     reportedUser: message.sender,
                     reportingUser: currentUsername
                 })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
-                window.showModal(data.message || 'Message signalé avec succès.', { 
-                    type: 'alert', 
-                    title: 'Signalement envoyé' 
+                window.showModal(data.message || 'Message signalé avec succès.', {
+                    type: 'alert',
+                    title: 'Signalement envoyé'
                 });
             } else {
-                window.showModal(data.message || 'Erreur lors du signalement.', { 
-                    type: 'alert', 
-                    title: 'Erreur' 
+                window.showModal(data.message || 'Erreur lors du signalement.', {
+                    type: 'alert',
+                    title: 'Erreur'
                 });
             }
         } catch (err) {
             console.error('Erreur signalement:', err);
-            window.showModal('Erreur réseau lors du signalement.', { 
-                type: 'alert', 
-                title: 'Erreur' 
+            window.showModal('Erreur réseau lors du signalement.', {
+                type: 'alert',
+                title: 'Erreur'
             });
         }
     }
@@ -1918,12 +2097,14 @@ function initCommunityChat() {
             messageElement.className = `message-item ${isOwnMessage ? 'own-message' : 'other-message'}`;
             messageElement.setAttribute('data-message-id', message.id);
 
-            // Formater l'heure
+            // Formater l'heure (relative + absolue en tooltip)
             const timestamp = new Date(message.timestamp);
             const timeString = timestamp.toLocaleTimeString('fr-FR', {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+            const relTime = typeof window.timeAgo === 'function' ? window.timeAgo(timestamp) : timeString;
+            const fullDate = timestamp.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             if (isOwnMessage) {
                 // Message de l'utilisateur actuel (à droite)
@@ -1935,7 +2116,7 @@ function initCommunityChat() {
                 if (message.content && message.content.trim()) {
                     contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
-                
+
                 // Afficher le message auquel on répond
                 let replyHtml = '';
                 if (message.replies_to) {
@@ -1948,12 +2129,17 @@ function initCommunityChat() {
                         `;
                     }
                 }
-                
+
+                const reactionsHtml = buildReactionsHtml(message);
+                const quickLikeHtml = buildQuickLikeButton(message);
+
                 messageElement.innerHTML = `
                     ${replyHtml}
                     ${fileHtml}
                     ${contentHtml}
-                    <div class="message-time">${timeString}</div>
+                    <div class="message-time relative-time" title="${fullDate}">${relTime}</div>
+                    <div class="message-actions-row">${quickLikeHtml}</div>
+                    ${reactionsHtml}
                 `;
 
             } else {
@@ -1966,7 +2152,7 @@ function initCommunityChat() {
                 if (message.content && message.content.trim()) {
                     contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
-                
+
                 // Construire les badges HTML
                 let badgesHtml = '';
                 if (Array.isArray(message.badges) && message.badges.length > 0) {
@@ -1976,7 +2162,7 @@ function initCommunityChat() {
                             const badge = BADGE_ICONS[badgeId];
                             const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
                             const title = `${desc.name}: ${desc.description}`;
-                            
+
                             if (badge.type === 'image') {
                                 // Afficher comme image
                                 badgesHtml += `<img src="${badge.src}" alt="${desc.name}" class="message-badge-image" title="${title}">`;
@@ -1988,7 +2174,7 @@ function initCommunityChat() {
                     });
                     badgesHtml += '</div>';
                 }
-                
+
                 // Afficher le message auquel on répond
                 let replyHtml = '';
                 if (message.replies_to) {
@@ -2001,7 +2187,10 @@ function initCommunityChat() {
                         `;
                     }
                 }
-                
+
+                const reactionsHtml2 = buildReactionsHtml(message);
+                const quickLikeHtml2 = buildQuickLikeButton(message);
+
                 messageElement.innerHTML = `
                     ${replyHtml}
                     <div class="message-sender">
@@ -2011,7 +2200,9 @@ function initCommunityChat() {
                     </div>
                     ${fileHtml}
                     ${contentHtml}
-                    <div class="message-time">${timeString}</div>
+                    <div class="message-time relative-time" title="${fullDate}">${relTime}</div>
+                    <div class="message-actions-row">${quickLikeHtml2}</div>
+                    ${reactionsHtml2}
                 `;
             }
 
@@ -2020,9 +2211,25 @@ function initCommunityChat() {
 
         // Initialiser la détection de swipe
         initializeMessageSwipe();
-        
+
         // Initialiser le menu contextuel
         initializeMessageContextMenu();
+
+        // Clic sur les badges de réaction inline (event delegation)
+        messagesContainer.addEventListener('click', (e) => {
+            const likeBtn = e.target.closest('.message-like-btn');
+            if (likeBtn) {
+                const msgId = likeBtn.getAttribute('data-msg-id');
+                if (msgId) toggleReaction(msgId, '👍');
+                return;
+            }
+
+            const badge = e.target.closest('.reaction-badge');
+            if (!badge) return;
+            const emoji = badge.getAttribute('data-emoji');
+            const msgId = badge.getAttribute('data-msg-id');
+            if (emoji && msgId) toggleReaction(msgId, emoji);
+        });
 
         // Scroll vers le bas après l'ajout de tous les messages
         setTimeout(() => {
@@ -2041,10 +2248,10 @@ function initCommunityChat() {
             clearInterval(autoRefreshInterval);
         }
 
-        // Vérifier les nouveaux messages toutes les 500ms (ultra rapide)
+        // Vérifier les nouveaux messages toutes les 5s
         autoRefreshInterval = setInterval(() => {
             checkForNewMessages();
-        }, 500);
+        }, 5000);
     }
 
     function stopAutoRefresh() {
@@ -2064,7 +2271,7 @@ function initCommunityChat() {
             .then(data => {
                 if (data.success && Array.isArray(data.messages)) {
                     const newMessages = data.messages;
-                    
+
                     // Si c'est le premier chargement, on initialise juste
                     if (!lastMessageId) {
                         if (newMessages.length > 0) {
@@ -2075,7 +2282,7 @@ function initCommunityChat() {
 
                     // Trouver l'index du dernier message connu
                     const lastIndex = newMessages.findIndex(m => m.id === lastMessageId);
-                    
+
                     if (lastIndex === -1) {
                         // Le dernier message connu n'existe plus, recharger tout
                         currentMessages = newMessages;
@@ -2086,13 +2293,13 @@ function initCommunityChat() {
                     } else if (lastIndex < newMessages.length - 1) {
                         // Il y a de nouveaux messages après le dernier connu
                         const messagesToAdd = newMessages.slice(lastIndex + 1);
-                        
+
                         // Ajouter les nouveaux messages à currentMessages
                         currentMessages.push(...messagesToAdd);
-                        
+
                         // Afficher seulement les nouveaux messages
                         appendNewMessages(messagesToAdd);
-                        
+
                         // Mettre à jour le dernier ID
                         lastMessageId = newMessages[newMessages.length - 1].id;
                     }
@@ -2127,6 +2334,8 @@ function initCommunityChat() {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+            const relTime = typeof window.timeAgo === 'function' ? window.timeAgo(timestamp) : timeString;
+            const fullDate = timestamp.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
             if (isOwnMessage) {
                 // Message de l'utilisateur actuel (à droite)
@@ -2138,7 +2347,7 @@ function initCommunityChat() {
                 if (message.content && message.content.trim()) {
                     contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
-                
+
                 let replyHtml = '';
                 if (message.replies_to) {
                     const replyTo = currentMessages.find(m => m.id === message.replies_to);
@@ -2150,12 +2359,17 @@ function initCommunityChat() {
                         `;
                     }
                 }
-                
+
+                const reactionsHtmlA = buildReactionsHtml(message);
+                const quickLikeHtmlA = buildQuickLikeButton(message);
+
                 messageElement.innerHTML = `
                     ${replyHtml}
                     ${fileHtml}
                     ${contentHtml}
-                    <div class="message-time">${timeString}</div>
+                    <div class="message-time relative-time" title="${fullDate}">${relTime}</div>
+                    <div class="message-actions-row">${quickLikeHtmlA}</div>
+                    ${reactionsHtmlA}
                 `;
 
             } else {
@@ -2168,7 +2382,7 @@ function initCommunityChat() {
                 if (message.content && message.content.trim()) {
                     contentHtml = `<div class="message-content">${formatMessageContentWithLinks(message.content)}</div>`;
                 }
-                
+
                 let badgesHtml = '';
                 if (Array.isArray(message.badges) && message.badges.length > 0) {
                     badgesHtml = '<div class="message-sender-badges">';
@@ -2177,7 +2391,7 @@ function initCommunityChat() {
                             const badge = BADGE_ICONS[badgeId];
                             const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
                             const title = `${desc.name}: ${desc.description}`;
-                            
+
                             if (badge.type === 'image') {
                                 badgesHtml += `<img src="${badge.src}" alt="${desc.name}" class="message-badge-image" title="${title}">`;
                             } else {
@@ -2187,7 +2401,7 @@ function initCommunityChat() {
                     });
                     badgesHtml += '</div>';
                 }
-                
+
                 let replyHtml = '';
                 if (message.replies_to) {
                     const replyTo = currentMessages.find(m => m.id === message.replies_to);
@@ -2199,7 +2413,10 @@ function initCommunityChat() {
                         `;
                     }
                 }
-                
+
+                const reactionsHtmlB = buildReactionsHtml(message);
+                const quickLikeHtmlB = buildQuickLikeButton(message);
+
                 messageElement.innerHTML = `
                     ${replyHtml}
                     <div class="message-sender">
@@ -2209,7 +2426,9 @@ function initCommunityChat() {
                     </div>
                     ${fileHtml}
                     ${contentHtml}
-                    <div class="message-time">${timeString}</div>
+                    <div class="message-time relative-time" title="${fullDate}">${relTime}</div>
+                    <div class="message-actions-row">${quickLikeHtmlB}</div>
+                    ${reactionsHtmlB}
                 `;
             }
 
@@ -2219,9 +2438,79 @@ function initCommunityChat() {
         // Charger les avatars pour les nouveaux messages
         loadMessageAvatars();
 
-        // Auto-scroll si on était en bas
+        // Auto-scroll si on était en bas, sinon montrer la bulle
         if (wasAtBottom) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            hideNewMsgBubble();
+        } else if (newMessages.length > 0) {
+            unreadNewCount += newMessages.length;
+            showNewMsgBubble(unreadNewCount);
+        }
+    }
+
+    function buildQuickLikeButton(message) {
+        const likes = message && message.reactions && Array.isArray(message.reactions['👍'])
+            ? message.reactions['👍']
+            : [];
+        const likeCount = likes.length;
+        const likedByMe = likes.includes(currentUsername);
+        if (likeCount === 0 && !likedByMe) return '';
+        const cls = 'message-like-btn' + (likedByMe ? ' liked' : '');
+        return `<button type="button" class="${cls}" data-msg-id="${message.id}" aria-label="Like du message">👍 <span>${likeCount}</span></button>`;
+    }
+
+    // Génère le HTML des réactions d'un message
+    function buildReactionsHtml(message) {
+        if (!message.reactions || typeof message.reactions !== 'object') return '';
+        const entries = Object.entries(message.reactions).filter(([, users]) => Array.isArray(users) && users.length > 0);
+        if (entries.length === 0) return '';
+        let html = '<div class="message-reactions">';
+        entries.forEach(([emoji, users]) => {
+            const isMine = users.includes(currentUsername);
+            const cls = 'reaction-badge' + (isMine ? ' reaction-mine' : '');
+            const title = users.join(', ');
+            html += `<button class="${cls}" data-emoji="${emoji}" data-msg-id="${message.id}" title="${title}">${emoji} <span class="reaction-count">${users.length}</span></button>`;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    // Appelle l'API pour toggler une réaction
+    async function toggleReaction(messageId, emoji) {
+        if (!activeChannelId || !activeChannelType || !currentUsername) return;
+        try {
+            const res = await fetch('/public/api/community/react-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    discussionId: activeChannelId,
+                    discussionType: activeChannelType,
+                    messageId,
+                    emoji,
+                    username: currentUsername
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Met à jour le message local
+                const msg = currentMessages.find(m => m.id === messageId);
+                if (msg) msg.reactions = data.reactions;
+                // Re-render les réactions du message dans le DOM
+                const el = document.querySelector(`.message-item[data-message-id="${messageId}"]`);
+                if (el) {
+                    const old = el.querySelector('.message-reactions');
+                    if (old) old.remove();
+                    const fakeMsg = { id: messageId, reactions: data.reactions };
+                    const newHtml = buildReactionsHtml(fakeMsg);
+                    if (newHtml) el.insertAdjacentHTML('beforeend', newHtml);
+
+                    const oldActionRow = el.querySelector('.message-actions-row');
+                    if (oldActionRow) oldActionRow.remove();
+                    el.insertAdjacentHTML('beforeend', `<div class="message-actions-row">${buildQuickLikeButton(fakeMsg)}</div>`);
+                }
+            }
+        } catch (e) {
+            console.error('Erreur réaction:', e);
         }
     }
 
@@ -2392,6 +2681,111 @@ function initCommunityChat() {
         });
     }
 
+    // === TYPING INDICATOR ===
+    let typingTimer = null;
+    let typingPollInterval = null;
+
+    function sendTypingSignal() {
+        if (!activeChannelId || !activeChannelType) return;
+        fetch('/public/api/community/typing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: currentUsername, discussionId: activeChannelId, discussionType: activeChannelType })
+        }).catch(() => {});
+    }
+
+    if (messageInput) {
+        messageInput.addEventListener('input', () => {
+            if (!activeChannelId) return;
+            clearTimeout(typingTimer);
+            sendTypingSignal();
+            typingTimer = setTimeout(() => {}, 3000);
+        }, false);
+    }
+
+    function ensureTypingIndicator() {
+        const inputWrapper = document.getElementById('input-controls-wrapper');
+        if (!inputWrapper) return null;
+        let el = document.getElementById('typing-indicator');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'typing-indicator';
+            el.className = 'typing-indicator';
+            el.innerHTML = '<span class="typing-text"></span> <span class="typing-dots"><span></span><span></span><span></span></span>';
+            inputWrapper.insertBefore(el, inputWrapper.firstChild);
+        }
+        return el;
+    }
+
+    function pollTyping() {
+        if (!activeChannelId || !activeChannelType) return;
+        fetch(`/public/api/community/typing?discussionId=${encodeURIComponent(activeChannelId)}&discussionType=${encodeURIComponent(activeChannelType)}&username=${encodeURIComponent(currentUsername)}`)
+            .then(r => r.json())
+            .then(data => {
+                const el = ensureTypingIndicator();
+                if (!el) return;
+                if (data.success && data.users && data.users.length > 0) {
+                    const names = data.users.slice(0, 3);
+                    const text = names.length === 1
+                        ? `${names[0]} est en train d'écrire`
+                        : `${names.join(', ')} sont en train d'écrire`;
+                    el.querySelector('.typing-text').textContent = text;
+                    el.classList.add('visible');
+                } else {
+                    el.classList.remove('visible');
+                }
+            })
+            .catch(() => {});
+    }
+
+    // Start/restart typing poll when channel changes
+    function startTypingPoll() {
+        clearInterval(typingPollInterval);
+        typingPollInterval = setInterval(pollTyping, 2000);
+    }
+
+    // === NEW MESSAGES FLOATING BUBBLE ===
+    let newMsgBubble = null;
+    let unreadNewCount = 0;
+
+    function ensureNewMsgBubble() {
+        if (newMsgBubble) return newMsgBubble;
+        const chatCol = document.getElementById('active-chat-column');
+        if (!chatCol) return null;
+        newMsgBubble = document.createElement('div');
+        newMsgBubble.className = 'new-messages-bubble';
+        newMsgBubble.addEventListener('click', () => {
+            const mc = document.getElementById('messages-container');
+            if (mc) mc.scrollTop = mc.scrollHeight;
+            hideNewMsgBubble();
+        });
+        chatCol.style.position = 'relative';
+        chatCol.appendChild(newMsgBubble);
+        // Auto-hide when scrolled to bottom
+        const mc = document.getElementById('messages-container');
+        if (mc) {
+            mc.addEventListener('scroll', () => {
+                if (mc.scrollHeight - mc.scrollTop <= mc.clientHeight + 120) {
+                    hideNewMsgBubble();
+                }
+            });
+        }
+        return newMsgBubble;
+    }
+
+    function showNewMsgBubble(count) {
+        const bubble = ensureNewMsgBubble();
+        if (!bubble) return;
+        unreadNewCount = count;
+        bubble.textContent = `↓ ${count} nouveau${count > 1 ? 'x' : ''} message${count > 1 ? 's' : ''}`;
+        bubble.classList.add('visible');
+    }
+
+    function hideNewMsgBubble() {
+        unreadNewCount = 0;
+        if (newMsgBubble) newMsgBubble.classList.remove('visible');
+    }
+
     // Fonction pour envoyer un message
     function sendMessage() {
         if (!activeChannelId || !messageInput) return;
@@ -2426,23 +2820,23 @@ function initCommunityChat() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                messageInput.value = '';
-                selectedFile = null;
-                hideFilePreview();
-                clearReply(); // Nettoyer la réponse
-                // Recharger les messages
-                loadMessages(activeChannelId, discussionType);
-            } else {
-                alert('Erreur envoi message: ' + data.message);
-            }
-        })
-        .catch(err => {
-            console.error('Erreur envoi message:', err);
-            alert('Erreur serveur');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageInput.value = '';
+                    selectedFile = null;
+                    hideFilePreview();
+                    clearReply(); // Nettoyer la réponse
+                    // Recharger les messages
+                    loadMessages(activeChannelId, discussionType);
+                } else {
+                    alert('Erreur envoi message: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Erreur envoi message:', err);
+                alert('Erreur serveur');
+            });
     }
 }
 
@@ -2453,9 +2847,9 @@ function preloadAvatarsCache() {
         .then(r => (r && r.ok) ? r.json() : {})
         .then(ppData => {
             avatarsCache = ppData || {};
-            try { updateChannelAvatarsFromCache(); } catch (e) {}
+            try { updateChannelAvatarsFromCache(); } catch (e) { }
         })
-        .catch(() => {});
+        .catch(() => { });
 }
 
 // Précharger cache couleurs utilisateurs (anneau)
@@ -2471,9 +2865,9 @@ function preloadUsersColors() {
                 }
             }
             usersColorsCache = map;
-            try { updateChannelAvatarsFromCache(); } catch (e) {}
+            try { updateChannelAvatarsFromCache(); } catch (e) { }
         })
-        .catch(() => {});
+        .catch(() => { });
 }
 
 function updateChannelAvatarsFromCache() {
@@ -2559,7 +2953,7 @@ function loadCurrentUserAvatar() {
 window.initCommunityChat = initCommunityChat;
 
 // Fonction globale pour mettre à jour le cache des avatars (appelée depuis d'autres pages)
-window.updateAvatarsCache = function(newPpData) {
+window.updateAvatarsCache = function (newPpData) {
     if (newPpData) {
         avatarsCache = { ...avatarsCache, ...newPpData };
     } else {
@@ -2663,18 +3057,15 @@ async function openUserProfile(username) {
                 } else if (birthdateEl) {
                     birthdateEl.textContent = 'Date de naissance : Non disponible';
                 }
-                
-                console.log('Données utilisateur reçues:', data.user);
-                
+
                 // Nettoyer l'ancien affichage de signalements
                 const oldReportsInfo = document.querySelector('.profile-reports-info');
                 if (oldReportsInfo) {
                     oldReportsInfo.remove();
                 }
-                
+
                 // Afficher les signalements si présents
                 const reportsCount = data.user.reports_count || 0;
-                console.log('📊 reports_count:', reportsCount);
                 if (reportsCount > 0) {
                     const reportsInfo = document.createElement('p');
                     reportsInfo.className = 'profile-reports-info';
@@ -2686,7 +3077,7 @@ async function openUserProfile(username) {
                         birthdateEl.parentElement.insertBefore(reportsInfo, birthdateEl.nextSibling);
                     }
                 }
-                
+
                 // Appliquer la couleur de l'utilisateur au nom et au cercle
                 if (data.user.color && usernameEl) {
                     usernameEl.style.color = data.user.color;
@@ -2695,11 +3086,62 @@ async function openUserProfile(username) {
                     avatarEl.style.borderColor = data.user.color;
                     avatarEl.style.boxShadow = `0 0 0 3px ${data.user.color}`;
                 }
-                
+
+                // Afficher la bannière du profil
+                const bannerEl = document.getElementById('profile-modal-banner');
+                if (bannerEl && typeof getSocialBannerBackground === 'function') {
+                    const sp = data.user.social_profile || {};
+                    const bannerBg = getSocialBannerBackground(sp.banner || 'bleu basique');
+                    bannerEl.style.background = bannerBg;
+                }
+
+                // Afficher la vitrine de badges
+                const showcaseEl = document.getElementById('profile-showcase-badges');
+                if (showcaseEl) {
+                    showcaseEl.innerHTML = '';
+                    const sp = data.user.social_profile || {};
+                    const showcaseBadges = Array.isArray(sp.badge_showcase) ? sp.badge_showcase : [];
+                    if (showcaseBadges.length > 0) {
+                        showcaseBadges.forEach(badgeId => {
+                            if (typeof BADGE_ICONS !== 'undefined' && BADGE_ICONS[badgeId]) {
+                                const badge = BADGE_ICONS[badgeId];
+                                const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                                const badgeContainer = document.createElement('div');
+                                badgeContainer.className = 'badge-with-tooltip';
+                                badgeContainer.style.position = 'relative';
+                                badgeContainer.style.display = 'inline-block';
+                                badgeContainer.style.cursor = 'pointer';
+
+                                const span = document.createElement('span');
+                                span.className = 'badge-item badge-clickable';
+                                span.title = `${desc.name}: ${desc.description}`;
+
+                                if (badge.type === 'image') {
+                                    span.innerHTML = `<img src="${badge.src}" alt="${desc.name}" class="badge-icon-large">`;
+                                } else {
+                                    span.innerHTML = `<span class="badge-emoji-large">${badge.emoji}</span>`;
+                                }
+
+                                badgeContainer.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    if (typeof window.showBadgeTooltipCommunaute === 'function') {
+                                        window.showBadgeTooltipCommunaute(e, { name: desc.name, description: desc.description }, true);
+                                    }
+                                });
+
+                                badgeContainer.appendChild(span);
+                                showcaseEl.appendChild(badgeContainer);
+                            }
+                        });
+                    } else {
+                        showcaseEl.innerHTML = '<p class="no-badges">Aucun badge en vitrine</p>';
+                    }
+                }
+
                 // Afficher les badges actuels
                 const badgesCurrentEl = document.getElementById('profile-current-badges');
                 const badgesObtainedEl = document.getElementById('profile-obtained-badges');
-                
+
                 if (badgesCurrentEl) {
                     badgesCurrentEl.innerHTML = '';
                     const badgesCurrent = data.user.badges_current || [];
@@ -2713,19 +3155,19 @@ async function openUserProfile(username) {
                                 badgeContainer.style.position = 'relative';
                                 badgeContainer.style.display = 'inline-block';
                                 badgeContainer.style.cursor = 'pointer';
-                                
+
                                 const span = document.createElement('span');
                                 span.className = 'badge-item badge-clickable';
                                 span.title = `${desc.name}: ${desc.description}`;
-                                
+
                                 if (badge.type === 'image') {
                                     span.innerHTML = `<img src="${badge.src}" alt="${desc.name}" class="badge-icon-large">`;
                                 } else {
                                     span.innerHTML = `<span class="badge-emoji-large">${badge.emoji}</span>`;
                                 }
-                                
+
                                 // Utiliser le même système de tooltip que mon compte
-                                badgeContainer.addEventListener('click', (e) => { 
+                                badgeContainer.addEventListener('click', (e) => {
                                     e.stopPropagation();
                                     e.stopImmediatePropagation();
                                     e.preventDefault();
@@ -2734,7 +3176,7 @@ async function openUserProfile(username) {
                                         description: desc.description
                                     }, true);
                                 });
-                                
+
                                 badgeContainer.appendChild(span);
                                 badgesCurrentEl.appendChild(badgeContainer);
                             }
@@ -2743,7 +3185,7 @@ async function openUserProfile(username) {
                         badgesCurrentEl.innerHTML = '<p class="no-badges">Aucun badge</p>';
                     }
                 }
-                
+
                 if (badgesObtainedEl) {
                     badgesObtainedEl.innerHTML = '';
                     const badgesObtained = data.user.badges_obtained || [];
@@ -2757,26 +3199,26 @@ async function openUserProfile(username) {
                                 badgeContainer.style.position = 'relative';
                                 badgeContainer.style.display = 'inline-block';
                                 badgeContainer.style.cursor = 'pointer';
-                                
+
                                 const span = document.createElement('span');
                                 span.className = 'badge-item badge-clickable';
                                 span.title = `${desc.name}: ${desc.description}`;
-                                
+
                                 if (badge.type === 'image') {
                                     span.innerHTML = `<img src="${badge.src}" alt="${desc.name}" class="badge-icon-large">`;
                                 } else {
                                     span.innerHTML = `<span class="badge-emoji-large">${badge.emoji}</span>`;
                                 }
-                                
+
                                 // Utiliser le même système de tooltip que mon compte
-                                badgeContainer.addEventListener('click', (e) => { 
+                                badgeContainer.addEventListener('click', (e) => {
                                     e.stopPropagation();
                                     window.showBadgeTooltipCommunaute(e, {
                                         name: desc.name,
                                         description: desc.description
                                     }, true); // true car badge obtenu
                                 });
-                                
+
                                 badgeContainer.appendChild(span);
                                 badgesObtainedEl.appendChild(badgeContainer);
                             }
@@ -2798,3 +3240,269 @@ async function openUserProfile(username) {
 
 // Appel de la fonction d'initialisation
 initCommunityChat();
+
+// === RESTORE: Chat title pill opens group info overlay ===
+function openGroupDetailsOverlay() {
+    const overlay = document.getElementById('group-details-overlay');
+    if (!overlay) return;
+
+    // Récupérer le groupe actif
+    if (!lastGlobalData || !activeChannelId || activeChannelType !== 'group') {
+        overlay.style.display = 'flex';
+        return;
+    }
+    const group = (lastGlobalData.groups || []).find(g => g.id === activeChannelId);
+    if (!group) {
+        overlay.style.display = 'flex';
+        return;
+    }
+
+    // Remplir les champs
+    const nameEl = document.getElementById('group-details-name');
+    if (nameEl) nameEl.value = group.name || '';
+    const descEl = document.getElementById('group-details-description');
+    if (descEl) descEl.value = group.description || '';
+    const photoEl = document.getElementById('group-details-photo');
+    if (photoEl) {
+        photoEl.src = group.photo || group.photoUrl || '/ressources/communaute/grpicon.png';
+        // Style bannière façon YouTube
+        photoEl.style.width = '100%';
+        photoEl.style.maxWidth = '420px';
+        photoEl.style.height = '110px';
+        photoEl.style.objectFit = 'cover';
+        photoEl.style.borderRadius = '18px';
+        photoEl.style.border = '2.5px solid #1de9b6';
+        photoEl.style.marginBottom = '8px';
+        photoEl.style.display = 'block';
+        photoEl.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
+    }
+    const membersCountEl = document.getElementById('group-details-members-count');
+    if (membersCountEl) membersCountEl.textContent = (group.members ? group.members.length : 0) + (group.members && group.members.length > 1 ? ' membres' : ' membre');
+    const membersListEl = document.getElementById('group-details-members');
+    if (membersListEl) {
+        membersListEl.innerHTML = '';
+        // Charger les infos utilisateurs depuis le cache (users.json)
+        let usersData = window._usersDataCache;
+        if (!usersData) {
+            try {
+                // Synchronous XHR (rare, mais pour garantir le cache)
+                const req = new XMLHttpRequest();
+                req.open('GET', '/public/api/users.json', false);
+                req.send(null);
+                if (req.status === 200) {
+                    usersData = JSON.parse(req.responseText);
+                    window._usersDataCache = usersData;
+                } else {
+                    usersData = [];
+                }
+            } catch (e) { usersData = []; }
+        }
+        (group.members || []).forEach(member => {
+            const user = (usersData || []).find(u => u.username === member) || {};
+            const color = user.color || usersColorsCache[member] || '#bcbcbc';
+            const avatar = avatarsCache[member] || '/ressources/user-icon.png';
+            const badges = (user.badges_current || []);
+            // Crée le bloc membre
+            const div = document.createElement('div');
+            div.className = 'group-member-card';
+            div.style.display = 'inline-flex';
+            div.style.alignItems = 'center';
+            div.style.gap = '6px';
+            div.style.background = '#fff';
+            div.style.border = '1.5px solid ' + color;
+            div.style.borderRadius = '16px';
+            div.style.padding = '3px 10px 3px 4px';
+            div.style.margin = '3px 4px 3px 0';
+            div.style.cursor = 'pointer';
+            div.onclick = () => openUserProfile(member);
+
+            // Avatar
+            const img = document.createElement('img');
+            img.src = avatar;
+            img.alt = member;
+            img.style.width = '24px';
+            img.style.height = '24px';
+            img.style.borderRadius = '50%';
+            img.style.border = '2px solid ' + color;
+            img.style.background = '#eee';
+            div.appendChild(img);
+
+            // Nom
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = member;
+            nameSpan.style.fontWeight = '500';
+            nameSpan.style.color = color;
+            nameSpan.style.fontSize = '15px';
+            div.appendChild(nameSpan);
+
+            // Badges
+            if (badges && badges.length > 0 && typeof BADGE_ICONS !== 'undefined') {
+                const badgesWrap = document.createElement('span');
+                badgesWrap.style.display = 'inline-flex';
+                badgesWrap.style.gap = '2px';
+                badges.forEach(badgeId => {
+                    if (BADGE_ICONS[badgeId]) {
+                        const badge = BADGE_ICONS[badgeId];
+                        const desc = BADGE_DESCRIPTIONS && BADGE_DESCRIPTIONS[badgeId] ? BADGE_DESCRIPTIONS[badgeId] : { name: badgeId, description: '' };
+                        const badgeSpan = document.createElement('span');
+                        badgeSpan.className = 'badge-item';
+                        badgeSpan.title = desc.name + ': ' + desc.description;
+                        badgeSpan.style.fontSize = '15px';
+                        badgeSpan.style.marginLeft = '2px';
+                        badgeSpan.style.display = 'inline-block';
+                        badgeSpan.style.verticalAlign = 'middle';
+                        badgeSpan.style.cursor = 'pointer';
+                        badgeSpan.onclick = (e) => { e.stopPropagation(); window.showBadgeTooltipCommunaute(e, desc, true); };
+                        if (badge.type === 'image') {
+                            badgeSpan.innerHTML = `<img src="${badge.src}" alt="${desc.name}" style="width:16px;height:16px;vertical-align:middle;">`;
+                        } else {
+                            badgeSpan.innerHTML = `<span style="font-size:16px;">${badge.emoji}</span>`;
+                        }
+                        badgesWrap.appendChild(badgeSpan);
+                    }
+                });
+                div.appendChild(badgesWrap);
+            }
+
+            membersListEl.appendChild(div);
+        });
+    }
+    // Calcul du nombre de messages :
+    const messagesCountEl = document.getElementById('group-details-messages-count');
+    let messagesCount = 0;
+    try {
+        // Toujours lire le fichier du groupe pour avoir le vrai nombre
+        const req = new XMLHttpRequest();
+        req.open('GET', `/api/community/groupes/${group.id}.json`, false);
+        req.send(null);
+        if (req.status === 200) {
+            const groupFile = JSON.parse(req.responseText);
+            if (Array.isArray(groupFile.messages)) {
+                messagesCount = groupFile.messages.length;
+            } else {
+                messagesCount = 0;
+            }
+        } else {
+            console.warn(`Fichier groupe non trouvé ou erreur HTTP pour ${group.id}`);
+        }
+    } catch (e) {
+        messagesCount = 0;
+        console.error('[COMMUNAUTE] Erreur lecture groupe:', e);
+    }
+    if (messagesCountEl) {
+        messagesCountEl.textContent = messagesCount + (messagesCount === 1 ? ' message' : ' messages');
+    }
+
+    // Event listeners pour les boutons du panneau d'infos
+    const closeBtn = document.getElementById('close-group-details-btn');
+    if (closeBtn) closeBtn.onclick = () => { overlay.style.display = 'none'; };
+
+    const saveDescBtn = document.getElementById('group-details-save-description');
+    if (saveDescBtn && descEl) {
+        saveDescBtn.onclick = () => {
+            // Appel API pour sauvegarder la description (exemple POST)
+            fetch('/public/api/community/update-group-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groupId: group.id, description: descEl.value })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        group.description = descEl.value;
+                        alert('Description enregistrée !');
+                    } else {
+                        alert('Erreur: ' + (data.message || ''));
+                    }
+                })
+                .catch(() => alert('Erreur réseau'));
+        };
+    }
+
+    const changePhotoBtn = document.getElementById('group-details-change-photo-btn');
+    const photoInput = document.getElementById('group-details-photo-input');
+    if (changePhotoBtn && photoInput && photoEl) {
+        // Style bouton plus petit
+        changePhotoBtn.style.fontSize = '13px';
+        changePhotoBtn.style.padding = '4px 12px';
+        changePhotoBtn.style.marginLeft = '8px';
+        changePhotoBtn.style.marginTop = '-18px';
+        changePhotoBtn.style.height = '32px';
+        changePhotoBtn.style.borderRadius = '10px';
+        changePhotoBtn.style.background = '#1de9b6';
+        changePhotoBtn.style.color = '#222';
+        changePhotoBtn.style.fontWeight = 'bold';
+        changePhotoBtn.style.boxShadow = '0 1px 6px rgba(0,0,0,0.10)';
+        changePhotoBtn.onclick = () => photoInput.click();
+        photoInput.onchange = () => {
+            const file = photoInput.files && photoInput.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('username', localStorage.getItem('source_username') || '');
+            fetch(`/public/api/community/group-photo/${group.id}`, {
+                method: 'POST',
+                body: formData
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.photoUrl) {
+                        photoEl.src = data.photoUrl;
+                        group.photo = data.photoUrl;
+                        group.photoUrl = data.photoUrl;
+                        alert('Photo mise à jour !');
+                        // Rafraîchir la liste globale (pour sidebar)
+                        if (typeof loadDiscussions === 'function') loadDiscussions();
+                    } else {
+                        alert('Erreur: ' + (data.message || ''));
+                    }
+                })
+                .catch(() => alert('Erreur réseau'));
+        };
+    }
+
+    const leaveBtn = document.getElementById('group-details-leave-btn');
+    if (leaveBtn) {
+        // Masquer le bouton pour le groupe de classe (id: classe3c)
+        if (group.id === 'classe3c') {
+            leaveBtn.style.display = 'none';
+        } else {
+            leaveBtn.style.display = '';
+            leaveBtn.onclick = () => {
+                if (!confirm('Voulez-vous vraiment quitter ce groupe ?')) return;
+                fetch('/public/api/community/leave-group', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ groupId: group.id, username: localStorage.getItem('source_username') })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Vous avez quitté le groupe.');
+                            overlay.style.display = 'none';
+                            // Recharger la liste des discussions
+                            if (typeof loadDiscussions === 'function') loadDiscussions();
+                        } else {
+                            alert('Erreur: ' + (data.message || ''));
+                        }
+                    })
+                    .catch(() => alert('Erreur réseau'));
+            };
+        }
+    }
+
+    overlay.style.display = 'flex';
+}
+
+function attachChatTitlePillHandler() {
+    const pill = document.getElementById('chat-title-pill');
+    if (!pill) return;
+    pill.onclick = openGroupDetailsOverlay;
+}
+
+// Attach on DOMContentLoaded and after chat switches
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachChatTitlePillHandler);
+} else {
+    attachChatTitlePillHandler();
+}

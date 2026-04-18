@@ -16,11 +16,39 @@
         throw new Error('Réponse non JSON: ' + text.slice(0,200));
     }
 
+    // Helper: fetch with abort timeout to avoid UI hanging when backend blocks
+    async function fetchWithTimeout(url, opts = {}, timeoutMs = 6000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const merged = Object.assign({}, opts, { signal: controller.signal });
+            const res = await fetch(url, merged);
+            clearTimeout(id);
+            return res;
+        } catch (e) {
+            clearTimeout(id);
+            // Normalize abort error
+            if (e && e.name === 'AbortError') throw new Error('Timeout');
+            throw e;
+        }
+    }
+
     function show(el){ if (el) el.style.display = ''; }
     function hide(el){ if (el) el.style.display = 'none'; }
     function setText(el, msg){ if (el) { if (msg) { el.textContent = msg; el.style.display = 'block'; } else { el.textContent=''; el.style.display='none'; } } }
 
     function todayYmd(){ return new Date().toISOString().slice(0,10); }
+
+    // Formatte une date AAAA-MM-JJ en 'Jour Nombre' (ex: mercredi 13)
+    function formatJourNombre(dateStr) {
+        if (!dateStr) return '';
+        const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d.getTime())) return dateStr;
+        const jour = jours[d.getDay()];
+        const num = d.getDate();
+        return `${jour} ${num}`;
+    }
     function addDaysYmd(ymd, days){
         const d = new Date(ymd + 'T00:00:00Z');
         d.setUTCDate(d.getUTCDate() + days);
@@ -37,6 +65,57 @@
         'autre': 'pole-autres',
         'autres': 'pole-autres'
     };
+
+    // Couleurs des matières (badges visuels)
+    const SUBJECT_COLORS = {
+        'HISTOIRE-GEOGRAPHIE': '#ffcc99',
+        'ESPAGNOL LV2': '#fff59d',
+        'LCA LATIN': '#e0f7fa',
+        'GREC': '#e0f7fa',
+        'ED.PHYSIQUE & SPORT.': '#d1c4e9',
+        'SCIENCES VIE & TERRE': '#a5d6a7',
+        'ANGLAIS LV1': '#ffab91',
+        'MATHEMATIQUES': '#ffccbc',
+        'FRANCAIS': '#90caf9',
+        'VIE DE CLASSE': '#cfd8dc',
+        'PHYSIQUE-CHIMIE': '#f48fb1',
+        'EDUCATION MUSICALE': '#ce93d8',
+        'ARTS PLASTIQUES': '#f8bbd0',
+        'TECHNOLOGIE': '#ef5350',
+        'CAMBRIDGE': '#2e7d32',
+        'DEVOIR SURVEILLE': '#b0bec5'
+    };
+
+    function getSubjectColor(matiere){
+        if (!matiere) return null;
+        const u = matiere.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+        for (const [k,c] of Object.entries(SUBJECT_COLORS)){ if (u === k) return c; }
+        if (u.includes('HISTOIRE') || u.includes('GEOGRAPHIE')) return SUBJECT_COLORS['HISTOIRE-GEOGRAPHIE'];
+        if (u.includes('ESPAGNOL')) return SUBJECT_COLORS['ESPAGNOL LV2'];
+        if (u.includes('LATIN') || u.includes('LCA')) return SUBJECT_COLORS['LCA LATIN'];
+        if (u.includes('GREC')) return SUBJECT_COLORS['GREC'];
+        if (u.includes('SPORT') || u.includes('EPS') || u.includes('ED.PHYSIQUE')) return SUBJECT_COLORS['ED.PHYSIQUE & SPORT.'];
+        if (u.includes('SVT') || u.includes('VIE & TERRE') || u.includes('VIE ET TERRE')) return SUBJECT_COLORS['SCIENCES VIE & TERRE'];
+        if (u.includes('ANGLAIS')) return SUBJECT_COLORS['ANGLAIS LV1'];
+        if (u.includes('MATH')) return SUBJECT_COLORS['MATHEMATIQUES'];
+        if (u.includes('FRANCAIS')) return SUBJECT_COLORS['FRANCAIS'];
+        if (u.includes('PHYSIQUE') && !u.includes('SPORT')) return SUBJECT_COLORS['PHYSIQUE-CHIMIE'];
+        if (u.includes('MUSIQUE') || u.includes('MUSICALE')) return SUBJECT_COLORS['EDUCATION MUSICALE'];
+        if (u.includes('PLASTIQUE') || u.includes('ARTS PL')) return SUBJECT_COLORS['ARTS PLASTIQUES'];
+        if (u.includes('TECHNO')) return SUBJECT_COLORS['TECHNOLOGIE'];
+        if (u.includes('CAMBRIDGE')) return SUBJECT_COLORS['CAMBRIDGE'];
+        if (u.includes('VIE DE CLASSE')) return SUBJECT_COLORS['VIE DE CLASSE'];
+        return null;
+    }
+
+    function matiereBadgeHtml(matiere){
+        const safe = String(matiere || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const color = getSubjectColor(matiere);
+        if (!color) return safe;
+        const isDark = (color === '#2e7d32' || color === '#ef5350');
+        const tc = isDark ? '#fff' : '#1a1a1a';
+        return `<span class="matiere-badge" style="background:${color};color:${tc}">${safe}</span>`;
+    }
 
     function normalizeNumber(val){
         if (val === null || val === undefined) return null;
@@ -167,7 +246,7 @@
                     matCard.style.cursor = 'pointer';
                     matCard.innerHTML = `
                         <div class="matiere-header">
-                            <div>${matNom}</div>
+                            <div>${matiereBadgeHtml(matNom)}</div>
                             ${coef ? `<div class="coef-badge">Coef ${coef}</div>` : ''}
                         </div>
                         ${prof ? `<div class="prof-name">${prof}</div>` : ''}
@@ -486,7 +565,7 @@
                 openGraphModal(matNom, notes, matiere);
             };
             // Cache le bouton s'il n'y a pas au moins 2 notes
-            graphBtn.style.display = (notes && notes.length >= 2) ? 'block' : 'none';
+            graphBtn.style.display = (notes && notes.length >= 2) ? 'flex' : 'none';
         }
 
         // Bouton simulation: ouvre un panneau dédié (modal), comme le bouton Graphique
@@ -495,7 +574,7 @@
                 modal.classList.remove('active');
                 openSimModal(matNom, notes, matiere);
             };
-            simBtn.style.display = 'block';
+            simBtn.style.display = 'flex';
         }
 
         if (estimateEl) {
@@ -1233,13 +1312,13 @@
             container.textContent = 'Aucun devoir trouvé.';
             return;
         }
-        
+
         console.log('[Devoirs] Total devoirs reçus:', payload.devoirs.length);
-        
+
         // Filtre pour ne garder que les devoirs à venir (date >= aujourd'hui)
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Début de la journée (minuit)
-        
+
         const devoirsAVenir = payload.devoirs.filter(d => {
             if (!d.date) return true; // Garde les devoirs sans date
             const devoirDate = new Date(d.date + 'T00:00:00');
@@ -1249,14 +1328,14 @@
             }
             return isAVenir; // Inclut le jour même
         });
-        
+
         console.log('[Devoirs] Devoirs à venir:', devoirsAVenir.length);
-        
+
         if (devoirsAVenir.length === 0) {
             container.textContent = 'Aucun devoir à venir.';
             return;
         }
-        
+
         const ul = document.createElement('ul');
         devoirsAVenir.forEach(d => {
             const li = document.createElement('li');
@@ -1265,7 +1344,8 @@
             const idDevoir = d.idDevoir || d.id;
             const effectue = d.effectue || false;
             const isControle = !!(d.isControle || d.interrogation);
-            
+            const dateAffichage = d.date ? formatJourNombre(d.date) : '';
+
             // Création de la case à cocher
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
@@ -1287,7 +1367,7 @@
                     checkbox.checked = !desired;
                 }
             });
-            
+
             // Contenu du devoir
             const contentDiv = document.createElement('div');
             contentDiv.className = 'devoir-content';
@@ -1300,7 +1380,16 @@
             title.className = 'devoir-title';
             // Pas de titre: on met la matière
             title.textContent = '';
-            title.appendChild(document.createTextNode(mat));
+            const matBadge = document.createElement('span');
+            matBadge.textContent = mat;
+            const matColor = getSubjectColor(mat);
+            if (matColor) {
+                matBadge.className = 'matiere-badge';
+                matBadge.style.background = matColor;
+                const isDark = (matColor === '#2e7d32' || matColor === '#ef5350');
+                matBadge.style.color = isDark ? '#fff' : '#1a1a1a';
+            }
+            title.appendChild(matBadge);
             if (isControle) {
                 const badge = document.createElement('span');
                 badge.className = 'devoir-badge-controle';
@@ -1311,7 +1400,17 @@
 
             const meta = document.createElement('div');
             meta.className = 'devoir-meta';
-            meta.textContent = `${donneLe ? 'Mis en ligne le ' + donneLe : ''}`;
+            // Affiche le jour et le numéro du jour (ex: mercredi 13)
+            meta.textContent = dateAffichage;
+            // Affiche la date d'upload (donneLe) en tooltip au survol/clic
+            if (donneLe) {
+                meta.title = 'Date d\'upload : ' + donneLe;
+                meta.style.cursor = 'pointer';
+                meta.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    alert('Date d\'upload : ' + donneLe);
+                });
+            }
 
             item.appendChild(top);
             item.appendChild(meta);
@@ -1323,7 +1422,7 @@
                     checkbox.checked = newValue;
                 });
             });
-            
+
             li.appendChild(checkbox);
             li.appendChild(contentDiv);
             ul.appendChild(li);
@@ -1455,17 +1554,18 @@
 
         try {
             const siteUser = localStorage.getItem('source_username') || '';
-            const res = await fetch(API_BASE + '/notes', {
+            const res = await fetchWithTimeout(API_BASE + '/notes', {
                 method: 'GET',
                 headers: siteUser ? { 'x-source-user': siteUser } : undefined
-            });
+            }, 6000);
             if (!res.ok) return [];
             const data = await safeJson(res);
             // Update cache since we fetched it
             saveNotesCache(data);
             // Les périodes sont directement dans la réponse
             return Array.isArray(data.periodes) ? data.periodes : [];
-        } catch {
+        } catch (err) {
+            console.warn('[Cartable] loadPeriodes failed:', err.message || err);
             return [];
         }
     }
@@ -1474,10 +1574,15 @@
         let url = API_BASE + '/notes';
         if (anneeScolaire) url += '?anneeScolaire=' + encodeURIComponent(anneeScolaire);
         const siteUser = localStorage.getItem('source_username') || '';
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: siteUser ? { 'x-source-user': siteUser } : undefined
-        });
+        let res;
+        try {
+            res = await fetchWithTimeout(url, {
+                method: 'GET',
+                headers: siteUser ? { 'x-source-user': siteUser } : undefined
+            }, 8000);
+        } catch (e) {
+            throw new Error('Timeout ou erreur réseau lors de la récupération des notes');
+        }
         if (!res.ok) throw new Error('Erreur notes: ' + res.status);
         const data = await safeJson(res);
         renderNotes(data, periodeId);
@@ -1491,10 +1596,15 @@
         const end = addDaysYmd(start, 30);
         const url = `${API_BASE}/devoirs?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
         const siteUser = localStorage.getItem('source_username') || '';
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: siteUser ? { 'x-source-user': siteUser } : undefined
-        });
+        let res;
+        try {
+            res = await fetchWithTimeout(url, {
+                method: 'GET',
+                headers: siteUser ? { 'x-source-user': siteUser } : undefined
+            }, 10000);
+        } catch (e) {
+            throw new Error('Timeout ou erreur réseau lors de la récupération des devoirs');
+        }
         if (!res.ok) throw new Error('Erreur devoirs: ' + res.status);
         const data = await safeJson(res);
         renderDevoirs(data);
@@ -1584,6 +1694,16 @@
                 activateTab(t.dataset.tab);
             });
         });
+
+        // Bouton EDT → ouvre le panneau EDT (défini dans home.js)
+        const edtBtn = byId('cartable-edt-btn');
+        if (edtBtn) {
+            edtBtn.addEventListener('click', () => {
+                if (typeof window.openEdtPanel === 'function') {
+                    window.openEdtPanel();
+                }
+            });
+        }
     }
 
     window.initCartablePage = async function(){

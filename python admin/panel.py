@@ -128,7 +128,7 @@ class PanelApp:
             with open(USERS_PATH, 'w', encoding='utf-8') as f:
                 json.dump(users, f, indent=2)
         except Exception as e:
-            messagebox.showerror("Erreur", f"T'as encore cassé le JSON : {e} 🗿")
+            messagebox.showerror("Erreur", f"Erreur JSON : {e}")
 
     def create_user(self):
         username = simpledialog.askstring("Créer", "Nom d'utilisateur:")

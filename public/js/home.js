@@ -1,5 +1,6 @@
 // /js/home.js
 
+
 function getSiteUser(){
     try { return (localStorage.getItem('source_username') || '').trim(); } catch { return ''; }
 }
@@ -69,9 +70,77 @@ function truncateText(s, maxLen){
     return t.length > m ? (t.slice(0, m - 1) + '…') : t;
 }
 
+function animateCounter(el, target, duration){
+    duration = duration || 600;
+    const start = performance.now();
+    const end = target;
+    function step(now){
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = eased * end;
+        el.textContent = fmt2(current);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = fmt2(end);
+    }
+    requestAnimationFrame(step);
+}
+
+// Couleurs des matières (badges visuels dans les widgets)
+const SUBJECT_COLORS = {
+    'HISTOIRE-GEOGRAPHIE': '#ffcc99',
+    'ESPAGNOL LV2': '#fff59d',
+    'LCA LATIN': '#e0f7fa',
+    'GREC': '#e0f7fa',
+    'ED.PHYSIQUE & SPORT.': '#d1c4e9',
+    'SCIENCES VIE & TERRE': '#a5d6a7',
+    'ANGLAIS LV1': '#ffab91',
+    'MATHEMATIQUES': '#ffccbc',
+    'FRANCAIS': '#90caf9',
+    'VIE DE CLASSE': '#cfd8dc',
+    'PHYSIQUE-CHIMIE': '#f48fb1',
+    'EDUCATION MUSICALE': '#ce93d8',
+    'ARTS PLASTIQUES': '#f8bbd0',
+    'TECHNOLOGIE': '#ef5350',
+    'CAMBRIDGE': '#2e7d32',
+    'DEVOIR SURVEILLE': '#b0bec5'
+};
+
+function getSubjectColor(matiere){
+    if (!matiere) return null;
+    const u = matiere.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    for (const [k,c] of Object.entries(SUBJECT_COLORS)){ if (u === k) return c; }
+    if (u.includes('HISTOIRE') || u.includes('GEOGRAPHIE')) return SUBJECT_COLORS['HISTOIRE-GEOGRAPHIE'];
+    if (u.includes('ESPAGNOL')) return SUBJECT_COLORS['ESPAGNOL LV2'];
+    if (u.includes('LATIN') || u.includes('LCA')) return SUBJECT_COLORS['LCA LATIN'];
+    if (u.includes('GREC')) return SUBJECT_COLORS['GREC'];
+    if (u.includes('SPORT') || u.includes('EPS') || u.includes('ED.PHYSIQUE')) return SUBJECT_COLORS['ED.PHYSIQUE & SPORT.'];
+    if (u.includes('SVT') || u.includes('VIE & TERRE') || u.includes('VIE ET TERRE')) return SUBJECT_COLORS['SCIENCES VIE & TERRE'];
+    if (u.includes('ANGLAIS')) return SUBJECT_COLORS['ANGLAIS LV1'];
+    if (u.includes('MATH')) return SUBJECT_COLORS['MATHEMATIQUES'];
+    if (u.includes('FRANCAIS')) return SUBJECT_COLORS['FRANCAIS'];
+    if (u.includes('PHYSIQUE') && !u.includes('SPORT')) return SUBJECT_COLORS['PHYSIQUE-CHIMIE'];
+    if (u.includes('MUSIQUE') || u.includes('MUSICALE')) return SUBJECT_COLORS['EDUCATION MUSICALE'];
+    if (u.includes('PLASTIQUE') || u.includes('ARTS PL')) return SUBJECT_COLORS['ARTS PLASTIQUES'];
+    if (u.includes('TECHNO')) return SUBJECT_COLORS['TECHNOLOGIE'];
+    if (u.includes('CAMBRIDGE')) return SUBJECT_COLORS['CAMBRIDGE'];
+    if (u.includes('VIE DE CLASSE')) return SUBJECT_COLORS['VIE DE CLASSE'];
+    return null;
+}
+
+function matiereBadgeHtml(matiere){
+    const safe = String(matiere || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const color = getSubjectColor(matiere);
+    if (!color) return safe;
+    const isDark = (color === '#2e7d32' || color === '#ef5350');
+    const tc = isDark ? '#fff' : '#1a1a1a';
+    return `<span class="matiere-badge" style="background:${color};color:${tc}">${safe}</span>`;
+}
+
 // Mapping Messagerie: doit rester aligné avec server.js (CLASS_NAMES + offset)
 const MESS_CLASS_NAMES = [
-    'Even', 'Alexandre', 'Calixte', 'Noé', 'Julia', 'Joan', 'Juliette', 'Jezzy',
+    'Even', 'Alexandre', 'Calixte', 'Noé', 'Julia', 'Joan', 'Juliette', 'Jezy',
     'Inès', 'Timéo', 'Tyméo', 'Clautilde', 'Loanne', 'Lucie', 'Camille', 'Sofia',
     'Lilia', 'Amir', 'Robin', 'Arthur', 'Maxime', 'Gaultier', 'Antoine', 'Louis',
     'Anne-Victoria', 'Léa', 'Sarah', 'Ema', 'Jade', 'Alicia', 'Claire'
@@ -364,7 +433,7 @@ async function initPrioritizedWidgets(){
             if (hasControls) {
                 const nodes = controls.map(d => {
                     const title = truncateText(d.titre || 'Contrôle', 90);
-                    const label = `${d.matiere || 'Matière'} — ${title}`;
+                    const label = `${matiereBadgeHtml(d.matiere || 'Matière')} — ${title}`;
                     const sub = `${formatFrenchDate(d.date || '')}${d.nomProf ? ' · ' + d.nomProf : ''}`;
                     return makeHomeListItem(label, sub, () => {
                         goToCartableWithFocus({ type: 'devoir', idDevoir: d.idDevoir || d.id, date: d.date, matiere: d.matiere || '' });
@@ -395,7 +464,7 @@ async function initPrioritizedWidgets(){
                 if (hasPending) {
                     const nodes = pending.map(d => {
                         const title = truncateText(d.titre || 'Devoir', 90);
-                        const label = `${d.matiere || 'Matière'} — ${title}`;
+                        const label = `${matiereBadgeHtml(d.matiere || 'Matière')} — ${title}`;
                         const badges = (d.isControle || d.interrogation) ? ' · CONTRÔLE' : '';
                         const sub = `${formatFrenchDate(d.date || '')}${badges}`;
                         return makeHomeListItem(label, sub, () => {
@@ -410,7 +479,15 @@ async function initPrioritizedWidgets(){
         }
 
         // --- Render Moyenne + Notes récentes (pr3) ---
-        if (widgets.notes && !notesStructOrNull) {
+        // Correction : si notesStructOrNull contient une clé 'notes' à la racine (comme l'API), on l'utilise
+        let notesDataStruct = notesStructOrNull;
+        if (notesStructOrNull && notesStructOrNull.notes && notesStructOrNull.periodes) {
+            notesDataStruct = notesStructOrNull;
+        } else if (notesStructOrNull && notesStructOrNull.data && notesStructOrNull.data.notes && notesStructOrNull.data.periodes) {
+            notesDataStruct = notesStructOrNull.data;
+        }
+
+        if (widgets.notes && !notesDataStruct) {
             const list = document.getElementById('notes-recent-list');
             const avgEl = document.getElementById('notes-current-avg');
             if (avgEl) avgEl.textContent = '-';
@@ -423,25 +500,31 @@ async function initPrioritizedWidgets(){
             }
         }
 
-        if (widgets.notes && notesStructOrNull) {
+        if (widgets.notes && notesDataStruct) {
             const avgEl = document.getElementById('notes-current-avg');
             const list = document.getElementById('notes-recent-list');
 
             let moy = null;
-            const periodes = Array.isArray(notesStructOrNull?.periodes) ? notesStructOrNull.periodes : [];
+            const periodes = Array.isArray(notesDataStruct?.periodes) ? notesDataStruct.periodes : [];
             const currentPeriode = pickCurrentPeriode(periodes);
             const ensemble = currentPeriode?.ensembleMatieres;
             if (ensemble && ensemble.moyenneGenerale !== undefined) {
                 moy = normalizeNumber(ensemble.moyenneGenerale);
             }
-            if (avgEl) avgEl.textContent = moy !== null ? fmt2(moy) : '-';
+            if (avgEl) {
+                if (moy !== null) {
+                    animateCounter(avgEl, moy);
+                } else {
+                    avgEl.textContent = '-';
+                }
+            }
 
             const currentCodePeriode = currentPeriode?.codePeriode ? String(currentPeriode.codePeriode) : '';
 
             const now = new Date();
             const since = new Date(now);
             since.setDate(now.getDate() - 2);
-            const allNotes = Array.isArray(notesStructOrNull?.notes) ? notesStructOrNull.notes : [];
+            const allNotes = Array.isArray(notesDataStruct?.notes) ? notesDataStruct.notes : [];
             const recent = allNotes
                 .map(n => {
                     const dateStr = n?.date || n?.dateSaisie || n?.dateDevoir || '';
@@ -466,7 +549,7 @@ async function initPrioritizedWidgets(){
                 const mat = n.libelleMatiere || n.matiere || 'Matière';
                 const noteVal = normalizeNumber(n.valeur ?? n.note ?? n.value);
                 const noteSur = normalizeNumber(n.noteSur ?? n.max ?? 20) || 20;
-                const title = `${truncateText(mat, 40)}`;
+                const title = matiereBadgeHtml(truncateText(mat, 40));
                 const noteLine = `${noteVal !== null ? fmt2(noteVal) : 'Abs'} / ${fmt2(noteSur)}`;
                 const dateLine = x.dateStr ? formatFrenchDate(String(x.dateStr)) : '';
                 return makeHomeNoteListItem(title, noteLine, dateLine, () => {
@@ -576,19 +659,35 @@ async function initPrioritizedWidgets(){
             .sort((a,b) => (a.priority - b.priority) || (a._r - b._r))
             .slice(0, 3);
 
-        candidates.forEach(w => { w.el.style.display = 'none'; });
-        selected.forEach(w => {
+        candidates.forEach(w => { w.el.style.display = 'none'; w.el.classList.remove('widget-appear'); });
+        selected.forEach((w, i) => {
             w.el.style.display = '';
+            w.el.classList.remove('widget-appear');
             container.appendChild(w.el);
+            // Trigger cascade animation with a tiny delay to force reflow per widget
+            requestAnimationFrame(() => { w.el.classList.add('widget-appear'); });
         });
     }
 
-    // 1) Si on a un cache, on rend immédiatement à partir du cache.
+    // 1) Vérification explicite de la connexion ED (évite les faux négatifs du cache)
+    let isEdConnected = false;
+    try {
+        const siteUser = getSiteUser();
+        if (siteUser) {
+            const pingRes = await fetch('/ed/ping', {
+                method: 'GET',
+                headers: { 'x-source-user': siteUser, 'x-alpha-user': siteUser }
+            });
+            isEdConnected = pingRes.ok;
+        }
+    } catch {}
+
+    // 2) Si on a un cache valide, on l'utilise, sinon on force un fetch immédiat si connecté
     if (cached && cached.payload && !isDirty) {
         renderFromData(
             cached.payload.devoirs || [],
             cached.payload.notesStructure || null,
-            !!cached.payload.edFetchOk,
+            isEdConnected,
             cached.payload.messagesData || [],
             !!cached.payload.messagesFetchOk,
             cached.payload.messUserId || null,
@@ -630,6 +729,41 @@ async function initPrioritizedWidgets(){
                     renderFromData([], null, false, messRes.messages || [], !!messRes.ok, messRes.userId || null, messRes.username || '');
                 }
             })();
+        }
+        return;
+    } else if (isEdConnected) {
+        // Si pas de cache mais connecté, on force un fetch immédiat pour éviter le "Chargement..." bloqué
+        try {
+            const [devoirsData, notesData, messRes] = await Promise.all([
+                fetchEdJson(`/ed/devoirs?start=${encodeURIComponent(today)}&end=${encodeURIComponent(end2)}`),
+                fetchEdJson('/ed/notes'),
+                fetchMessagerieMessages()
+            ]);
+            const freshDevoirs = Array.isArray(devoirsData?.devoirs) ? devoirsData.devoirs : [];
+            const freshNotes = (notesData && typeof notesData === 'object' && notesData.data) ? notesData.data : notesData;
+            saveHomeWidgetsCache({
+                devoirs: freshDevoirs,
+                notesStructure: freshNotes,
+                edFetchOk: true,
+                messagesData: messRes.messages || [],
+                messagesFetchOk: !!messRes.ok,
+                messUserId: messRes.userId || null,
+                messUsername: messRes.username || ''
+            });
+            renderFromData(freshDevoirs, freshNotes, true, messRes.messages || [], !!messRes.ok, messRes.userId || null, messRes.username || '');
+        } catch {
+            // Même si ED plante, on tente quand même la messagerie.
+            const messRes = await fetchMessagerieMessages().catch(() => ({ ok: false, messages: [], userId: null, username: '' }));
+            saveHomeWidgetsCache({
+                devoirs: [],
+                notesStructure: null,
+                edFetchOk: false,
+                messagesData: messRes.messages || [],
+                messagesFetchOk: !!messRes.ok,
+                messUserId: messRes.userId || null,
+                messUsername: messRes.username || ''
+            });
+            renderFromData([], null, false, messRes.messages || [], !!messRes.ok, messRes.userId || null, messRes.username || '');
         }
         return;
     }
@@ -699,12 +833,113 @@ async function initPrioritizedWidgets(){
 }
 
 /**
+ * Charge et affiche le streak de connexion avec la flamme SVG animée.
+ */
+async function renderStreakFlame() {
+    const display = document.getElementById('streak-display');
+    if (!display) return;
+
+    const username = getSiteUser();
+    if (!username) return;
+
+    try {
+        const res = await fetch(`/api/user-info/${encodeURIComponent(username)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success || !data.user) return;
+
+        const streak = data.user.login_streak || 0;
+        if (streak < 1) return;
+
+        // Determine tier: 1 (1-6), 2 (7-13), 3 (14-29), 4 (30+)
+        let tier = 1;
+        if (streak >= 30) tier = 4;
+        else if (streak >= 14) tier = 3;
+        else if (streak >= 7) tier = 2;
+
+        display.className = 'streak-tier-' + tier;
+        display.style.display = '';
+
+        // Epic tier: swap gradient colors to blue/purple
+        if (tier === 4) {
+            const outerStops = display.querySelectorAll('#flame-grad-outer stop');
+            if (outerStops.length >= 3) {
+                outerStops[0].setAttribute('stop-color', '#6a00ff');
+                outerStops[1].setAttribute('stop-color', '#aa44ff');
+                outerStops[2].setAttribute('stop-color', '#ffaa00');
+            }
+            const midStops = display.querySelectorAll('#flame-grad-mid stop');
+            if (midStops.length >= 3) {
+                midStops[0].setAttribute('stop-color', '#8833ff');
+                midStops[1].setAttribute('stop-color', '#cc77ff');
+                midStops[2].setAttribute('stop-color', '#ffe066');
+            }
+        }
+
+        const countEl = document.getElementById('streak-count');
+        const labelEl = document.getElementById('streak-label');
+        if (countEl) countEl.textContent = streak;
+
+        // Milestone messages
+        let title = streak + ' jour' + (streak > 1 ? 's' : '') + ' de suite !';
+        let sub = 'Continue comme ça !';
+        if (streak >= 30) {
+            title = streak + ' jours — Légendaire !';
+            sub = 'Tu es inarrêtable !';
+        } else if (streak >= 14) {
+            title = streak + ' jours — En feu !';
+            sub = 'Impressionnant, continue !';
+        } else if (streak >= 7) {
+            title = streak + ' jours — Belle série !';
+            sub = 'Une semaine complète, bravo !';
+        } else if (streak >= 3) {
+            sub = 'Encore ' + (7 - streak) + ' jour' + ((7 - streak) > 1 ? 's' : '') + ' pour une semaine !';
+        }
+
+        if (labelEl) {
+            labelEl.innerHTML = '<div class="streak-title">' + title + '</div><div class="streak-sub">' + sub + '</div>';
+        }
+    } catch (e) {
+        // Silently fail — streak is non-critical
+    }
+}
+
+async function renderChallengeWidget() {
+    const widget = document.getElementById('challenge-widget');
+    if (!widget) return;
+    try {
+        const resp = await fetch('/api/challenge');
+        const data = await resp.json();
+        if (!data.success) return;
+        const c = data.challenge;
+        widget.style.display = '';
+        document.getElementById('challenge-title').textContent = (c.completed ? '✅ ' : '⚡ ') + c.title;
+        document.getElementById('challenge-desc').textContent = c.description;
+        const fill = document.getElementById('challenge-bar-fill');
+        fill.style.width = c.pct + '%';
+        if (c.completed) fill.classList.add('completed');
+        document.getElementById('challenge-numbers').textContent = c.current + ' / ' + c.target + ' (' + c.pct + '%)';
+        document.getElementById('challenge-reward').textContent = '🎁 Récompense : ' + c.reward + ' pts pour chaque contributeur';
+        const remaining = c.ends_at - Date.now();
+        if (remaining > 0) {
+            const days = Math.floor(remaining / 86400000);
+            const hours = Math.floor((remaining % 86400000) / 3600000);
+            document.getElementById('challenge-countdown').textContent = '⏳ ' + days + 'j ' + hours + 'h restantes';
+        } else {
+            document.getElementById('challenge-countdown').textContent = 'Nouveau défi bientôt…';
+        }
+        if (c.contributors_count > 0) {
+            document.getElementById('challenge-numbers').textContent += ' — ' + c.contributors_count + ' contributeur' + (c.contributors_count > 1 ? 's' : '');
+        }
+    } catch {}
+}
+
+/**
  * Fonction principale pour initialiser la page d'accueil (message d'accueil et classement).
  */
 window.initHomePage = async function() {
-    // ... (Reste de la fonction initHomePage inchangé) ...
     const greetingEl = document.getElementById('home-greeting');
-    if (!greetingEl) return; 
+    if (!greetingEl) return;
 
     const username = localStorage.getItem('source_username') || "Utilisateur";
 
@@ -776,12 +1011,19 @@ window.initHomePage = async function() {
     const message = messages[Math.floor(Math.random() * messages.length)];
     greetingEl.textContent = message;
 
+    // Affiche la flamme de streak
+    try { await renderStreakFlame(); } catch {}
+
+    // Affiche le défi collectif
+    try { await renderChallengeWidget(); } catch {}
+
     // Orchestrateur (priorités + max 3 + ordre "vivant")
     try { await initPrioritizedWidgets(); } catch (e) { console.warn('[Home] widgets init failed', e); }
 
     // Lancement des widgets existants (ils peuvent être masqués si non sélectionnés)
     try { await window.loadLeaderboardData(); } catch {}
     try { await window.loadBackpackData(); } catch {}
+    try { initEdtPanel(); } catch {}
 
     // 💥 NOUVEL AJOUT : Initialisation du bouton de déconnexion
     window.initLogoutButton(); 
@@ -809,7 +1051,7 @@ window.loadLeaderboardData = async function() {
     const currentUsername = localStorage.getItem('source_username'); 
 
     if (!leaderEl || !leaderPointsEl) {
-        console.error("PUTAIN LOG : Éléments du classement (TOP 1) introuvables. Vérifiez vos ID HTML.");
+        console.error("[LOG] : Éléments du classement (TOP 1) introuvables. Vérifiez vos ID HTML.");
         return;
     }
 
@@ -874,7 +1116,7 @@ window.loadLeaderboardData = async function() {
         }
         
     } catch (error) {
-        console.error("PUTAIN LOG : Erreur fatale lors du traitement du classement:", error);
+        console.error("[LOG] : Erreur fatale lors du traitement du classement:", error);
         leaderEl.textContent = 'ERR_NET';
         [leaderPointsEl, secondEl, secondPointsEl, thirdEl, thirdPointsEl, userRankEl, userScoreEl].forEach(el => {
             if (el) el.textContent = 'ERR_NET';
@@ -892,63 +1134,34 @@ window.initLogoutButton = function() {
     
     if (logoutButton) {
         logoutButton.addEventListener('click', () => {
-            console.log("PUTAIN LOG : Bouton Déconnexion cliqué. Appel de 'logoutAndRedirect()'.");
+            console.log("[LOG] : Bouton Déconnexion cliqué. Appel de 'logoutAndRedirect()'.");
             
             // On appelle ta fonction exactement comme elle est définie dans script.js
             if (window.logoutAndRedirect) {
                  window.logoutAndRedirect(); 
             } else {
-                 console.error("PUTAIN LOG : La fonction 'logoutAndRedirect' est introuvable. Vérifiez que script.js est chargé AVANT home.js.");
+                 console.error("[LOG] : La fonction 'logoutAndRedirect' est introuvable. Vérifiez que script.js est chargé AVANT home.js.");
             }
         });
     } else {
-        console.error("PUTAIN LOG : Bouton de déconnexion introuvable (#logout-button).");
+        console.error("[LOG] : Bouton de déconnexion introuvable (#logout-button).");
     }
 };
 
-// Lancement de l'initialisation quand le DOM est prêt
-document.addEventListener('DOMContentLoaded', window.initHomePage);
+// initHomePage est appelé par renderPage quand on navigue vers 'accueil'
 
-// ⭐ FONCTION : Charge les données du Sac à Dos (Emploi du temps) - VERSION ECOLE DIRECTE
+// ⭐ FONCTION : Charge l'emploi du temps - VERSION ECOLE DIRECTE
 window.loadBackpackData = async function() {
-    const backpackElToday = document.getElementById('backpack-today-subjects');
-    const backpackElTomorrow = document.getElementById('backpack-tomorrow-subjects');
-    const titleElToday = document.getElementById('backpack-title-today');
-    const titleElTomorrow = document.getElementById('backpack-title-tomorrow');
-    // const backpackElTitle = document.getElementById('backpack-title'); // Supprimé car remplacé par les tabs
-
-    // Nouveaux éléments pour l'EDT et les Tabs
-    const tabBackpack = document.getElementById('tab-backpack');
-    const tabEdt = document.getElementById('tab-edt');
-    const viewBackpack = document.getElementById('view-backpack');
-    const viewEdt = document.getElementById('view-edt');
     const edtListEl = document.getElementById('edt-today-list');
-    const edtTitleToday = document.getElementById('edt-title-today');
+    const edtNavDate = document.getElementById('edt-nav-date');
+    const edtPrevBtn = document.getElementById('edt-prev');
+    const edtNextBtn = document.getElementById('edt-next');
 
-    if (!backpackElToday || !backpackElTomorrow) return;
-
-    // --- Gestion des Tabs ---
-    if (tabBackpack && tabEdt && viewBackpack && viewEdt) {
-        tabBackpack.addEventListener('click', () => {
-            tabBackpack.classList.add('active');
-            tabEdt.classList.remove('active');
-            viewBackpack.style.display = 'block';
-            viewEdt.style.display = 'none';
-        });
-
-        tabEdt.addEventListener('click', () => {
-            tabEdt.classList.add('active');
-            tabBackpack.classList.remove('active');
-            viewBackpack.style.display = 'none';
-            viewEdt.style.display = 'block';
-        });
-    }
+    if (!edtListEl) return;
 
     try {
         // 1. Déterminer les dates (Aujourd'hui et Demain/Prochain jour)
         const now = new Date();
-        const frenchDays = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-        let dayIndex = now.getDay();
         
         // Calcul de "Demain" (toujours le jour suivant, même si week-end)
         let nextDay = new Date(now);
@@ -957,142 +1170,36 @@ window.loadBackpackData = async function() {
         const todayStr = now.toISOString().split('T')[0];
         const nextDayStr = nextDay.toISOString().split('T')[0];
 
-        // Titres
-        titleElToday.textContent = `Aujourd'hui`;
-        titleElTomorrow.textContent = `Demain`;
-        if (edtTitleToday) edtTitleToday.textContent = `Emploi du temps (${frenchDays[dayIndex]})`;
-        // backpackElTitle.textContent = '🎒 Sac à Dos'; // Plus utilisé
+        // --- EDT Navigation state ---
+        let edtCurrentDate = new Date(now);
+        const frenchDaysShort = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
+        const frenchMonths = ['janv.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+
+        function formatEdtDate(d) {
+            return `${frenchDaysShort[d.getDay()]} ${d.getDate()} ${frenchMonths[d.getMonth()]}`;
+        }
+        if (edtNavDate) edtNavDate.textContent = formatEdtDate(edtCurrentDate);
 
         // 2. Récupérer l'emploi du temps via l'API
-        // On vide d'abord les listes pour éviter l'effet "barre blanche" si ça plante
         const loadingStyle = 'background: transparent; color: rgba(255,255,255,0.7); text-align: center; font-size: 0.9em;';
-        backpackElToday.innerHTML = `<li style="${loadingStyle}">Chargement...</li>`;
-        backpackElTomorrow.innerHTML = `<li style="${loadingStyle}">Chargement...</li>`;
-        if (edtListEl) edtListEl.innerHTML = `<li style="${loadingStyle}">Chargement...</li>`;
+        edtListEl.innerHTML = `<li style="${loadingStyle}">Chargement...</li>`;
 
         const siteUser = (localStorage.getItem('source_username') || '').trim();
         const headers = siteUser ? { 'x-source-user': siteUser, 'x-alpha-user': siteUser } : {};
         const response = await fetch(`/ed/edt?start=${todayStr}&end=${nextDayStr}`, { headers });
         if (!response.ok) {
-            // Si erreur (ex: 401 non connecté), on affiche le message demandé
             const msg = `<li style="background: transparent; color: rgba(255,255,255,0.6); text-align: center; padding: 10px; font-style: italic;">Connectez-vous dans l'onglet "Cartable" pour avoir accès à cette fonctionnalité</li>`;
-            backpackElToday.innerHTML = msg;
-            backpackElTomorrow.innerHTML = msg;
-            if (edtListEl) edtListEl.innerHTML = msg;
+            edtListEl.innerHTML = msg;
             return;
         }
         const edtData = await response.json();
-        console.log("PUTAIN LOG : EDT Data reçue:", edtData); // Debug
-
-        // 3. Mapping des couleurs (basé sur l'image fournie)
-        const subjectColors = {
-            'HISTOIRE-GEOGRAPHIE': '#ffcc99', // Pêche
-            'ESPAGNOL LV2': '#fff59d', // Jaune pâle
-            'LCA LATIN': '#e0f7fa', // Cyan pâle
-            'GREC': '#e0f7fa', // Cyan pâle (comme Latin)
-            'ED.PHYSIQUE & SPORT.': '#d1c4e9', // Violet pâle
-            'SCIENCES VIE & TERRE': '#a5d6a7', // Vert pâle
-            'ANGLAIS LV1': '#ffab91', // Orange pâle
-            'MATHEMATIQUES': '#ffccbc', // Saumon
-            'FRANCAIS': '#90caf9', // Bleu pâle
-            'VIE DE CLASSE': '#cfd8dc', // Gris
-            'PHYSIQUE-CHIMIE': '#f48fb1', // Rose
-            'EDUCATION MUSICALE': '#ce93d8', // Violet
-            'ARTS PLASTIQUES': '#f8bbd0', // Rose pâle
-            'TECHNOLOGIE': '#ef5350', // Rouge
-            'CAMBRIDGE': '#2e7d32', // Vert foncé
-            'DEVOIR SURVEILLE': '#b0bec5' // Gris bleu
-        };
-
-        // --- LOGIQUE SAC À DOS (Simplifié) ---
-        const processDay = (dateStr) => {
-            // Style pour les messages vides (pas de fond blanc, texte centré gris clair)
-            const emptyStyle = 'background: transparent; color: rgba(255,255,255,0.5); text-align: center; font-style: italic; padding: 10px;';
-
-            if (!edtData || !Array.isArray(edtData)) return [`<li style="${emptyStyle}">Aucun cours</li>`];
-
-            // Filtre les cours du jour
-            const courses = edtData.filter(c => c.start_date.startsWith(dateStr) && !c.isAnnule);
-            
-            if (courses.length === 0) return [`<li style="${emptyStyle}">Pas de cours</li>`];
-
-            // Détection Vacances
-            const isHoliday = courses.some(c => c.text === 'CONGÉS' || c.typeCours === 'CONGE');
-            if (isHoliday) return [`<li style="${emptyStyle}">Vacances</li>`];
-
-            // Extrait les matières uniques (en gardant l'ordre chronologique)
-            const uniqueSubjects = [];
-            const seen = new Set();
-
-            courses.sort((a, b) => a.start_date.localeCompare(b.start_date));
-
-            courses.forEach(c => {
-                let name = (c.matiere || '').toUpperCase().trim();
-                
-                // Ignorer Repas, Permanence, ou matières vides
-                if (!name || name === '' || name.includes('REPAS')) return;
-
-                // Nettoyage du nom
-                if (name.includes('HISTOIRE')) name = 'HISTOIRE-GEOGRAPHIE';
-                else if (name.includes('ESPAGNOL')) name = 'ESPAGNOL LV2';
-                else if (name.includes('LATIN')) name = 'LCA LATIN';
-                else if (name.includes('GREC')) name = 'GREC';
-                else if (name.includes('SPORT') || name.includes('EPS')) name = 'ED.PHYSIQUE & SPORT.';
-                else if (name.includes('SVT') || name.includes('VIE & TERRE')) name = 'SCIENCES VIE & TERRE';
-                else if (name.includes('ANGLAIS')) name = 'ANGLAIS LV1';
-                else if (name.includes('MATH')) name = 'MATHEMATIQUES';
-                else if (name.includes('FRANCAIS')) name = 'FRANCAIS';
-                else if (name.includes('PHYSIQUE')) name = 'PHYSIQUE-CHIMIE';
-                else if (name.includes('MUSIQUE')) name = 'EDUCATION MUSICALE';
-                else if (name.includes('PLASTIQUE')) name = 'ARTS PLASTIQUES';
-                else if (name.includes('TECHNO')) name = 'TECHNOLOGIE';
-                else if (name.includes('CAMBRIDGE')) name = 'CAMBRIDGE';
-                else if (name.includes('VIE DE CLASSE')) name = 'VIE DE CLASSE';
-
-                // Gestion des doublons consécutifs (ex: 2h de maths)
-                // On veut afficher chaque créneau ou juste les matières ? "Préparer son sac" -> juste les matières uniques
-                if (!seen.has(name)) {
-                    seen.add(name);
-                    uniqueSubjects.push(name);
-                }
-            });
-
-            // Gestion des jours sans cours (Weekend/Jours non renseignés)
-            if (uniqueSubjects.length === 0) {
-                 return [`<li style="${emptyStyle}">Pas de cours</li>`];
-            }
-
-            return uniqueSubjects.map(sub => {
-                const color = subjectColors[sub] || '#e0e0e0'; // Gris par défaut
-                const textColor = (sub === 'CAMBRIDGE' || sub === 'TECHNOLOGIE') ? '#fff' : '#000';
-                // Nom affiché plus joli
-                let displayName = sub.charAt(0) + sub.slice(1).toLowerCase();
-                if (sub === 'SVT') displayName = 'SVT';
-                if (sub === 'EPS') displayName = 'Sport';
-                if (sub === 'LCA LATIN') displayName = 'Latin';
-                if (sub === 'ED.PHYSIQUE & SPORT.') displayName = 'Sport';
-                if (sub === 'SCIENCES VIE & TERRE') displayName = 'SVT';
-                if (sub === 'ANGLAIS LV1') displayName = 'Anglais';
-                if (sub === 'ESPAGNOL LV2') displayName = 'Espagnol';
-                if (sub === 'HISTOIRE-GEOGRAPHIE') displayName = 'Histoire-Géo';
-
-                return `<li style="background-color: ${color}; color: ${textColor}; padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-weight: 600;">${displayName}</li>`;
-            });
-        };
-
-        backpackElToday.innerHTML = processDay(todayStr).join('');
-        backpackElTomorrow.innerHTML = processDay(nextDayStr).join('');
 
         // --- LOGIQUE EDT (Détaillé) ---
-        if (edtListEl) {
-            const processEdt = (dateStr) => {
+        {
+            const processEdt = (courses) => {
                 const emptyStyle = 'background: transparent; color: rgba(255,255,255,0.5); text-align: center; font-style: italic; padding: 10px;';
                 
-                if (!edtData || !Array.isArray(edtData)) return [`<li style="${emptyStyle}">Aucun cours</li>`];
-
-                const courses = edtData.filter(c => c.start_date.startsWith(dateStr) && !c.isAnnule);
-                
-                if (courses.length === 0) return [`<li style="${emptyStyle}">Pas de cours aujourd'hui</li>`];
+                if (!courses || courses.length === 0) return [`<li style="${emptyStyle}">Pas de cours</li>`];
 
                 // Détection Vacances
                 const isHoliday = courses.some(c => c.text === 'CONGÉS' || c.typeCours === 'CONGE');
@@ -1110,30 +1217,242 @@ window.loadBackpackData = async function() {
                     let prof = c.prof || '';
                     let salle = c.salle || '';
 
-                    // Couleur
-                    let cleanName = matiere.toUpperCase();
-                    // ... (Même logique de nettoyage pour la couleur si on veut, ou juste mapping direct)
-                    // On réutilise le mapping subjectColors si possible
-                    let colorKey = Object.keys(subjectColors).find(k => cleanName.includes(k.split(' ')[0])); // Match partiel simple
-                    let color = subjectColors[colorKey] || '#ccc';
-                    if (cleanName.includes('CAMBRIDGE')) color = subjectColors['CAMBRIDGE']; // Force specific
+                    // Couleur — utilise getSubjectColor() pour correspondre au sac à dos
+                    let color = getSubjectColor(matiere) || '#ccc';
+                    const isDark = (color === '#2e7d32' || color === '#ef5350');
+                    const textColor = isDark ? '#fff' : '#1a1a1a';
 
                     return `
-                    <li style="border-left-color: ${color};">
+                    <li style="border-left-color: ${color}; background: linear-gradient(90deg, ${color}22 0%, transparent 100%);">
                         <div class="edt-time">${start} - ${end}</div>
-                        <div class="edt-subject">${matiere}</div>
+                        <div class="edt-subject"><span class="matiere-badge" style="background:${color};color:${textColor}">${matiere}</span></div>
                         <div class="edt-details">${prof} ${salle ? '- ' + salle : ''}</div>
                     </li>
                     `;
                 });
             };
-            
-            edtListEl.innerHTML = processEdt(todayStr).join('');
+
+            // EDT: fetch and render for a given date
+            async function loadEdtForDate(date) {
+                const dateStr = date.toISOString().split('T')[0];
+                if (edtNavDate) edtNavDate.textContent = formatEdtDate(date);
+                edtListEl.innerHTML = `<li style="background: transparent; color: rgba(255,255,255,0.7); text-align: center; font-size: 0.9em;">Chargement...</li>`;
+                try {
+                    const siteUser2 = (localStorage.getItem('source_username') || '').trim();
+                    const headers2 = siteUser2 ? { 'x-source-user': siteUser2, 'x-alpha-user': siteUser2 } : {};
+                    const res = await fetch(`/ed/edt?start=${dateStr}&end=${dateStr}`, { headers: headers2 });
+                    if (!res.ok) {
+                        edtListEl.innerHTML = `<li style="background: transparent; color: rgba(255,255,255,0.6); text-align: center; padding: 10px; font-style: italic;">Connectez-vous dans l'onglet "Cartable" pour avoir accès à cette fonctionnalité</li>`;
+                        return;
+                    }
+                    const data = await res.json();
+                    const filtered = (data || []).filter(c => c.start_date.startsWith(dateStr) && !c.isAnnule);
+                    edtListEl.innerHTML = processEdt(filtered).join('');
+                } catch (e) {
+                    console.error('Erreur EDT nav:', e);
+                    edtListEl.innerHTML = '<li style="color:red">Erreur chargement</li>';
+                }
+            }
+
+            // Initial render with today's already fetched data
+            const todayCourses = (edtData || []).filter(c => c.start_date.startsWith(todayStr) && !c.isAnnule);
+            edtListEl.innerHTML = processEdt(todayCourses).join('');
+
+            // Navigation buttons
+            if (edtPrevBtn) {
+                edtPrevBtn.addEventListener('click', () => {
+                    edtCurrentDate.setDate(edtCurrentDate.getDate() - 1);
+                    loadEdtForDate(edtCurrentDate);
+                });
+            }
+            if (edtNextBtn) {
+                edtNextBtn.addEventListener('click', () => {
+                    edtCurrentDate.setDate(edtCurrentDate.getDate() + 1);
+                    loadEdtForDate(edtCurrentDate);
+                });
+            }
         }
 
     } catch (error) {
-        console.error("Erreur Sac à Dos:", error);
-        [backpackElToday, backpackElTomorrow].forEach(el => el.innerHTML = '<li style="color:red">Erreur chargement</li>');
+        console.error("Erreur EDT:", error);
         if (edtListEl) edtListEl.innerHTML = '<li style="color:red">Erreur chargement</li>';
     }
 };
+
+// =============================================
+// Panneau EDT étendu (voir plus)
+// =============================================
+function initEdtPanel() {
+    const overlay = document.getElementById('edt-panel-overlay');
+    if (!overlay) return; // not on home page yet
+
+    const panelMode = document.getElementById('edt-panel-mode');
+    const panelClose = document.getElementById('edt-panel-close');
+    const panelPrev = document.getElementById('edt-panel-prev');
+    const panelNext = document.getElementById('edt-panel-next');
+    const panelDateEl = document.getElementById('edt-panel-date');
+    const dayView = document.getElementById('edt-panel-day-view');
+    const weekView = document.getElementById('edt-panel-week-view');
+    const voirPlusBtn = document.getElementById('edt-voir-plus');
+
+    const frenchDaysShort = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
+    const frenchDaysFull = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const frenchMonths = ['janv.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+
+    let currentDate = new Date();
+    let mode = 'day'; // 'day' | 'week'
+
+    function fmtDate(d) {
+        return `${frenchDaysFull[d.getDay()]} ${d.getDate()} ${frenchMonths[d.getMonth()]}`;
+    }
+    function isoDate(d) { return d.toISOString().split('T')[0]; }
+
+    function getMonday(d) {
+        const copy = new Date(d);
+        const day = copy.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        copy.setDate(copy.getDate() + diff);
+        return copy;
+    }
+
+    function fmtWeekRange(monday) {
+        const friday = new Date(monday);
+        friday.setDate(monday.getDate() + 4);
+        return `${monday.getDate()} ${frenchMonths[monday.getMonth()]} — ${friday.getDate()} ${frenchMonths[friday.getMonth()]}`;
+    }
+
+    async function fetchEdtRange(startDate, endDate) {
+        const siteUser = (localStorage.getItem('source_username') || '').trim();
+        const headers = siteUser ? { 'x-source-user': siteUser, 'x-alpha-user': siteUser } : {};
+        const res = await fetch(`/ed/edt?start=${isoDate(startDate)}&end=${isoDate(endDate)}`, { headers });
+        if (!res.ok) return null;
+        return await res.json();
+    }
+
+    function truncateMatiere(name, max) {
+        if (!name || name.length <= max) return name;
+        return name.substring(0, max - 1).trimEnd() + '.';
+    }
+
+    function renderCourseList(courses, compact) {
+        if (!courses || courses.length === 0) return '<div class="edt-panel-empty">Pas de cours</div>';
+        const isHoliday = courses.some(c => c.text === 'CONGÉS' || c.typeCours === 'CONGE');
+        if (isHoliday) return '<div class="edt-panel-empty">Vacances</div>';
+        courses.sort((a, b) => a.start_date.localeCompare(b.start_date));
+        return '<ul class="edt-list">' + courses.map(c => {
+            const start = c.start_date.split(' ')[1].substring(0, 5);
+            const end = c.end_date.split(' ')[1].substring(0, 5);
+            const matiereRaw = c.matiere || c.text || 'Cours';
+            const matiere = compact ? truncateMatiere(matiereRaw, 10) : matiereRaw;
+            const timeLabel = compact ? `${start}-${end}` : `${start} - ${end}`;
+            const prof = c.prof || '';
+            const salle = c.salle || '';
+            const color = getSubjectColor(matiereRaw) || '#ccc';
+            const isDark = (color === '#2e7d32' || color === '#ef5350');
+            const tc = isDark ? '#fff' : '#1a1a1a';
+            return `<li style="border-left-color:${color};background:linear-gradient(90deg,${color}22 0%,transparent 100%);">
+                <div class="edt-time">${timeLabel}</div>
+                <div class="edt-subject"><span class="matiere-badge" style="background:${color};color:${tc}">${matiere}</span></div>
+                <div class="edt-details">${prof}${salle ? ' - ' + salle : ''}</div>
+            </li>`;
+        }).join('') + '</ul>';
+    }
+
+    async function renderDay() {
+        panelDateEl.textContent = fmtDate(currentDate);
+        dayView.innerHTML = '<div class="edt-panel-loading">Chargement...</div>';
+        try {
+            const data = await fetchEdtRange(currentDate, currentDate);
+            if (!data) { dayView.innerHTML = '<div class="edt-panel-empty">Erreur de connexion</div>'; return; }
+            const dateStr = isoDate(currentDate);
+            const filtered = data.filter(c => c.start_date.startsWith(dateStr) && !c.isAnnule);
+            dayView.innerHTML = renderCourseList(filtered);
+        } catch (e) {
+            console.error('EDT panel day error:', e);
+            dayView.innerHTML = '<div class="edt-panel-empty" style="color:#ff6b6b">Erreur chargement</div>';
+        }
+    }
+
+    async function renderWeek() {
+        const monday = getMonday(currentDate);
+        const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+        panelDateEl.textContent = fmtWeekRange(monday);
+        weekView.innerHTML = '<div class="edt-panel-loading">Chargement...</div>';
+        try {
+            const data = await fetchEdtRange(monday, friday);
+            if (!data) { weekView.innerHTML = '<div class="edt-panel-empty">Erreur de connexion</div>'; return; }
+            let html = '<div class="edt-week-grid">';
+            for (let i = 0; i < 5; i++) {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                const dateStr = isoDate(d);
+                const courses = data.filter(c => c.start_date.startsWith(dateStr) && !c.isAnnule);
+                html += `<div class="edt-week-day">
+                    <div class="edt-week-day-header">${frenchDaysFull[d.getDay()]} ${d.getDate()}</div>
+                    ${renderCourseList(courses, true)}
+                </div>`;
+            }
+            html += '</div>';
+            weekView.innerHTML = html;
+        } catch (e) {
+            console.error('EDT panel week error:', e);
+            weekView.innerHTML = '<div class="edt-panel-empty" style="color:#ff6b6b">Erreur chargement</div>';
+        }
+    }
+
+    function refresh() {
+        if (mode === 'day') {
+            dayView.style.display = '';
+            weekView.style.display = 'none';
+            renderDay();
+        } else {
+            dayView.style.display = 'none';
+            weekView.style.display = '';
+            renderWeek();
+        }
+    }
+
+    function openPanel() {
+        currentDate = new Date();
+        mode = panelMode.value = 'day';
+        if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+        overlay.style.display = '';
+        document.body.style.overflow = 'hidden';
+        refresh();
+    }
+
+    // Expose globally so other pages (cartable) can open the EDT panel
+    window.openEdtPanel = openPanel;
+
+    function closePanel() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    if (voirPlusBtn) voirPlusBtn.addEventListener('click', openPanel);
+    if (panelClose) panelClose.addEventListener('click', closePanel);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closePanel(); });
+
+    if (panelMode) panelMode.addEventListener('change', () => {
+        mode = panelMode.value;
+        refresh();
+    });
+
+    if (panelPrev) panelPrev.addEventListener('click', () => {
+        if (mode === 'day') {
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() - 7);
+        }
+        refresh();
+    });
+
+    if (panelNext) panelNext.addEventListener('click', () => {
+        if (mode === 'day') {
+            currentDate.setDate(currentDate.getDate() + 1);
+        } else {
+            currentDate.setDate(currentDate.getDate() + 7);
+        }
+        refresh();
+    });
+}
