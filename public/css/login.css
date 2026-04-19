@@ -52,6 +52,8 @@ body {
     color: var(--color-primary); /* Titre Azur */
     margin-bottom: 30px;
     position: relative;
+    line-height: 1.3;
+    text-shadow: none;
 }
 
 #login-container h1::after {

@@ -1,0 +1,282 @@
+<div id="fiches-page" class="atelier-sub-page" data-sub="fiches">
+    <div class="asub-bg-layer" aria-hidden="true">
+        <canvas id="fiches-canvas"></canvas>
+    </div>
+    <div class="asub-content">
+        <div class="asub-top-bar">
+            <button class="asub-back" onclick="window.returnToAtelier()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Retour
+            </button>
+            <h2 class="asub-title">Fiches de Révision</h2>
+            <button class="fe-btn fe-download-btn" title="Télécharger" style="display:none">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger
+            </button>
+        </div>
+        <div class="asub-body fiches-home">
+            <p class="fiches-intro">Crée, organise et révise tes fiches. Exporte-les en PDF, PNG ou imprime-les directement.</p>
+            <div class="fiches-actions">
+                <button class="fiches-btn fiches-btn-create">
+                    <span class="fiches-btn-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    </span>
+                    <span class="fiches-btn-text">
+                        <span class="fiches-btn-label">Créer une fiche</span>
+                        <span class="fiches-btn-desc">Éditeur avec couleurs, tailles et mise en forme</span>
+                    </span>
+                </button>
+                <button class="fiches-btn fiches-btn-list">
+                    <span class="fiches-btn-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    </span>
+                    <span class="fiches-btn-text">
+                        <span class="fiches-btn-label">Mes fiches</span>
+                        <span class="fiches-btn-desc">Retrouve et gère tes fiches enregistrées</span>
+                    </span>
+                </button>
+                <button class="fiches-btn fiches-btn-ai">
+                    <span class="fiches-btn-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 1 0 5H14a1 1 0 0 0-1 1v1.5a2.5 2.5 0 0 1-5 0V13a1 1 0 0 0-1-1H5.5a2.5 2.5 0 0 1 0-5H7a1 1 0 0 0 1-1V4.5A2.5 2.5 0 0 1 9.5 2z"/><path d="M18 14a2 2 0 1 1 0 4M18 14v4M18 14h2M18 18h2"/></svg>
+                    </span>
+                    <span class="fiches-btn-text">
+                        <span class="fiches-btn-label">Créer avec l'IA</span>
+                        <span class="fiches-btn-desc">Génère automatiquement à partir de tes cours</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ EDITOR VIEW ═══ -->
+        <div class="fiches-editor" style="display:none">
+            <div class="fe-toolbar">
+                <!-- Section 1: Tailles -->
+                <div class="fe-section">
+                    <button class="fe-btn fe-size-btn active" data-size="normal" title="Texte normal">
+                        <span class="fe-sz fe-sz-sm">A</span>
+                    </button>
+                    <button class="fe-btn fe-size-btn" data-size="subtitle" title="Sous-titre">
+                        <span class="fe-sz fe-sz-md">A</span>
+                    </button>
+                    <button class="fe-btn fe-size-btn" data-size="title" title="Titre">
+                        <span class="fe-sz fe-sz-lg">A</span>
+                    </button>
+                </div>
+                <div class="fe-divider"></div>
+                <!-- Section 2: Mise en forme -->
+                <div class="fe-section">
+                    <button class="fe-btn fe-format-btn" data-cmd="bold" title="Gras"><b>G</b></button>
+                    <button class="fe-btn fe-format-btn" data-cmd="italic" title="Italique"><i>I</i></button>
+                    <button class="fe-btn fe-format-btn" data-cmd="underline" title="Souligné"><u>S</u></button>
+                    <div class="fe-dropdown-wrap">
+                        <button class="fe-btn fe-font-trigger" title="Police">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        </button>
+                        <div class="fe-dropdown fe-font-dropdown">
+                            <button class="fe-btn fe-dd-item" data-font="sans-serif">Sans-serif</button>
+                            <button class="fe-btn fe-dd-item" data-font="Georgia, serif">Georgia</button>
+                            <button class="fe-btn fe-dd-item" data-font="'Courier New', monospace">Courier New</button>
+                            <button class="fe-btn fe-dd-item" data-font="'Comic Sans MS', cursive">Comic Sans</button>
+                            <button class="fe-btn fe-dd-item" data-font="'Trebuchet MS', sans-serif">Trebuchet</button>
+                        </div>
+                    </div>
+                    <div class="fe-dropdown-wrap">
+                        <button class="fe-btn fe-color-trigger" title="Couleur du texte">
+                            <span class="fe-swatch" data-current-color="#222"></span>
+                        </button>
+                        <div class="fe-dropdown fe-color-dropdown">
+                            <button class="fe-btn fe-dd-item fe-color-item fe-color-theme" data-color="theme"><span class="fe-swatch-mini fe-swatch-theme" style="background:#333"></span>Thème</button>
+                            <button class="fe-btn fe-dd-item fe-color-item" data-color="#222"><span class="fe-swatch-mini" style="background:#222"></span>Noir</button>
+                            <button class="fe-btn fe-dd-item fe-color-item" data-color="#888"><span class="fe-swatch-mini" style="background:#888"></span>Gris</button>
+                            <button class="fe-btn fe-dd-item fe-color-item" data-color="#e53935"><span class="fe-swatch-mini" style="background:#e53935"></span>Rouge</button>
+                            <button class="fe-btn fe-dd-item fe-color-item" data-color="#43a047"><span class="fe-swatch-mini" style="background:#43a047"></span>Vert</button>
+                            <button class="fe-btn fe-dd-item fe-color-item" data-color="#1e88e5"><span class="fe-swatch-mini" style="background:#1e88e5"></span>Bleu</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="fe-divider"></div>
+                <!-- Section 3: Arrière-plan & séparateur -->
+                <div class="fe-section">
+                    <div class="fe-dropdown-wrap">
+                        <button class="fe-btn fe-bg-trigger" title="Arrière-plan de la fiche">
+                            <span class="fe-swatch fe-swatch-bg" data-current-bg="sobre"></span>
+                        </button>
+                        <div class="fe-dropdown fe-bg-dropdown">
+                            <button class="fe-btn fe-dd-item fe-bg-item" data-bg="sobre"><span class="fe-swatch-mini" style="background:#c8c8c8"></span>Sobre</button>
+                            <button class="fe-btn fe-dd-item fe-bg-item" data-bg="blocnote"><span class="fe-swatch-mini" style="background:#f5e6b8"></span>Bloc note</button>
+                            <button class="fe-btn fe-dd-item fe-bg-item" data-bg="rose"><span class="fe-swatch-mini" style="background:#f4b8c8"></span>Rose</button>
+                            <button class="fe-btn fe-dd-item fe-bg-item" data-bg="vert"><span class="fe-swatch-mini" style="background:#b8dfc0"></span>Vert</button>
+                            <button class="fe-btn fe-dd-item fe-bg-item" data-bg="bleu"><span class="fe-swatch-mini" style="background:#b0d4f1"></span>Bleu</button>
+                        </div>
+                    </div>
+                    <button class="fe-btn fe-sep-btn" title="Ligne de séparation">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/></svg>
+                    </button>
+                </div>
+                <div class="fe-divider"></div>
+                <!-- Section 4: Undo/Redo -->
+                <div class="fe-section">
+                    <button class="fe-btn fe-undo-btn" title="Annuler (Ctrl+Z)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    </button>
+                    <button class="fe-btn fe-redo-btn" title="Rétablir (Ctrl+Y)">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/></svg>
+                    </button>
+                </div>
+                <span class="fe-modified-dot" title="Modifications non enregistrées"></span>
+            </div>
+            <div class="fe-card" data-theme="sobre">
+                <div class="fe-area" contenteditable="true" spellcheck="true">
+                    <div class="fe-line"><br></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ DOWNLOAD PANEL ═══ -->
+        <div class="fe-dl-overlay" style="display:none">
+            <div class="fe-dl-panel">
+                <button class="fe-dl-close" title="Fermer">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <h3 class="fe-dl-title">Aperçu & Téléchargement</h3>
+                <div class="fe-dl-preview"></div>
+
+                <!-- Save form (for AlphaSource) -->
+                <div class="fe-save-form" style="display:none">
+                    <input class="fe-save-input" type="text" placeholder="Nom de la fiche *" maxlength="80" id="fe-save-name">
+                    <input class="fe-save-input" type="text" placeholder="Description (optionnel)" maxlength="200" id="fe-save-desc">
+                    <select class="fe-save-input" id="fe-save-matiere">
+                        <option value="">Matière (optionnel)</option>
+                        <option value="Mathématiques">Mathématiques</option>
+                        <option value="Français">Français</option>
+                        <option value="Histoire-Géo">Histoire-Géo</option>
+                        <option value="SVT">SVT</option>
+                        <option value="Physique-Chimie">Physique-Chimie</option>
+                        <option value="Anglais">Anglais</option>
+                        <option value="Espagnol">Espagnol</option>
+                        <option value="Allemand">Allemand</option>
+                        <option value="Technologie">Technologie</option>
+                        <option value="EMC">EMC</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Musique">Musique</option>
+                        <option value="EPS">EPS</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <button class="fe-btn fe-dl-action fe-save-confirm" data-action="save-confirm">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Enregistrer
+                    </button>
+                </div>
+
+                <div class="fe-dl-actions">
+                    <button class="fe-btn fe-dl-action" data-action="alphasource">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Enregistrer sur AlphaSource
+                    </button>
+                    <button class="fe-btn fe-dl-action" data-action="png">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        Télécharger en PNG
+                    </button>
+                    <button class="fe-btn fe-dl-action" data-action="pdf">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        Télécharger en PDF
+                    </button>
+                    <button class="fe-btn fe-dl-action" data-action="print">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ MES FICHES VIEW ═══ -->
+        <div class="fiches-list-view" style="display:none">
+            <div class="fl-search-bar">
+                <div class="fl-search-wrap">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input class="fl-search-input" type="text" placeholder="Rechercher une fiche...">
+                </div>
+                <select class="fl-matiere-filter">
+                    <option value="">Toutes les matières</option>
+                    <option value="Mathématiques">Mathématiques</option>
+                    <option value="Français">Français</option>
+                    <option value="Histoire-Géo">Histoire-Géo</option>
+                    <option value="SVT">SVT</option>
+                    <option value="Physique-Chimie">Physique-Chimie</option>
+                    <option value="Anglais">Anglais</option>
+                    <option value="Espagnol">Espagnol</option>
+                    <option value="Allemand">Allemand</option>
+                    <option value="Technologie">Technologie</option>
+                    <option value="EMC">EMC</option>
+                    <option value="Arts">Arts</option>
+                    <option value="Musique">Musique</option>
+                    <option value="EPS">EPS</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </div>
+            <div class="fl-grid"></div>
+            <div class="fl-empty" style="display:none">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <p>Aucune fiche trouvée</p>
+            </div>
+        </div>
+
+        <!-- ═══ AI GENERATION VIEW ═══ -->
+        <div class="fiches-ai-view" style="display:none">
+            <h3 class="fai-title">Créer avec l'IA</h3>
+            <p class="fai-desc">Ajoute des photos de tes cours, et l'IA créera une fiche de révision pour toi.</p>
+
+            <!-- Images list -->
+            <div class="fai-images-area">
+                <div class="fai-images-grid"></div>
+                <button class="fai-add-btn" title="Ajouter un cours">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Ajouter un cours
+                </button>
+            </div>
+
+            <!-- Source picker overlay -->
+            <div class="fai-source-overlay" style="display:none">
+                <div class="fai-source-panel">
+                    <button class="fai-source-close" title="Fermer">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                    <h4 class="fai-source-title">Source de l'image</h4>
+                    <button class="fai-source-btn fai-src-phone">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+                        Depuis mon appareil
+                    </button>
+                    <button class="fai-source-btn fai-src-alpha">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        Depuis AlphaSource (Cours)
+                    </button>
+                    <!-- AlphaSource courses list (hidden by default) -->
+                    <div class="fai-courses-list" style="display:none">
+                        <div class="fai-courses-loading">Chargement des cours...</div>
+                        <div class="fai-courses-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <textarea class="fai-instructions" placeholder="Instructions pour l'IA (optionnel) : ex. « Résume les définitions clés », « Fais un tableau comparatif »..." rows="3"></textarea>
+
+            <!-- Generate button -->
+            <button class="fai-generate-btn" disabled>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1h1.5a2.5 2.5 0 0 1 0 5H14a1 1 0 0 0-1 1v1.5a2.5 2.5 0 0 1-5 0V13a1 1 0 0 0-1-1H5.5a2.5 2.5 0 0 1 0-5H7a1 1 0 0 0 1-1V4.5A2.5 2.5 0 0 1 9.5 2z"/></svg>
+                Générer la fiche
+            </button>
+
+            <!-- Generation loading overlay -->
+            <div class="fai-loading-overlay" style="display:none">
+                <div class="fai-loading-panel">
+                    <div class="fai-spinner"></div>
+                    <p class="fai-loading-text">Génération...</p>
+                    <p class="fai-loading-sub">Analyse des images en cours</p>
+                </div>
+            </div>
+
+            <input type="file" class="fai-file-input" accept="image/*" multiple style="display:none">
+        </div>
+    </div>
+</div>

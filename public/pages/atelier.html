@@ -1,0 +1,163 @@
+<div id="atelier-page">
+    <!-- ── Animated BG shapes ── -->
+    <div class="atelier-bg-layer" aria-hidden="true">
+        <svg class="atelier-bg-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <filter id="atl-glow">
+                    <feGaussianBlur stdDeviation="18" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="atl-soft">
+                    <feGaussianBlur stdDeviation="40"/>
+                </filter>
+            </defs>
+
+            <!-- Soft ambient glow blobs (very blurred, large) -->
+            <ellipse class="atl-ambient atl-amb-1" cx="200" cy="150" rx="220" ry="160" filter="url(#atl-soft)"/>
+            <ellipse class="atl-ambient atl-amb-2" cx="900" cy="600" rx="250" ry="180" filter="url(#atl-soft)"/>
+            <ellipse class="atl-ambient atl-amb-3" cx="600" cy="400" rx="180" ry="140" filter="url(#atl-soft)"/>
+
+            <!-- Morphing blobs -->
+            <path class="atl-blob atl-blob-purple" filter="url(#atl-glow)" d="M300,200 Q380,100 460,200 Q540,300 460,380 Q380,460 300,380 Q220,300 300,200Z"/>
+            <path class="atl-blob atl-blob-green"  filter="url(#atl-glow)" d="M800,150 Q870,80 940,150 Q1010,220 940,290 Q870,360 800,290 Q730,220 800,150Z"/>
+            <path class="atl-blob atl-blob-blue"   filter="url(#atl-glow)" d="M500,500 Q580,430 660,500 Q740,570 660,640 Q580,710 500,640 Q420,570 500,500Z"/>
+            <path class="atl-blob atl-blob-orange" filter="url(#atl-glow)" d="M150,550 Q220,480 290,550 Q360,620 290,690 Q220,760 150,690 Q80,620 150,550Z"/>
+            <path class="atl-blob atl-blob-accent" filter="url(#atl-glow)" d="M1000,400 Q1060,340 1120,400 Q1180,460 1120,520 Q1060,580 1000,520 Q940,460 1000,400Z"/>
+
+            <!-- Small floating geometric shapes -->
+            <polygon class="atl-shape atl-sh-1" points="180,80 200,50 220,80"/>
+            <rect    class="atl-shape atl-sh-2" x="950" y="100" width="18" height="18" rx="3" transform="rotate(30 959 109)"/>
+            <circle  class="atl-shape atl-sh-3" cx="700" cy="200" r="6"/>
+            <polygon class="atl-shape atl-sh-4" points="400,650 420,620 440,650"/>
+            <rect    class="atl-shape atl-sh-5" x="1050" y="550" width="14" height="14" rx="2" transform="rotate(45 1057 557)"/>
+            <circle  class="atl-shape atl-sh-6" cx="120" cy="350" r="5"/>
+            <polygon class="atl-shape atl-sh-7" points="850,700 870,670 890,700"/>
+            <rect    class="atl-shape atl-sh-8" x="550" y="120" width="12" height="12" rx="2" transform="rotate(20 556 126)"/>
+            <circle  class="atl-shape atl-sh-9" cx="340" cy="450" r="4"/>
+            <polygon class="atl-shape atl-sh-10" points="1100,250 1115,225 1130,250"/>
+
+            <!-- Connecting lines (faint) -->
+            <line class="atl-line atl-ln-1" x1="200" y1="80" x2="550" y2="130"/>
+            <line class="atl-line atl-ln-2" x1="700" y1="200" x2="950" y2="110"/>
+            <line class="atl-line atl-ln-3" x1="340" y1="450" x2="500" y2="500"/>
+            <line class="atl-line atl-ln-4" x1="850" y1="700" x2="1050" y2="560"/>
+            <line class="atl-line atl-ln-5" x1="120" y1="350" x2="300" y2="200"/>
+        </svg>
+    </div>
+
+    <div class="atelier-inner">
+    <div class="atelier-header">
+        <h2>Atelier</h2>
+        <p class="atelier-subtitle">Tes outils de révision et de création</p>
+    </div>
+
+    <div class="atelier-tools-grid">
+
+        <!-- ── Fiches de Révision ── -->
+        <div class="atelier-card wf-fiches" data-tool="fiches">
+            <div class="wf-card-bg">
+                <svg viewBox="0 0 400 240" preserveAspectRatio="none">
+                    <rect class="wf-line wf-l1" x="40" y="220" width="180" height="6" rx="3"/>
+                    <rect class="wf-line wf-l2" x="40" y="220" width="130" height="5" rx="2.5"/>
+                    <rect class="wf-line wf-l3" x="40" y="220" width="200" height="6" rx="3"/>
+                    <rect class="wf-line wf-l4" x="40" y="220" width="100" height="5" rx="2.5"/>
+                    <rect class="wf-line wf-l5" x="40" y="220" width="160" height="6" rx="3"/>
+                    <rect class="wf-line wf-l6" x="40" y="220" width="220" height="5" rx="2.5"/>
+                    <rect class="wf-line wf-l7" x="40" y="220" width="90" height="6" rx="3"/>
+                    <rect class="wf-line wf-l8" x="40" y="220" width="170" height="5" rx="2.5"/>
+                </svg>
+            </div>
+            <div class="wf-card-content">
+                <div class="wf-card-label">
+                    <svg class="wf-card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                    <div>
+                        <h3>Fiches de Révision</h3>
+                        <p>Génère des fiches claires à partir de tes cours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Cartes Mentales ── -->
+        <div class="atelier-card wf-mind" data-tool="cartes-mentales">
+            <div class="wf-card-bg">
+                <svg viewBox="0 0 400 240" preserveAspectRatio="none">
+                    <line class="wf-branch wf-b1" x1="200" y1="120" x2="90" y2="50"/>
+                    <line class="wf-branch wf-b2" x1="200" y1="120" x2="320" y2="40"/>
+                    <line class="wf-branch wf-b3" x1="200" y1="120" x2="80" y2="190"/>
+                    <line class="wf-branch wf-b4" x1="200" y1="120" x2="330" y2="185"/>
+                    <line class="wf-branch wf-b5" x1="200" y1="120" x2="200" y2="30"/>
+                    <circle class="wf-node wf-n0" cx="200" cy="120" r="14"/>
+                    <circle class="wf-node wf-n1" cx="90"  cy="50"  r="9"/>
+                    <circle class="wf-node wf-n2" cx="320" cy="40"  r="10"/>
+                    <circle class="wf-node wf-n3" cx="80"  cy="190" r="8"/>
+                    <circle class="wf-node wf-n4" cx="330" cy="185" r="9"/>
+                    <circle class="wf-node wf-n5" cx="200" cy="30"  r="7"/>
+                </svg>
+            </div>
+            <div class="wf-card-content">
+                <div class="wf-card-label">
+                    <svg class="wf-card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="6" r="2"/><circle cx="20" cy="6" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="9.5" y1="10" x2="5.5" y2="7.5"/><line x1="14.5" y1="10" x2="18.5" y2="7.5"/><line x1="9.5" y1="14" x2="5.5" y2="16.5"/><line x1="14.5" y1="14" x2="18.5" y2="16.5"/></svg>
+                    <div>
+                        <h3>Cartes Mentales</h3>
+                        <p>Organise tes idées visuellement en réseau</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Présentations ── -->
+        <div class="atelier-card wf-slides" data-tool="slides">
+            <div class="wf-card-bg">
+                <svg viewBox="0 0 400 240" preserveAspectRatio="none">
+                    <rect class="wf-slide wf-s1" x="30"  y="140" width="80" height="55" rx="6"/>
+                    <rect class="wf-slide wf-s2" x="140" y="100" width="80" height="55" rx="6"/>
+                    <rect class="wf-slide wf-s3" x="260" y="60"  width="80" height="55" rx="6"/>
+                    <rect class="wf-slide wf-s4" x="90"  y="30"  width="80" height="55" rx="6"/>
+                    <rect class="wf-slide wf-s5" x="300" y="160" width="80" height="55" rx="6"/>
+                </svg>
+            </div>
+            <div class="wf-card-content">
+                <div class="wf-card-label">
+                    <svg class="wf-card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 8 16 11 10 14 10 8"/></svg>
+                    <div>
+                        <h3>Présentations</h3>
+                        <p>Transforme tes notes en slides percutantes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Simulateur d'Oral ── -->
+        <div class="atelier-card wf-oral" data-tool="oral">
+            <div class="wf-card-bg">
+                <svg viewBox="0 0 400 240" preserveAspectRatio="none">
+                    <rect class="wf-wave wf-w1" x="40"  y="100" width="8" height="40" rx="4"/>
+                    <rect class="wf-wave wf-w2" x="65"  y="80"  width="8" height="80" rx="4"/>
+                    <rect class="wf-wave wf-w3" x="90"  y="90"  width="8" height="60" rx="4"/>
+                    <rect class="wf-wave wf-w4" x="115" y="70"  width="8" height="100" rx="4"/>
+                    <rect class="wf-wave wf-w5" x="140" y="95"  width="8" height="50" rx="4"/>
+                    <rect class="wf-wave wf-w6" x="165" y="75"  width="8" height="90" rx="4"/>
+                    <rect class="wf-wave wf-w7" x="190" y="85"  width="8" height="70" rx="4"/>
+                    <rect class="wf-wave wf-w8" x="215" y="65"  width="8" height="110" rx="4"/>
+                    <rect class="wf-wave wf-w9" x="240" y="90"  width="8" height="60" rx="4"/>
+                    <rect class="wf-wave wf-w10" x="265" y="80" width="8" height="80" rx="4"/>
+                    <rect class="wf-wave wf-w11" x="290" y="100" width="8" height="40" rx="4"/>
+                    <rect class="wf-wave wf-w12" x="315" y="75" width="8" height="90" rx="4"/>
+                    <rect class="wf-wave wf-w13" x="340" y="90" width="8" height="60" rx="4"/>
+                </svg>
+            </div>
+            <div class="wf-card-content">
+                <div class="wf-card-label">
+                    <svg class="wf-card-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    <div>
+                        <h3>Simulateur d'Oral</h3>
+                        <p>Entraîne-toi avec un coach IA interactif</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+</div>

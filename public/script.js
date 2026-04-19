@@ -415,7 +415,7 @@ async function renderPage(page) {
     // Dynamic page title for accessibility
     const PAGE_TITLES = {
         accueil: 'Accueil', home: 'SOURCE AI', chat: 'SOURCE AI',
-        cours: 'Mes Cours', communaute: 'Communauté', workflow: 'Workflow',
+        cours: 'Mes Cours', communaute: 'Communauté', atelier: 'Atelier',
         messagerie: 'Messagerie', cartable: 'Cartable', info: 'Info', moncompte: 'Mon Compte'
     };
     const user = currentUsername || '';
@@ -451,7 +451,7 @@ async function renderPage(page) {
     if (page === 'home' || page === 'chat') contentFile = '/pages/chat.html';
     else if (page === 'cours') contentFile = '/pages/cours.html';
     else if (page === 'communaute') contentFile = '/pages/communaute.html';
-    else if (page === 'workflow') contentFile = '/pages/workflow.html';
+    else if (page === 'atelier') contentFile = '/pages/atelier.html';
     else if (page === 'messagerie') contentFile = '/pages/mess.html'; // 🚨 AJOUT MESSAGERIE 🚨
     else if (page === 'accueil') contentFile = '/pages/home.html';
     else if (page === 'cartable') contentFile = '/pages/cartable.html';
@@ -568,13 +568,13 @@ async function renderPage(page) {
                 }
             }, 60);
 
-        } else if (page === 'workflow') {
+        } else if (page === 'atelier') {
             if (rightSidebarControls) rightSidebarControls.style.display = 'none';
             if (depositCourseButton) depositCourseButton.style.display = 'none';
             if (localMainTitle) localMainTitle.style.display = 'none';
 
-            if (typeof window.initWorkflowPage === 'function') {
-                try { window.initWorkflowPage(); } catch (e) { console.error('Erreur init Workflow :', e); }
+            if (typeof window.initAtelierPage === 'function') {
+                try { window.initAtelierPage(); } catch (e) { console.error('Erreur init Atelier :', e); }
             }
         } else if (page === 'messagerie') { // 🚨 NOUVELLE INITIALISATION MESSAGERIE 🚨
             if (rightSidebarControls) rightSidebarControls.style.display = 'none';
@@ -657,7 +657,7 @@ function createMenu() {
         { name: '-SOURCE AI', id: 'home', iconFile: '/ressources/kiraaimenuicon.png' },
         { name: '-Mes Cours', id: 'cours', iconFile: '/ressources/coursmenuicon.png' },
         { name: '-Communauté', id: 'communaute', iconFile: '/ressources/communautemenuicon.png' },
-        { name: '-Workflow', id: 'workflow', iconFile: '/ressources/workflowmenuicon.png' },
+        { name: '-Atelier', id: 'atelier', iconFile: '/ressources/workflowmenuicon.png' },
         { name: '-Messagerie', id: 'messagerie', iconFile: '/ressources/messageriemenuicon.png' }, // 🚨 AJOUT MESSAGERIE 🚨
         { name: '-Cartable', id: 'cartable', iconFile: '/ressources/cartablemenuicon.png' },
         { name: '-Info', id: 'info', iconFile: '/ressources/infomenuicon.png' },

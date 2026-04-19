@@ -30,6 +30,7 @@ html, body {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	line-height: 0;
 }
 
 * {
@@ -342,6 +343,7 @@ html[data-fond="vagues-inversees"] .wave-layer {
 	background: transparent !important;
 	z-index: 2 !important;
 	box-sizing: border-box;
+	line-height: 0;
 }
 
 #main-chat-area { /* Je pense que tu voulais utiliser cet ID si tu suis le HTML précédent */
@@ -356,9 +358,10 @@ html[data-fond="vagues-inversees"] .wave-layer {
 #app-container {
 	position: relative;
 	z-index: auto;
-	padding: 20px;
+	padding: 0 20px 20px;
 	box-sizing: border-box;
 	min-height: 100vh;
+	height: 100vh;
 	transition: left 0.3s ease-in-out, width 0.3s ease-in-out;
 	left: var(--sidebar-width-reduced);
 	width: calc(100% - var(--sidebar-width-reduced));
@@ -367,6 +370,7 @@ html[data-fond="vagues-inversees"] .wave-layer {
 	align-items: center;
 	justify-content: flex-start;
 	background: transparent !important;
+	line-height: normal;
 }
 
 #sidebar.open ~ #app-container #page-content-wrapper #info-layout #stats-header {

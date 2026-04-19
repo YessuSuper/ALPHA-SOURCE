@@ -1,0 +1,4 @@
+/* Simulateur d'Oral — Purple/Violet theme */
+#simulateur-oral-page .asub-back { border-color: rgba(190, 140, 255, 0.25); }
+#simulateur-oral-page .asub-back:hover { background: rgba(91, 45, 142, 0.4); }
+#simulateur-oral-page .asub-title { color: #c4b5fd; }

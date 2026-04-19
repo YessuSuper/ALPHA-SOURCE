@@ -1,0 +1,4 @@
+/* Cartes Mentales — Green/Teal theme */
+#cartes-mentales-page .asub-back { border-color: rgba(100, 230, 180, 0.25); }
+#cartes-mentales-page .asub-back:hover { background: rgba(26, 107, 82, 0.4); }
+#cartes-mentales-page .asub-title { color: #6ee7b7; }

@@ -384,6 +384,19 @@ CREATE INDEX IF NOT EXISTS idx_community_messages_discussion ON community_messag
 CREATE INDEX IF NOT EXISTS idx_fill_join_requests_fill ON fill_join_requests(fill_id);
 CREATE INDEX IF NOT EXISTS idx_community_fills_parent ON community_fills(parent_type, parent_id);
 CREATE INDEX IF NOT EXISTS idx_user_connection_hours_user ON user_connection_hours(username);
+
+-- Fiches de révision
+CREATE TABLE IF NOT EXISTS fiches (
+    id          TEXT PRIMARY KEY,
+    username    TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    name        TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    matiere     TEXT DEFAULT '',
+    content     TEXT NOT NULL,
+    created_at  TEXT DEFAULT (datetime('now')),
+    updated_at  TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_fiches_username ON fiches(username);
 `);
 
 // Migrate: add columns that may not exist in older DBs
@@ -630,7 +643,18 @@ const stmts = {
     // Challenge
     getChallenge: db.prepare('SELECT * FROM challenge WHERE id = 1'),
     upsertChallenge: db.prepare(`INSERT OR REPLACE INTO challenge (id, title, description, metric, target, current, reward, contributors, starts_at, ends_at, rewarded)
-        VALUES (1, @title, @description, @metric, @target, @current, @reward, @contributors, @starts_at, @ends_at, @rewarded)`)
+        VALUES (1, @title, @description, @metric, @target, @current, @reward, @contributors, @starts_at, @ends_at, @rewarded)`),
+
+    // Fiches
+    insertFiche: db.prepare(`INSERT INTO fiches (id, username, name, description, matiere, content, created_at, updated_at)
+        VALUES (@id, @username, @name, @description, @matiere, @content, @created_at, @updated_at)`),
+    updateFiche: db.prepare(`UPDATE fiches SET name=@name, description=@description, matiere=@matiere, content=@content, updated_at=@updated_at WHERE id=@id AND username=@username`),
+    deleteFiche: db.prepare('DELETE FROM fiches WHERE id = ? AND username = ?'),
+    getFiche: db.prepare('SELECT * FROM fiches WHERE id = ?'),
+    getFichesByUser: db.prepare('SELECT id, name, description, matiere, content, created_at, updated_at FROM fiches WHERE LOWER(username) = LOWER(?) ORDER BY updated_at DESC'),
+    searchFichesByUser: db.prepare(`SELECT id, name, description, matiere, content, created_at, updated_at FROM fiches
+        WHERE LOWER(username) = LOWER(?) AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)
+        ORDER BY updated_at DESC`)
 };
 
 // ============================================================

@@ -430,7 +430,7 @@
   }
 
   /* Buttons — keep hamburger/toggle transparent */
-  html[data-skin] button,
+  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm),
   html[data-skin] .account-action-btn,
   html[data-skin] .modal-action-btn,
   html[data-skin] .shop-buy-btn,
@@ -440,20 +440,20 @@
     border: none !important;
   }
 
-  html[data-skin] .sidebar-toggle-btn,
-  html[data-skin] .mobile-hamburger-btn {
+  html[data-skin] button.sidebar-toggle-btn,
+  html[data-skin] button.mobile-hamburger-btn {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     color: var(--text) !important;
   }
 
-  html[data-skin] .sidebar-toggle-btn:hover,
-  html[data-skin] .mobile-hamburger-btn:hover {
+  html[data-skin] button.sidebar-toggle-btn:hover,
+  html[data-skin] button.mobile-hamburger-btn:hover {
     background-color: transparent !important;
   }
 
-  html[data-skin] button:hover,
+  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm):hover,
   html[data-skin] .account-action-btn:hover,
   html[data-skin] .modal-action-btn:hover,
   html[data-skin] .shop-buy-btn:hover {
