@@ -5,7 +5,7 @@ const {
     fs: _fs, fsPromises, path,
     buildAllSummaryFromUsers,
     ALL_PATH,
-    readEvolvingDB, getActiveCoursesForAI, normalizeUsername,
+    getActiveCoursesForAI, normalizeUsername,
     db, stmts, buildUserObject, saveUserFromObject, readUsers, writeUsers, getUserByName,
     contributeToChallenge
 } = require('./shared');
@@ -92,16 +92,6 @@ router.post('/api/user/unlock-skin', express.json(), async (req, res) => {
     }
 });
 
-// --- GET : BDD \u00E9volutive ---
-router.get('/public/api/bdd.json', (req, res) => {
-    try {
-        const data = readEvolvingDB();
-        res.json(data);
-    } catch (e) {
-        console.error('Erreur GET /api/bdd :', e);
-        res.status(500).json({ success: false, message: 'Erreur serveur lors de la lecture de la BDD' });
-    }
-});
 
 // --- GET : all.json ---
 router.get('/api/all.json', (req, res) => {

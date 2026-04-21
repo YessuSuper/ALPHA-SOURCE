@@ -351,15 +351,6 @@ CREATE TABLE IF NOT EXISTS profile_pictures (
     url      TEXT NOT NULL
 );
 
--- BDD évolutive (IA)
-CREATE TABLE IF NOT EXISTS bdd_evolving (
-    id              INTEGER PRIMARY KEY CHECK (id = 1),
-    derniere_maj    TEXT,
-    bdd_text        TEXT,
-    historiques     TEXT DEFAULT '[]',
-    nouvelles_infos TEXT DEFAULT '[]'
-);
-
 -- Challenge hebdomadaire
 CREATE TABLE IF NOT EXISTS challenge (
     id           INTEGER PRIMARY KEY CHECK (id = 1),
@@ -397,12 +388,187 @@ CREATE TABLE IF NOT EXISTS fiches (
     updated_at  TEXT DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_fiches_username ON fiches(username);
+
+-- Cartes mentales
+CREATE TABLE IF NOT EXISTS cartes_mentales (
+    id          TEXT PRIMARY KEY,
+    username    TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    name        TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    matiere     TEXT DEFAULT '',
+    content     TEXT NOT NULL,
+    created_at  TEXT DEFAULT (datetime('now')),
+    updated_at  TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_cartes_mentales_username ON cartes_mentales(username);
+
+-- Conversations IA en attente de traitement horaire
+CREATE TABLE IF NOT EXISTS chat_pending (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    username    TEXT NOT NULL,
+    user_message TEXT NOT NULL,
+    ai_response TEXT NOT NULL,
+    mode        TEXT DEFAULT 'basique',
+    created_at  TEXT DEFAULT (datetime('now', 'localtime'))
+);
+
+-- Résumés horaires générés par l'IA
+CREATE TABLE IF NOT EXISTS knowledge_summaries (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    summary           TEXT NOT NULL,
+    keywords          TEXT NOT NULL DEFAULT '[]',
+    period_start      TEXT NOT NULL,
+    period_end        TEXT NOT NULL,
+    conversation_count INTEGER DEFAULT 0,
+    created_at        TEXT DEFAULT (datetime('now', 'localtime'))
+);
+CREATE INDEX IF NOT EXISTS idx_knowledge_summaries_keywords ON knowledge_summaries(keywords);
+CREATE INDEX IF NOT EXISTS idx_knowledge_summaries_period ON knowledge_summaries(period_start, period_end);
+
+-- Base de connaissances statique du site (pour l'IA)
+CREATE TABLE IF NOT EXISTS knowledge_base (
+    id         INTEGER PRIMARY KEY CHECK (id = 1),
+    content    TEXT NOT NULL DEFAULT '',
+    updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+);
 `);
 
 // Migrate: add columns that may not exist in older DBs
 try { db.exec("ALTER TABLE challenge ADD COLUMN title TEXT DEFAULT ''"); } catch {}
 try { db.exec("ALTER TABLE challenge ADD COLUMN description TEXT DEFAULT ''"); } catch {}
 try { db.exec("ALTER TABLE challenge ADD COLUMN rewarded INTEGER DEFAULT 0"); } catch {}
+
+// ============================================================
+// SEED: Base de connaissances du site (knowledge_base)
+// ============================================================
+{
+    const existing = db.prepare('SELECT content FROM knowledge_base WHERE id = 1').get();
+    if (!existing || !existing.content) {
+        const knowledgeContent = `=== GUIDE COMPLET D'ALPHASOURCE ===
+AlphaSource est un site communautaire et scolaire créé par et pour les élèves d'une classe de collège/lycée.
+Il se connecte à l'API EcoleDirecte pour récupérer les vraies données scolaires (notes, emploi du temps, devoirs).
+Le site fonctionne avec un système de points et de badges pour motiver la participation.
+
+--- PAGES ET NAVIGATION ---
+Le site a une barre latérale (sidebar) sur PC et une barre de navigation en haut sur mobile.
+Les pages disponibles sont : Accueil, Source AI (chat IA), Mes Cours, Communauté, Atelier, Messagerie, Cartable, Info, Mon Compte.
+
+--- PAGE ACCUEIL (home) ---
+C'est le tableau de bord principal. On y trouve :
+- Le classement des élèves (leaderboard) avec le top 3 et son propre rang
+- L'emploi du temps du jour avec navigation par flèches (données depuis EcoleDirecte)
+- Les prochains contrôles et devoirs en attente
+- Les notes récentes et la moyenne générale
+- Les messages non lus et les conversations récentes de la communauté
+- La flamme de streak (nombre de jours de connexion consécutifs)
+- Le challenge hebdomadaire avec sa barre de progression
+
+--- SOURCE AI (chat) ---
+C'est cette page, l'assistant IA. Deux modes disponibles :
+- Mode Basique : conversation libre, pas d'accès aux données scolaires ni au web
+- Mode Intelligent : accès aux notes, EDT, devoirs via EcoleDirecte + recherche web + vérification qualité
+L'IA peut recevoir des images (photos de devoirs, exercices...) et les analyser.
+Bouton "Nouvelle Discussion" pour repartir à zéro. L'historique est stocké dans la session du navigateur.
+
+--- MES COURS ---
+Les élèves peuvent déposer des cours (fichiers) pour la classe entière.
+Chaque cours passe par une phase d'évaluation de 24h où les élèves votent (Bon +1, Moyen +0.5, Mauvais -1).
+Le créateur du cours gagne entre 0 et 15 points selon la note obtenue.
+On peut filtrer par matière (Maths, Histoire, Français, Physique, Anglais, etc.) et chercher par titre ou ID.
+
+--- COMMUNAUTÉ ---
+C'est le cœur social du site. Interface en deux colonnes : liste des discussions à gauche, chat à droite.
+Types de discussions :
+- Groupes : salons permanents, coûtent 30 points à créer, avec membres, admin, photo
+- Sujets (Topics) : discussions temporaires (12h à 5 jours), coûtent 5 points
+- Fills : sous-discussions liées à un sujet, gratuits à créer
+- Messages Privés (MP) : conversations 1-à-1 entre deux élèves
+Fonctionnalités : envoi de fichiers (images, PDF, vidéos), réactions sur les messages (👍❤️😂😮😢🔥), réponses à des messages, menu contextuel.
+Profil utilisateur : en cliquant sur un nom, on voit sa bannière, ses badges, sa note de cours, son anniversaire, ses stats.
+Don de points : on peut donner des points à un autre élève depuis la communauté.
+
+--- ATELIER ---
+Outils IA pour les révisions :
+- Fiches de Révision : génère des fiches claires à partir de cours
+- Cartes Mentales : crée des cartes mentales sur un sujet
+- Présentations : construire des présentations
+- Simulateur Oral : s'entraîner pour les oraux
+Chaque outil utilise l'IA pour générer du contenu à partir des sujets de l'élève.
+
+--- MESSAGERIE ---
+Deux onglets : Messagerie interne et Messages EcoleDirecte (ED).
+Messagerie interne :
+- Composer un message : destinataires (avec autocomplétion), sujet, corps, pièces jointes
+- Option "Anonyme" : envoyer sans révéler son nom (coûte 3 points)
+- Bouton "Ajouter toute la classe" pour un envoi groupé
+- Système de Sauvetage : un élève peut lancer un appel à l'aide (5 points), l'IA identifie les élèves qui peuvent aider, le premier qui répond gagne 15 points
+
+--- CARTABLE (EcoleDirecte) ---
+Pour accéder à ses données scolaires, l'élève doit d'abord se connecter avec ses identifiants EcoleDirecte.
+Après connexion, on a accès à :
+- Emploi du temps complet avec navigation par jour/semaine
+- Notes par période avec moyenne générale, de classe, min et max
+- Détail par matière avec graphique d'évolution des notes
+- Simulateur de notes ("et si j'avais eu X ?")
+- Liste des devoirs avec statut (fait / à faire / en retard)
+
+--- MON COMPTE ---
+Page de profil personnel avec :
+- Photo de profil (cliquable pour la changer)
+- Badges actuels et obtenus
+- Note moyenne des cours déposés
+Sous-sections :
+- Modifier profil : changer bannière, choisir 3 badges à afficher, voir ses stats
+- Boutique : acheter des thèmes visuels (skins) et des fonds d'écran animés avec ses points (24-45 pts)
+  Plus de 20 thèmes : Verdure, Pastel, Cyberpunk, Forêt, Sable chaud, Minuit, Océan, Lavande...
+  Offres du jour : 3 articles aléatoires avec réduction de 10-21%
+- Inventaire : voir et équiper ses thèmes et fonds achetés
+- Badges : voir tous les badges disponibles, ceux obtenus, ceux actuels
+- Changer mot de passe, Infos du compte, Déconnexion
+
+--- PAGE INFO ---
+Affiche les statistiques de l'élève :
+- Points individuels et collectifs
+- Graphique d'évolution des points dans le temps (Chart.js)
+- Guide complet des points : comment en gagner (connexion +3, messages communauté +2, cours +5-15, etc.) et comment en dépenser
+
+--- SYSTÈME DE POINTS ---
+Gagner : connexion quotidienne +3, 20 messages communauté +2, 15 messages IA +3, top 1 classement +10, top 2 +5, top 3 +2, cours bien noté +5 à +15, sauvetage résolu +15, nouveau badge +5, challenge hebdomadaire +8 à +15
+Dépenser : créer un groupe -30, créer un sujet -5, sauvetage -5, message anonyme -3, achats boutique -24 à -45
+Perdre : 7 jours d'inactivité -15, faible activité dans un fill -5
+
+--- BADGES ---
+Plus de 35 badges recalculés automatiquement. Exemples :
+Délégué (nominé), Rang 1/2/3 (classement), Marathonien (30+ jours de streak), Collectionneur (10+ badges),
+Pilier (100+ messages communauté), Explorateur (toutes les pages visitées), Vestimentaire (6+ skins),
+Sauveur (5+ sauvetages), Ami (30+ MP), Sociable (50+ messages), Actif/Inactif, Nuevo (nouveau), Dépenseur (50+ pts dépensés)
+L'élève peut afficher 3 badges sur son profil social.
+
+--- CHALLENGES HEBDOMADAIRES ---
+Chaque semaine un défi collectif : Marathon (50 messages), Rush (30 connexions), Partage (3 cours), etc.
+Tous les contributeurs reçoivent la récompense (8-15 points) quand l'objectif est atteint.
+
+--- MODÉRATION ---
+- Avertissements : expirent après 7 jours. 2 en 3 jours OU 3 en 7 jours = ban automatique de 48h
+- Signalements : max 2 signaleurs différents/jour. 3 signalements en 2 jours = avertissement auto
+- Page de ban : affiche la durée restante et la raison
+
+--- FONDS ANIMÉS ---
+Le site propose plusieurs fonds d'écran animés : Vagues (défaut), Pixel-art, Aurore boréale, Papier froissé.
+Ils sont achetables dans la boutique et équipables depuis l'inventaire.
+
+--- CONSEILS POUR GUIDER LES ÉLÈVES ---
+Si un élève demande comment gagner des points → lui expliquer les méthodes (connexion, messages, cours, classement)
+Si un élève cherche ses notes/EDT → lui dire d'aller sur Cartable puis de se connecter avec EcoleDirecte
+Si un élève veut changer son apparence → Mon Compte > Boutique pour acheter, Inventaire pour équiper
+Si un élève veut parler à quelqu'un → Communauté > MP ou créer un groupe
+Si un élève veut réviser → Atelier avec les outils IA ou déposer/consulter des Cours
+Si un élève ne comprend pas un devoir → utiliser le mode Intelligent du chat qui accède aux données ED`;
+
+        db.prepare(`INSERT OR REPLACE INTO knowledge_base (id, content, updated_at) VALUES (1, ?, datetime('now', 'localtime'))`).run(knowledgeContent);
+        console.log('[DB] Base de connaissances du site initialisée.');
+    }
+}
 
 // ============================================================
 // PREPARED STATEMENTS
@@ -635,11 +801,6 @@ const stmts = {
     getProfilePic: db.prepare('SELECT url FROM profile_pictures WHERE username = ?'),
     getAllProfilePics: db.prepare('SELECT * FROM profile_pictures'),
 
-    // BDD évolutive
-    getBddEvolving: db.prepare('SELECT * FROM bdd_evolving WHERE id = 1'),
-    upsertBddEvolving: db.prepare(`INSERT OR REPLACE INTO bdd_evolving (id, derniere_maj, bdd_text, historiques, nouvelles_infos)
-        VALUES (1, @derniere_maj, @bdd_text, @historiques, @nouvelles_infos)`),
-
     // Challenge
     getChallenge: db.prepare('SELECT * FROM challenge WHERE id = 1'),
     upsertChallenge: db.prepare(`INSERT OR REPLACE INTO challenge (id, title, description, metric, target, current, reward, contributors, starts_at, ends_at, rewarded)
@@ -654,7 +815,35 @@ const stmts = {
     getFichesByUser: db.prepare('SELECT id, name, description, matiere, content, created_at, updated_at FROM fiches WHERE LOWER(username) = LOWER(?) ORDER BY updated_at DESC'),
     searchFichesByUser: db.prepare(`SELECT id, name, description, matiere, content, created_at, updated_at FROM fiches
         WHERE LOWER(username) = LOWER(?) AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)
-        ORDER BY updated_at DESC`)
+        ORDER BY updated_at DESC`),
+
+    // Cartes mentales
+    insertCarte: db.prepare(`INSERT INTO cartes_mentales (id, username, name, description, matiere, content, created_at, updated_at)
+        VALUES (@id, @username, @name, @description, @matiere, @content, @created_at, @updated_at)`),
+    updateCarte: db.prepare(`UPDATE cartes_mentales SET name=@name, description=@description, matiere=@matiere, content=@content, updated_at=@updated_at WHERE id=@id AND username=@username`),
+    deleteCarte: db.prepare('DELETE FROM cartes_mentales WHERE id = ? AND username = ?'),
+    getCarte: db.prepare('SELECT * FROM cartes_mentales WHERE id = ?'),
+    getCartesByUser: db.prepare('SELECT id, name, description, matiere, content, created_at, updated_at FROM cartes_mentales WHERE LOWER(username) = LOWER(?) ORDER BY updated_at DESC'),
+    searchCartesByUser: db.prepare(`SELECT id, name, description, matiere, content, created_at, updated_at FROM cartes_mentales
+        WHERE LOWER(username) = LOWER(?) AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)
+        ORDER BY updated_at DESC`),
+
+    // Chat pending (conversations en attente de résumé horaire)
+    insertChatPending: db.prepare(`INSERT INTO chat_pending (username, user_message, ai_response, mode) VALUES (?, ?, ?, ?)`),
+    getAllChatPending: db.prepare('SELECT * FROM chat_pending ORDER BY created_at ASC'),
+    clearChatPending: db.prepare('DELETE FROM chat_pending'),
+
+    // Knowledge summaries (résumés horaires)
+    insertKnowledgeSummary: db.prepare(`INSERT INTO knowledge_summaries (summary, keywords, period_start, period_end, conversation_count)
+        VALUES (@summary, @keywords, @period_start, @period_end, @conversation_count)`),
+    searchKnowledgeByKeyword: db.prepare(`SELECT * FROM knowledge_summaries WHERE keywords LIKE ? ORDER BY period_end DESC LIMIT 10`),
+    searchKnowledgeByPeriod: db.prepare(`SELECT * FROM knowledge_summaries WHERE period_end >= ? AND period_start <= ? ORDER BY period_end DESC LIMIT 20`),
+    getRecentKnowledge: db.prepare('SELECT * FROM knowledge_summaries ORDER BY period_end DESC LIMIT 5'),
+    getAllKnowledge: db.prepare('SELECT * FROM knowledge_summaries ORDER BY period_end DESC'),
+
+    // Knowledge base (base de connaissances statique)
+    getKnowledgeBase: db.prepare('SELECT content FROM knowledge_base WHERE id = 1'),
+    upsertKnowledgeBase: db.prepare(`INSERT OR REPLACE INTO knowledge_base (id, content, updated_at) VALUES (1, ?, datetime('now', 'localtime'))`)
 };
 
 // ============================================================

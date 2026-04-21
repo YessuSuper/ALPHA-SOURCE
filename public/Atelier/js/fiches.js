@@ -517,7 +517,14 @@
         btn.addEventListener('click', async () => {
             const action = btn.dataset.action;
 
-            if (action === 'print') return; // noop for now
+            if (action === 'print') {
+                closeDownloadPanel();
+                // Temporarily mark the card for print CSS targeting
+                card.classList.add('fiches-printing');
+                window.print();
+                card.classList.remove('fiches-printing');
+                return;
+            }
 
             if (action === 'alphasource') {
                 // Toggle save form visibility

@@ -50,13 +50,6 @@ function summarizeAllData(allData) {
     ].join('\n');
 }
 
-function summarizeBdd(bddData) {
-    if (!bddData) return 'BDD évolutive indisponible.';
-    if (bddData.core) return summarizeText(bddData.core, 800);
-    if (typeof bddData.bdd === 'string') return summarizeText(bddData.bdd, 800);
-    return 'BDD évolutive vide.';
-}
-
 function summarizeCours(coursData) {
     if (!Array.isArray(coursData) || coursData.length === 0) return 'Aucun cours actif.';
     const sample = coursData.slice(0, 6).map(c => `${c.title || 'Sans titre'} (${c.subject || 'n/c'})`).join('\n- ');
@@ -255,11 +248,7 @@ function displayFilePreview(file) {
 async function callGeminiAPI(history, currentMessage) {
     const chatWindow = document.getElementById('chat-window');
 
-    // Lire les contrôles visibles (desktop OU mobile)
-    const isMobile = window.innerWidth <= 768;
-    const creativity = document.getElementById(isMobile ? 'creativity-slider-mobile' : 'creativity-slider')?.value || '0.7';
-    const modeValue = document.getElementById(isMobile ? 'ai-mode-select-mobile' : 'ai-mode-select')?.value || 'basique';
-    const levelValue = document.getElementById(isMobile ? 'school-level-select-mobile' : 'school-level-select')?.value || '3eme';
+    const modeValue = document.getElementById('ai-mode-select')?.value || 'basique';
 
     const username = (window.currentUsername || localStorage.getItem('source_username') || "").trim();
     const wantsExtended = /\b(\/extended|extended|contexte complet|context complet|full context|full data)\b/i.test(currentMessage || '');
@@ -287,7 +276,6 @@ async function callGeminiAPI(history, currentMessage) {
     }
 
     // Contexte BDD (avec cache de 5 minutes)
-    let evolvingDBContent = "Base de donnée de tendance non disponible ou vide.";
     let fixedDBContent = "Base de donnée fixe (profs/EDT/classement) non disponible.";
     let coursDBContent = "Base de donnée des cours non disponible.";
     let extendedContext = '';
@@ -296,20 +284,17 @@ async function callGeminiAPI(history, currentMessage) {
     const cacheValid = _contextCache.data && (now - _contextCache.ts < CONTEXT_CACHE_TTL);
     
     if (cacheValid) {
-        evolvingDBContent = _contextCache.data.evolving;
         fixedDBContent = _contextCache.data.fixed;
         coursDBContent = _contextCache.data.cours;
     } else {
         try {
-            const [dbRes, allRes, coursRes] = await Promise.all([
-                fetch('/public/api/bdd.json'),
+            const [allRes, coursRes] = await Promise.all([
                 fetch('/api/all.json'),
                 fetch('/api/cours.json')
             ]);
-            if (dbRes.ok) { const d = await dbRes.json(); evolvingDBContent = summarizeBdd(d); }
             if (allRes.ok) { const d = await allRes.json(); fixedDBContent = summarizeAllData(d); }
             if (coursRes.ok) { const d = await coursRes.json(); coursDBContent = summarizeCours(d); }
-            _contextCache = { data: { evolving: evolvingDBContent, fixed: fixedDBContent, cours: coursDBContent }, ts: Date.now() };
+            _contextCache = { data: { fixed: fixedDBContent, cours: coursDBContent }, ts: Date.now() };
         } catch (error) {
             console.warn("Avertissement: Impossible de charger les BDD:", error);
         }
@@ -318,10 +303,9 @@ async function callGeminiAPI(history, currentMessage) {
     if (wantsExtended) {
         // Extended force un re-fetch complet
         try {
-            const [dbRes, allRes, coursRes] = await Promise.all([
-                fetch('/public/api/bdd.json'), fetch('/api/all.json'), fetch('/api/cours.json')
+            const [allRes, coursRes] = await Promise.all([
+                fetch('/api/all.json'), fetch('/api/cours.json')
             ]);
-            if (dbRes.ok) extendedContext += `\n[BDD évolutive étendue]\n${summarizeText(JSON.stringify(await dbRes.json(), null, 2), 5000)}`;
             if (allRes.ok) extendedContext += `\n[BDD fixe étendue]\n${summarizeText(JSON.stringify(await allRes.json(), null, 2), 5000)}`;
             if (coursRes.ok) extendedContext += `\n[Cours étendus]\n${summarizeText(JSON.stringify(await coursRes.json(), null, 2), 5000)}`;
         } catch (e) { console.warn('Extended context fetch failed:', e); }
@@ -331,15 +315,12 @@ async function callGeminiAPI(history, currentMessage) {
         ? "\nContexte étendu (demandé par l'utilisateur):\n" + extendedContext.trim()
         : '';
 
-    const finalSystemInstruction = `Tu es Source AI pour ${username || "l'élève"} (${levelValue}). Mode: ${modeValue}. Parle français simple, concis, adapté ado.
+    const finalSystemInstruction = `Tu es Source AI pour ${username || "l'élève"}. Mode: ${modeValue}. Parle français simple, concis, adapté ado.
 Tu aides pour réviser, apprendre, prévoir les contrôles (via traits profs) et faire les devoirs au niveau de l'élève.
 Utilise UNIQUEMENT le contexte ci-dessous. Si une info manque (profil prof, détail élève, emploi du temps), pose d'abord une question courte avant de deviner ou demander l'extended.
 
 Contexte core:
 ${fixedDBContent}
-
-Tendance récente (résumé):
-${evolvingDBContent}
 
 Cours actifs déposés par les eleves (résumé):
 ${coursDBContent}
@@ -378,7 +359,7 @@ ${extendedBlock}
                     username,
                     history: finalHistory,
                     currentMessage: currentMessage,
-                    creativity, modeValue, levelValue,
+                    modeValue,
                     base64File,
                     mimeType: fileMimeType,
                     systemInstruction: finalSystemInstruction
@@ -467,19 +448,6 @@ window.initChatPage = function() {
     const sendButton = document.getElementById('send-button-fixed');
     if (!chatForm || !userInput || !chatWindow || !sendButton || !fileUploadInput) return;
 
-    // Gestion du warning pour le mode devoirs
-    const modeSelect = document.getElementById('ai-mode-select');
-    const modeWarning = document.getElementById('mode-warning');
-    if (modeSelect && modeWarning) {
-        modeSelect.addEventListener('change', () => {
-            if (modeSelect.value === 'devoirs') {
-                modeWarning.style.display = 'block';
-            } else {
-                modeWarning.style.display = 'none';
-            }
-        });
-    }
-
     chatForm.onsubmit = e => e.preventDefault();
 
     sendButton.addEventListener('click', async e => {
@@ -523,11 +491,6 @@ window.initChatPage = function() {
         // Aucune historique sauvegardée, afficher le message d'accueil
         window.appendMessage('Hey ! Je suis SOURCE AI. Que puis-je faire pour toi ?', 'kirai');
     }
-
-    // Init/refresh mobile dropdown after page injection
-    if (typeof initMobileParamsDropdown === 'function') {
-        try { initMobileParamsDropdown(); } catch (e) { console.error(e); }
-    }
 };
 
 // 🚨 AJOUT D'UN MESSAGE DANS LA FENÊTRE
@@ -568,118 +531,4 @@ window.appendMessage = function(message, sender, optionalDataURL = null) {
     chatWindow.scrollTop = chatWindow.scrollHeight;
 };
 
-// 🚨 MOBILE PARAMS DROPDOWN MENU
-function initMobileParamsDropdown() {
-    const toggleBtn = document.getElementById('params-toggle-btn');
-    const mobileContent = document.getElementById('mobile-params-content');
-    
-    if (!toggleBtn || !mobileContent) return;
-
-    // Prevent binding multiple times if init runs more than once
-    if (toggleBtn.dataset.bound === '1') return;
-    toggleBtn.dataset.bound = '1';
-    
-    toggleBtn.addEventListener('click', () => {
-        const isBtnOpen = toggleBtn.classList.toggle('open');
-        const isOpen = mobileContent.classList.toggle('open');
-        
-        // Fallback simple pour display block/none
-        if (isOpen) {
-            mobileContent.style.display = 'block';
-        } else {
-            mobileContent.style.display = 'none';
-        }
-    });
-    
-    // Sync desktop sliders with mobile sliders
-    const creativitySlider = document.getElementById('creativity-slider');
-    const creativityMobileSlider = document.getElementById('creativity-slider-mobile');
-    const creativityValue = document.getElementById('creativity-value');
-    const creativityValueMobile = document.getElementById('creativity-value-mobile');
-    
-
-    const aiModeSelect = document.getElementById('ai-mode-select');
-    const aiModeMobileSelect = document.getElementById('ai-mode-select-mobile');
-    const modeWarning = document.getElementById('mode-warning');
-    const modeWarningMobile = document.getElementById('mode-warning-mobile');
-    
-    const levelSelect = document.getElementById('school-level-select');
-    const levelMobileSelect = document.getElementById('school-level-select-mobile');
-    
-    // Check initial mode warning state
-    const checkModeWarning = () => {
-        const currentMode = aiModeSelect ? aiModeSelect.value : 'basique';
-        if (currentMode === 'devoirs') {
-            if (modeWarning) modeWarning.style.display = 'block';
-            if (modeWarningMobile) modeWarningMobile.style.display = 'block';
-        } else {
-            if (modeWarning) modeWarning.style.display = 'none';
-            if (modeWarningMobile) modeWarningMobile.style.display = 'none';
-        }
-    };
-    checkModeWarning();
-    
-    // Creativity slider sync
-    if (creativitySlider && creativityMobileSlider) {
-        creativitySlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            creativityMobileSlider.value = value;
-            if (creativityValue) creativityValue.textContent = value;
-            if (creativityValueMobile) creativityValueMobile.textContent = value;
-        });
-        
-        creativityMobileSlider.addEventListener('input', (e) => {
-            const value = e.target.value;
-            creativitySlider.value = value;
-            if (creativityValue) creativityValue.textContent = value;
-            if (creativityValueMobile) creativityValueMobile.textContent = value;
-        });
-    }
-
-    // AI Mode select sync
-    if (aiModeSelect && aiModeMobileSelect) {
-        aiModeSelect.addEventListener('change', (e) => {
-            aiModeMobileSelect.value = e.target.value;
-            if (e.target.value === 'devoirs') {
-                if (modeWarning) modeWarning.style.display = 'block';
-                if (modeWarningMobile) modeWarningMobile.style.display = 'block';
-            } else {
-                if (modeWarning) modeWarning.style.display = 'none';
-                if (modeWarningMobile) modeWarningMobile.style.display = 'none';
-            }
-        });
-        
-        aiModeMobileSelect.addEventListener('change', (e) => {
-            aiModeSelect.value = e.target.value;
-            if (e.target.value === 'devoirs') {
-                if (modeWarning) modeWarning.style.display = 'block';
-                if (modeWarningMobile) modeWarningMobile.style.display = 'block';
-            } else {
-                if (modeWarning) modeWarning.style.display = 'none';
-                if (modeWarningMobile) modeWarningMobile.style.display = 'none';
-            }
-        });
-    }
-    
-    // School level select sync
-    if (levelSelect && levelMobileSelect) {
-        levelSelect.addEventListener('change', (e) => {
-            levelMobileSelect.value = e.target.value;
-        });
-        
-        levelMobileSelect.addEventListener('change', (e) => {
-            levelSelect.value = e.target.value;
-        });
-    }
-}
-
-// Initialize mobile params dropdown when page loads
-document.addEventListener('DOMContentLoaded', initMobileParamsDropdown);
-
-// Also try to initialize immediately in case DOM is already loaded
-if (document.readyState === 'loading') {
-    // DOM not yet loaded, wait for DOMContentLoaded
-} else {
-    // DOM already loaded, initialize immediately
-    initMobileParamsDropdown();
-}
+// End of chat.js

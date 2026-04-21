@@ -16,7 +16,6 @@ const { db, stmts, buildUserObject, saveUserFromObject, readUsers, writeUsers,
 const ROOT_DIR = path.join(__dirname, '..');
 const PUBLIC_API_DIR = path.join(ROOT_DIR, 'public', 'api');
 const USERS_PATH = path.join(PUBLIC_API_DIR, 'users.json'); // legacy reference
-const BDD_FILE_PATH = path.join(PUBLIC_API_DIR, 'bdd.json'); // legacy reference
 const MDPED_PATH = path.join(PUBLIC_API_DIR, 'mdped.json');
 const ALL_PATH = path.join(PUBLIC_API_DIR, 'all.json'); // legacy reference
 const IMAGES_DIR = path.join(ROOT_DIR, 'images');
@@ -524,63 +523,6 @@ function deleteCourseFromJSON(courseId) {
 }
 
 // ============================================================
-// BDD Ã‰VOLUTIVE
-// ============================================================
-function readEvolvingDB() {
-    try {
-        const row = stmts.getBddEvolving.get();
-        if (!row) return { bdd: "Base de donnée vide", historiques: [] };
-        return {
-            derniere_maj: row.derniere_maj,
-            bdd: row.bdd_text || '',
-            historiques: JSON.parse(row.historiques || '[]'),
-            nouvelles_infos: JSON.parse(row.nouvelles_infos || '[]')
-        };
-    } catch (e) {
-        return { bdd: "Base de donnée vide (Erreur)", historiques: [] };
-    }
-}
-
-function getEvolvingDBContent() {
-    try {
-        const row = stmts.getBddEvolving.get();
-        if (!row) return null;
-        return JSON.stringify({
-            derniere_maj: row.derniere_maj,
-            bdd: row.bdd_text || '',
-            historiques: JSON.parse(row.historiques || '[]'),
-            nouvelles_infos: JSON.parse(row.nouvelles_infos || '[]')
-        }, null, 2);
-    } catch (e) {
-        return null;
-    }
-}
-
-function updateEvolvingDBWithNewData(username, newJsonText) {
-    try {
-        const cleanedJsonText = newJsonText.replace(/```json|```/g, '').trim();
-        const parsedData = JSON.parse(cleanedJsonText);
-        parsedData.derniere_maj = `Date exacte: ${new Date().toLocaleString('fr-FR')}, Utilisateur: ${username}`;
-        if (Array.isArray(parsedData.historiques)) {
-            parsedData.historiques = parsedData.historiques.map(entry => ({ ...entry, utilisateur: clampText(entry?.utilisateur || '', 220), ia: clampText(entry?.ia || '', 520) })).slice(-40);
-        }
-        if (Array.isArray(parsedData.nouvelles_infos)) {
-            parsedData.nouvelles_infos = parsedData.nouvelles_infos.map(info => clampText(typeof info === 'string' ? info : JSON.stringify(info), 220)).slice(-40);
-        }
-        stmts.upsertBddEvolving.run({
-            derniere_maj: parsedData.derniere_maj,
-            bdd_text: parsedData.bdd || '',
-            historiques: JSON.stringify(parsedData.historiques || []),
-            nouvelles_infos: JSON.stringify(parsedData.nouvelles_infos || [])
-        });
-        return true;
-    } catch (e) {
-        console.error("Erreur mise à jour BDD évolutive:", e);
-        return false;
-    }
-}
-
-// ============================================================
 // SÃ‰CURITÃ‰ / BANS
 // ============================================================
 function checkAndApplyBan(user, now) {
@@ -616,15 +558,7 @@ function ensureFillJoinRequestsFile() {
 }
 
 function ensureBddFile() {
-    const row = stmts.getBddEvolving.get();
-    if (!row) {
-        stmts.upsertBddEvolving.run({
-            derniere_maj: new Date().toISOString(),
-            bdd_text: "Base de donnée évolutive de l'IA.",
-            historiques: '[]',
-            nouvelles_infos: '[]'
-        });
-    }
+    // No-op: ancien système BDD évolutive supprimé, remplacé par knowledge_base dans db.js
 }
 
 function ensureSkinFieldsOnAllUsers() {
@@ -690,7 +624,7 @@ function contributeToChallenge(username, metric, amount = 1) {
 module.exports = {
     // Chemins
     ROOT_DIR, PUBLIC_API_DIR, MESSAGES_PATH, RESCUES_PATH, FILL_JOIN_REQUESTS_PATH,
-    COURS_FILE_PATH, ALL_PATH, USERS_PATH, BDD_FILE_PATH, MDPED_PATH,
+    COURS_FILE_PATH, ALL_PATH, USERS_PATH, MDPED_PATH,
     IMAGES_DIR, UPLOADS_DIR, DATA_DIR,
     // Classe
     CLASS_NAMES,
@@ -711,8 +645,6 @@ module.exports = {
     getCourseEvalStartMs, ensureCourseEvalFields, userHasVoted, computeMajorityVoteKey,
     computeStarsFromCourseServer, getVoteKeyFromNumeric, getUploaderRewardPointsForStars,
     finalizeCourseIfNeeded, getActiveCoursesForAI, getFilteredActiveCourses, deleteCourseFromJSON,
-    // BDD
-    readEvolvingDB, getEvolvingDBContent, updateEvolvingDBWithNewData,
     // Sécurité
     checkAndApplyBan,
     // Badges

@@ -109,6 +109,7 @@ app.use(require('./routes/cours'));
 app.use(require('./routes/chat'));
 app.use(require('./routes/shop'));
 app.use(require('./routes/fiches'));
+app.use(require('./routes/cartes-mentales'));
 app.use(require('./routes/ed-server'));
 
 // ── Récompense quotidienne : +3pts si cours_stars_avg > 3.5 ──

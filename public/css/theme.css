@@ -430,7 +430,7 @@
   }
 
   /* Buttons — keep hamburger/toggle transparent */
-  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm),
+  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm):not(.fai-add-btn):not(.fai-generate-btn):not(.fai-source-btn):not(.fai-source-close):not(.fai-img-remove):not(.cm-btn):not(.cm-tb-btn):not(.cm-dd-item):not(.cm-bcolor-dot):not(.cm-add-bubble-btn):not(.cm-delete-btn):not(.cm-download-btn):not(.cm-dl-close):not(.cm-dl-action):not(.cm-save-confirm):not(.cm-list-card-btn):not(.cmai-add-btn):not(.cmai-generate-btn):not(.cmai-source-btn):not(.cmai-source-close):not(.cmai-img-remove),
   html[data-skin] .account-action-btn,
   html[data-skin] .modal-action-btn,
   html[data-skin] .shop-buy-btn,
@@ -453,7 +453,7 @@
     background-color: transparent !important;
   }
 
-  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm):hover,
+  html[data-skin] button:not(.fiches-btn):not(.fe-btn):not(.fe-dd-item):not(.asub-back):not(.fl-card-btn):not(.fe-dl-action):not(.fe-save-confirm):not(.fai-add-btn):not(.fai-generate-btn):not(.fai-source-btn):not(.fai-source-close):not(.fai-img-remove):not(.cm-btn):not(.cm-tb-btn):not(.cm-dd-item):not(.cm-bcolor-dot):not(.cm-add-bubble-btn):not(.cm-delete-btn):not(.cm-download-btn):not(.cm-dl-close):not(.cm-dl-action):not(.cm-save-confirm):not(.cm-list-card-btn):not(.cmai-add-btn):not(.cmai-generate-btn):not(.cmai-source-btn):not(.cmai-source-close):not(.cmai-img-remove):hover,
   html[data-skin] .account-action-btn:hover,
   html[data-skin] .modal-action-btn:hover,
   html[data-skin] .shop-buy-btn:hover {
